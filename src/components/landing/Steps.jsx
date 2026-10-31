@@ -1,6 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
+import TaskRow from '@/components/jobs/TaskRow';
+import { CARD } from '@/components/jobs/taskStyles';
 
 const STEPS = [
   {
@@ -21,54 +23,49 @@ const STEPS = [
   },
 ];
 
+const CARD_COPY = [
+  {
+    label: 'If they keep ignoring it',
+    body: 'The schedule deadline passes with no answer, so the unpaid claim is escalated to a notice of intention: the amount, the work it covers and the date it was served, drafted and ready to send. The deadline is then tracked against the builder, not against you.',
+  },
+  {
+    label: 'If they argue or pay short',
+    body: 'A disputed or short payment schedule moves to adjudication. The scope lines, the photos and the amount are already assembled in one document, with the apply-by date tracked so the right to adjudicate is not lost weeks after the work was finished.',
+  },
+];
+
 export default function Steps() {
   return (
-    <section id="how-it-works" className="scroll-mt-20 border-b border-border bg-secondary/40">
-      <div className="mx-auto w-full max-w-5xl px-4 py-14 sm:px-6 sm:py-18">
-        <p className="num text-[11px] uppercase tracking-[0.18em] text-accent">How it works</p>
-        <h2 className="mt-3 max-w-2xl font-heading text-2xl font-semibold tracking-tight sm:text-3xl">
+    <section id="how-it-works" className="scroll-mt-20 border-t border-[#DED6C7] bg-[#FAF7F1]">
+      <div className="mx-auto w-full max-w-5xl px-4 pt-14 sm:px-6 sm:pt-16 md:pl-[140px]">
+        <p className="num text-[10px] uppercase tracking-[0.16em] text-[#9A5B2A]">How it works</p>
+        <h2 className="mt-3 max-w-2xl text-[26px] font-extrabold leading-[1.12] tracking-[-0.015em] sm:text-[34px]">
           Four steps from site progress to a served claim
         </h2>
 
-        <ol className="mt-10 grid gap-px overflow-hidden rounded-[3px] border border-border bg-border sm:grid-cols-2">
-          {STEPS.map((step, index) => (
-            <li key={step.title} className="bg-card p-5">
-              <span className="flex h-7 w-7 items-center justify-center rounded-[3px] bg-primary font-mono text-[11px] text-primary-foreground">
-                {index + 1}
-              </span>
-              <h3 className="mt-3 font-heading text-[16px] font-semibold tracking-tight">{step.title}</h3>
-              <p className="mt-2 text-[13px] leading-relaxed text-muted-foreground">{step.body}</p>
-            </li>
-          ))}
-        </ol>
+        {STEPS.map((step, index) => (
+          <TaskRow key={step.title} number={String(index + 1)} title={step.title} delay={0.1 + index * 0.08}>
+            <p className="max-w-2xl text-[14px] leading-[1.6] text-[#6b6457]">{step.body}</p>
+          </TaskRow>
+        ))}
 
-        <div className="mt-6 grid gap-px overflow-hidden rounded-[3px] border border-border bg-border sm:grid-cols-2">
-          <div className="bg-card p-5">
-            <p className="num text-[10px] uppercase tracking-[0.14em] text-accent">If they keep ignoring it</p>
-            <p className="mt-2 text-[13px] leading-relaxed text-muted-foreground">
-              The schedule deadline passes with no answer, so the unpaid claim is escalated to a notice of
-              intention: the amount, the work it covers and the date it was served, drafted and ready to send.
-              The deadline is then tracked against the builder, not against you.
-            </p>
-          </div>
-          <div className="bg-card p-5">
-            <p className="num text-[10px] uppercase tracking-[0.14em] text-accent">If they argue or pay short</p>
-            <p className="mt-2 text-[13px] leading-relaxed text-muted-foreground">
-              A disputed or short payment schedule moves to adjudication. The scope lines, the photos and the
-              amount are already assembled in one document, with the apply-by date tracked so the right to
-              adjudicate is not lost weeks after the work was finished.
-            </p>
-          </div>
+        <div className="mt-8 grid gap-4 sm:grid-cols-2">
+          {CARD_COPY.map((card) => (
+            <div key={card.label} className={`${CARD} p-5`}>
+              <p className="num text-[10px] uppercase tracking-[0.14em] text-[#9A5B2A]">{card.label}</p>
+              <p className="mt-2 text-[13px] leading-[1.6] text-[#6b6457]">{card.body}</p>
+            </div>
+          ))}
         </div>
 
-        <p className="mt-6 max-w-2xl text-[12px] leading-relaxed text-muted-foreground">
+        <p className="mt-6 max-w-2xl text-[12px] leading-[1.6] text-[#6b6457]">
           Builders never need an account. They receive the claim and the notices by email, and the record of
           when each one was served stays with the job.
         </p>
 
         <Link
           to="/faq"
-          className="mt-8 inline-flex items-center gap-2 text-[13px] font-medium text-accent transition-opacity hover:opacity-80"
+          className="mt-8 inline-flex items-center gap-2 pb-14 text-[13px] font-semibold text-[#9A5B2A] transition-colors duration-200 hover:text-[#1B1A17] hover:underline"
         >
           Deadlines, retention and fees, answered <ArrowRight className="h-3.5 w-3.5" />
         </Link>

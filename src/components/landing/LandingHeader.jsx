@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 
 export default function LandingHeader({ cta, signIn, showAnchor = true }) {
   return (
-    <header className="sticky top-0 z-30 border-b border-border bg-background/85 backdrop-blur">
+    <header className="sticky top-0 z-30 border-b border-[#DED6C7] bg-[#FAF7F1]/90 backdrop-blur">
       <div className="mx-auto flex w-full max-w-5xl items-center gap-4 px-4 py-3 sm:px-6">
         <Link to="/" className="flex items-center gap-2.5">
           <span className="flex h-8 w-8 items-center justify-center rounded-[3px] bg-primary font-mono text-[11px] font-semibold tracking-tight text-primary-foreground">

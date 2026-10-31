@@ -123,9 +123,19 @@ export default function ClaimDetail() {
 
   return (
     <div className="space-y-6">
-      <Link to="/claims" className="inline-flex items-center gap-1.5 text-[12px] text-muted-foreground hover:text-foreground">
-        <ArrowLeft className="h-3.5 w-3.5" /> All claims
-      </Link>
+      <div className="flex flex-wrap items-center gap-3">
+        <Link to="/claims" className="inline-flex items-center gap-1.5 text-[12px] text-muted-foreground transition-colors hover:text-foreground">
+          <ArrowLeft className="h-3.5 w-3.5" /> All claims
+        </Link>
+        {claim.job_id ? (
+          <Link
+            to={`/jobs/${claim.job_id}`}
+            className="inline-flex items-center gap-1.5 rounded-[4px] border border-[#DED6C7] bg-white px-3 py-1.5 text-[12px] font-semibold text-[#1B1A17] transition-colors duration-200 hover:border-[#9A5B2A] hover:text-[#9A5B2A]"
+          >
+            <ArrowLeft className="h-3.5 w-3.5" /> Back to the job
+          </Link>
+        ) : null}
+      </div>
 
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>

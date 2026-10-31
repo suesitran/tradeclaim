@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 
 export default function LandingFooter() {
   return (
-    <footer className="border-t border-border">
+    <footer className="border-t border-[#DED6C7] bg-[#FAF7F1]">
       <div className="mx-auto flex w-full max-w-5xl flex-col gap-4 px-4 py-8 sm:flex-row sm:items-center sm:justify-between sm:px-6">
         <div className="flex items-center gap-2.5">
           <span className="flex h-7 w-7 items-center justify-center rounded-[3px] bg-primary font-mono text-[10px] font-semibold text-primary-foreground">
