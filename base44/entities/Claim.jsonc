@@ -1,0 +1,199 @@
+{
+  "name": "Claim",
+  "type": "object",
+  "properties": {
+    "job_id": {
+      "type": "string"
+    },
+    "claim_number": {
+      "type": "number"
+    },
+    "period_from": {
+      "type": "string",
+      "format": "date"
+    },
+    "period_to": {
+      "type": "string",
+      "format": "date"
+    },
+    "lines": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "scope_line_id": {
+            "type": "string"
+          },
+          "area": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "percent_this_claim": {
+            "type": "number"
+          },
+          "amount_this_claim": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    "variations_included": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "variation_id": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    "amount_claimed_ex_gst": {
+      "type": "number"
+    },
+    "gst": {
+      "type": "number"
+    },
+    "amount_claimed_inc_gst": {
+      "type": "number"
+    },
+    "previously_paid": {
+      "type": "number"
+    },
+    "served_at": {
+      "type": "string",
+      "format": "date"
+    },
+    "schedule_due_at": {
+      "type": "string",
+      "format": "date"
+    },
+    "schedule_received_at": {
+      "type": "string",
+      "format": "date"
+    },
+    "scheduled_amount": {
+      "type": "number"
+    },
+    "schedule_reasons": {
+      "type": "string"
+    },
+    "apply_by": {
+      "type": "string",
+      "format": "date"
+    },
+    "paid_at": {
+      "type": "string",
+      "format": "date"
+    },
+    "paid_amount": {
+      "type": "number"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "served",
+        "scheduled_in_full",
+        "scheduled_short",
+        "ignored",
+        "adjudication_ready",
+        "paid"
+      ],
+      "default": "draft"
+    },
+    "escalation_stage": {
+      "type": "string"
+    },
+    "escalated": {
+      "type": "boolean",
+      "default": false
+    },
+    "recovered_amount": {
+      "type": "number"
+    },
+    "fee_amount": {
+      "type": "number"
+    },
+    "claimant_name": {
+      "type": "string"
+    },
+    "claimant_email": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "job_id",
+    "claim_number",
+    "status"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "user"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "user"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "user"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "user"
+          }
+        }
+      ]
+    }
+  }
+}

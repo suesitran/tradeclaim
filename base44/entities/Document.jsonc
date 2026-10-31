@@ -1,0 +1,101 @@
+{
+  "name": "Document",
+  "type": "object",
+  "properties": {
+    "job_id": {
+      "type": "string"
+    },
+    "claim_id": {
+      "type": "string"
+    },
+    "variation_id": {
+      "type": "string"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "payment_claim",
+        "variation_notice",
+        "notice_of_intention",
+        "adjudication_preview"
+      ]
+    },
+    "title": {
+      "type": "string"
+    },
+    "file_uri": {
+      "type": "string"
+    },
+    "generated_at": {
+      "type": "string"
+    },
+    "emailed_to": {
+      "type": "string"
+    },
+    "emailed_at": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "type",
+    "file_uri"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "user"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "user"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "user"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "user"
+          }
+        }
+      ]
+    }
+  }
+}

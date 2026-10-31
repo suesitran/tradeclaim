@@ -1,12 +1,24 @@
 import { Toaster } from "@/components/ui/toaster"
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import ScrollToTop from './components/ScrollToTop';
-// Add page imports here
+import ProtectedRoute from '@/components/ProtectedRoute';
+import AppLayout from '@/components/AppLayout';
+import Login from '@/pages/Login';
+import Register from '@/pages/Register';
+import ForgotPassword from '@/pages/ForgotPassword';
+import ResetPassword from '@/pages/ResetPassword';
+import Jobs from '@/pages/Jobs';
+import JobDetail from '@/pages/JobDetail';
+import Capture from '@/pages/Capture';
+import VariationNew from '@/pages/VariationNew';
+import Claims from '@/pages/Claims';
+import ClaimDetail from '@/pages/ClaimDetail';
+import ImportQuote from '@/pages/ImportQuote';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -34,7 +46,21 @@ const AuthenticatedApp = () => {
   // Render the main app
   return (
     <Routes>
-      {/* Add your page Route elements here */}
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
+      <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
+        <Route element={<AppLayout />}>
+          <Route path="/" element={<Jobs />} />
+          <Route path="/jobs/:jobId" element={<JobDetail />} />
+          <Route path="/jobs/:jobId/capture" element={<Capture />} />
+          <Route path="/jobs/:jobId/variation" element={<VariationNew />} />
+          <Route path="/claims" element={<Claims />} />
+          <Route path="/claims/:claimId" element={<ClaimDetail />} />
+          <Route path="/import" element={<ImportQuote />} />
+        </Route>
+      </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );

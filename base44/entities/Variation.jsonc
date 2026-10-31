@@ -1,0 +1,105 @@
+{
+  "name": "Variation",
+  "type": "object",
+  "properties": {
+    "job_id": {
+      "type": "string"
+    },
+    "instructed_by": {
+      "type": "string"
+    },
+    "instructed_at": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "photo_uri": {
+      "type": "string"
+    },
+    "estimated_amount": {
+      "type": "number"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "sent",
+        "approved",
+        "disputed"
+      ],
+      "default": "sent"
+    },
+    "sent_at": {
+      "type": "string"
+    },
+    "document_id": {
+      "type": "string"
+    },
+    "email_status": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "job_id",
+    "instructed_by",
+    "description"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "user"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "user"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "user"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "user"
+          }
+        }
+      ]
+    }
+  }
+}

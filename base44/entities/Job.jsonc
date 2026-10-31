@@ -1,0 +1,106 @@
+{
+  "name": "Job",
+  "type": "object",
+  "properties": {
+    "job_number": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "site_address": {
+      "type": "string"
+    },
+    "builder_name": {
+      "type": "string"
+    },
+    "builder_email": {
+      "type": "string"
+    },
+    "contract_sum_ex_gst": {
+      "type": "number"
+    },
+    "claim_period": {
+      "type": "string",
+      "enum": [
+        "monthly"
+      ],
+      "default": "monthly"
+    },
+    "retention_percent": {
+      "type": "number",
+      "default": 5
+    },
+    "dlp_end_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "next_claim_date": {
+      "type": "string",
+      "format": "date"
+    }
+  },
+  "required": [
+    "name",
+    "builder_name",
+    "builder_email"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "user"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "user"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "user"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "user"
+          }
+        }
+      ]
+    }
+  }
+}
