@@ -11,16 +11,10 @@ import ClaimMoneyCard from '@/components/claims/ClaimMoneyCard';
 import ScheduleDialog from '@/components/claims/ScheduleDialog';
 import PaymentDialog from '@/components/claims/PaymentDialog';
 import ServeDialog from '@/components/claims/ServeDialog';
+import DocumentList from '@/components/claims/DocumentList';
 import useHolidays from '@/hooks/useHolidays';
 import { effectiveStatus } from '@/lib/claims';
 import { formatAud, formatDate } from '@/lib/format';
-
-const DOC_LABELS = {
-  payment_claim: 'Payment claim',
-  variation_notice: 'Variation notice',
-  notice_of_intention: 'Notice of intention',
-  adjudication_preview: 'Adjudication preview',
-};
 
 export default function ClaimDetail() {
   const { claimId } = useParams();
@@ -68,14 +62,26 @@ export default function ClaimDetail() {
 
   const generate = async (type, extra = {}) => {
     setBusy(type);
+    // Claim the tab on the tap itself: iPad Safari blocks a window opened after the await below.
+    const pdfTab = window.open('', '_blank');
     try {
       const response = await base44.functions.invoke('generateClaimDocument', { claim_id: claim.id, type, ...extra });
       const data = response.data || {};
       if (data.error) {
+        if (pdfTab) pdfTab.close();
         toast({ title: 'The document could not be generated', description: data.error, variant: 'destructive' });
         return;
       }
-      if (data.signed_url) window.open(data.signed_url, '_blank', 'noopener');
+      if (data.signed_url) {
+        if (pdfTab) {
+          pdfTab.opener = null;
+          pdfTab.location.href = data.signed_url;
+        } else {
+          window.open(data.signed_url, '_blank', 'noopener');
+        }
+      } else if (pdfTab) {
+        pdfTab.close();
+      }
       if (extra.email) {
         toast({
           title: data.email_sent ? 'Emailed to the builder' : 'PDF saved, email not sent',
@@ -87,18 +93,10 @@ export default function ClaimDetail() {
       }
       await load();
     } catch (error) {
+      if (pdfTab) pdfTab.close();
       toast({ title: 'The document could not be generated', description: error.message, variant: 'destructive' });
     } finally {
       setBusy('');
-    }
-  };
-
-  const openDocument = async (fileUri) => {
-    try {
-      const result = await base44.integrations.Core.CreateFileSignedUrl({ file_uri: fileUri, expires_in: 600 });
-      if (result && result.signed_url) window.open(result.signed_url, '_blank', 'noopener');
-    } catch (error) {
-      toast({ title: 'The PDF could not be opened', description: error.message, variant: 'destructive' });
     }
   };
 
@@ -251,29 +249,7 @@ export default function ClaimDetail() {
             <div className="border-b border-border px-5 py-3">
               <h2 className="font-heading text-sm font-semibold">Documents</h2>
             </div>
-            {documents.length ? (
-              <div className="divide-y divide-border">
-                {documents.map((document) => (
-                  <button
-                    key={document.id}
-                    type="button"
-                    onClick={() => openDocument(document.file_uri)}
-                    className="flex w-full items-center justify-between gap-3 px-5 py-3 text-left transition-colors hover:bg-secondary/60"
-                  >
-                    <div>
-                      <p className="text-[12px]">{DOC_LABELS[document.type] || document.type}</p>
-                      <p className="text-[10px] text-muted-foreground">
-                        {formatDate(String(document.generated_at || '').slice(0, 10))}
-                        {document.emailed_to ? '  |  Emailed' : ''}
-                      </p>
-                    </div>
-                    <FileText className="h-4 w-4 text-muted-foreground" />
-                  </button>
-                ))}
-              </div>
-            ) : (
-              <p className="px-5 py-5 text-[12px] text-muted-foreground">No documents generated yet.</p>
-            )}
+            <DocumentList documents={documents} />
             <p className="border-t border-border px-5 py-2.5 text-[10px] text-muted-foreground">Every document is footed: Draft, for lawyer review.</p>
           </section>
         </div>
