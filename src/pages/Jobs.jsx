@@ -1,17 +1,20 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { ArrowRight, Plus } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { ArrowRight, Loader2, Plus, Sparkles } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import JobCard from '@/components/jobs/JobCard';
-import HowItWorks from '@/components/jobs/HowItWorks';
+import ShepherdStrip from '@/components/jobs/ShepherdStrip';
 import { effectiveStatus } from '@/lib/claims';
+import { createDemoJob } from '@/lib/demoJob';
 import { formatAud } from '@/lib/format';
 
 export default function Jobs() {
+  const navigate = useNavigate();
   const [jobs, setJobs] = useState([]);
   const [claims, setClaims] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [demoLoading, setDemoLoading] = useState(false);
 
   useEffect(() => {
     let alive = true;
@@ -31,6 +34,16 @@ export default function Jobs() {
       alive = false;
     };
   }, []);
+
+  const startDemo = async () => {
+    setDemoLoading(true);
+    try {
+      const job = await createDemoJob();
+      navigate(`/jobs/${job.id}`);
+    } finally {
+      setDemoLoading(false);
+    }
+  };
 
   const attention = claims.filter((claim) => ['ignored', 'scheduled_short', 'draft'].includes(effectiveStatus(claim)));
   const outstanding = claims
@@ -54,6 +67,8 @@ export default function Jobs() {
         </Button>
       </div>
 
+      <ShepherdStrip />
+
       <div className="grid gap-3 sm:grid-cols-3">
         <div className="rounded-[4px] border border-border bg-card px-4 py-3">
           <p className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground">Live jobs</p>
@@ -69,8 +84,6 @@ export default function Jobs() {
         </div>
       </div>
 
-      <HowItWorks />
-
       {loading ? (
         <p className="py-12 text-center text-sm text-muted-foreground">Loading jobs</p>
       ) : jobs.length ? (
@@ -83,13 +96,26 @@ export default function Jobs() {
         <div className="rounded-[4px] border border-dashed border-border bg-card px-6 py-14 text-center">
           <p className="font-heading text-lg">No jobs yet</p>
           <p className="mx-auto mt-1 max-w-sm text-sm text-muted-foreground">
-            Paste a quote as CSV and the scope lines become the evidence checklist for the job.
+            Start with a quote, or open a finished demo job and work the loop from evidence to a served claim.
           </p>
-          <Button asChild className="mt-5 bg-primary">
-            <Link to="/import">
-              Import a quote <ArrowRight className="ml-2 h-4 w-4" />
-            </Link>
-          </Button>
+          <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
+            <Button asChild className="bg-primary">
+              <Link to="/import">
+                Import a quote <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
+            <Button variant="outline" onClick={startDemo} disabled={demoLoading}>
+              {demoLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Building the demo job
+                </>
+              ) : (
+                <>
+                  <Sparkles className="mr-2 h-4 w-4" /> Try the demo job
+                </>
+              )}
+            </Button>
+          </div>
         </div>
       )}
     </div>

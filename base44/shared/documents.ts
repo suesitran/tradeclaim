@@ -79,24 +79,19 @@ export function buildPaymentClaim(input: any): any {
   paragraph(doc, `This is a payment claim made under the ${jurisdiction.act}.`, M + 4, y + 6, CONTENT_W - 8, 9.5);
   y += 24;
 
-  y = sectionTitle(doc, 'Scope lines claimed', y);
-  y = scopeTable(doc, claim, header, y);
+  y = sectionTitle(doc, 'Scope lines and variations claimed', y);
+  // Variations are claimed as their own lines. Older claims kept them only in
+  // variations_included, so add any that are missing from the lines list.
+  const variationRows = (claim.variations_included || [])
+    .filter((variation: any) => !(claim.lines || []).some((line: any) => line.variation_id === variation.variation_id))
+    .map((variation: any) => ({
+      area: 'Variation',
+      description: variation.description || 'Variation',
+      percent_this_claim: 100,
+      amount_this_claim: Number(variation.amount || 0),
+    }));
+  y = scopeTable(doc, { ...claim, lines: [...(claim.lines || []), ...variationRows] }, header, y);
   y += 6;
-
-  const variations = claim.variations_included || [];
-  if (variations.length) {
-    y = ensureSpace(doc, y, 30, header);
-    y = sectionTitle(doc, 'Variations included', y);
-    variations.forEach((variation: any) => {
-      y = ensureSpace(doc, y, 8, header);
-      doc.setFont('helvetica', 'normal');
-      doc.setFontSize(8.5);
-      doc.text(doc.splitTextToSize(variation.description || 'Variation', 130), M, y);
-      doc.text(money(variation.amount), PAGE_W - M, y, { align: 'right' });
-      y += 6;
-    });
-    y += 4;
-  }
 
   y = ensureSpace(doc, y, 62, header);
   y = sectionTitle(doc, 'Claim summary', y);

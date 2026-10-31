@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { compressImage } from '@/lib/media';
+import VariationVoiceWalk from '@/components/variations/VariationVoiceWalk';
 
 export default function VariationNew() {
   const { jobId } = useParams();
@@ -31,6 +32,12 @@ export default function VariationNew() {
     if (preview) URL.revokeObjectURL(preview);
     setFile(picked);
     setPreview(URL.createObjectURL(picked));
+  };
+
+  const applySpokenField = (key, value) => {
+    if (key === 'instructed_by') setInstructedBy(value);
+    if (key === 'description') setDescription(value);
+    if (key === 'estimated_amount') setAmount(value);
   };
 
   const handleSend = async () => {
@@ -106,6 +113,8 @@ export default function VariationNew() {
       </div>
 
       <div className="space-y-4 rounded-[4px] border border-border bg-card p-5">
+        <VariationVoiceWalk onField={applySpokenField} />
+
         <div className="space-y-1.5">
           <Label htmlFor="instructedBy">Who instructed it</Label>
           <Input id="instructedBy" value={instructedBy} onChange={(event) => setInstructedBy(event.target.value)} placeholder="Site manager, name" />

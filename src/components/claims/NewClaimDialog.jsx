@@ -46,6 +46,16 @@ export default function NewClaimDialog({ open, onOpenChange, job, scopeLines, cl
   const handleCreate = async () => {
     const chosen = items.filter((item) => item.percent > 0);
     if (!chosen.length && !chosenVariations.length) return;
+    const variationRows = (variations || [])
+      .filter((item) => chosenVariations.includes(item.id))
+      .map((item) => ({
+        scope_line_id: null,
+        variation_id: item.id,
+        area: 'Variation',
+        description: item.description,
+        percent_this_claim: 100,
+        amount_this_claim: round2(Number(item.estimated_amount || 0)),
+      }));
     setSaving(true);
     try {
       const user = await base44.auth.me().catch(() => null);
@@ -56,13 +66,16 @@ export default function NewClaimDialog({ open, onOpenChange, job, scopeLines, cl
         claim_number: nextClaimNumber(claims),
         period_from: periodFrom,
         period_to: todayYmd(),
-        lines: chosen.map((item) => ({
-          scope_line_id: item.id,
-          area: item.area,
-          description: item.description,
-          percent_this_claim: Math.round(item.percent * 10) / 10,
-          amount_this_claim: round2((item.amount * item.percent) / 100),
-        })),
+        lines: [
+          ...chosen.map((item) => ({
+            scope_line_id: item.id,
+            area: item.area,
+            description: item.description,
+            percent_this_claim: Math.round(item.percent * 10) / 10,
+            amount_this_claim: round2((item.amount * item.percent) / 100),
+          })),
+          ...variationRows,
+        ],
         variations_included: (variations || [])
           .filter((item) => chosenVariations.includes(item.id))
           .map((item) => ({ variation_id: item.id, description: item.description, amount: Number(item.estimated_amount || 0) })),
@@ -92,7 +105,7 @@ export default function NewClaimDialog({ open, onOpenChange, job, scopeLines, cl
         <DialogHeader className="border-b border-border px-5 py-4">
           <DialogTitle className="font-heading text-lg">Generate claim {nextClaimNumber(claims)}</DialogTitle>
           <DialogDescription>
-            Set the percentage of each scope line to claim this period. Lines with photos are pre-filled. Tick variations to claim them too, even when no scope line is ready.
+            Set the percentage of each scope line to claim this period. Lines with photos are pre-filled. Tick a variation to claim it as its own line, even when no scope line is ready.
           </DialogDescription>
         </DialogHeader>
 

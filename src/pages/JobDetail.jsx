@@ -32,7 +32,7 @@ export default function JobDetail() {
   const [loading, setLoading] = useState(true);
   const [claimOpen, setClaimOpen] = useState(false);
   const [editJobOpen, setEditJobOpen] = useState(false);
-  const [lineDialog, setLineDialog] = useState({ open: false, line: null });
+  const [addLineOpen, setAddLineOpen] = useState(false);
 
   const load = async () => {
     const [jobRecord, linePage, evidencePage, variationPage, claimPage, defectPage, visitPage] = await Promise.all([
@@ -70,6 +70,28 @@ export default function JobDetail() {
   if (!job) return <p className="py-16 text-center text-sm text-muted-foreground">This job could not be found.</p>;
 
   const jurisdiction = jurisdictionFor(job.state);
+
+  const recalcContractSum = async (nextLines) => {
+    const sum = Math.round(nextLines.reduce((total, item) => total + Number(item.amount || 0), 0) * 100) / 100;
+    await base44.entities.Job.update(job.id, { contract_sum_ex_gst: sum });
+  };
+
+  const handleLineSave = async (line, patch) => {
+    const quantity = Math.max(0, Number(patch.quantity || 0));
+    const amount = Math.max(0, Number(patch.amount || 0));
+    const rate = quantity > 0 ? Math.round((amount / quantity) * 100) / 100 : Number(line.rate || 0);
+    const saved = { description: patch.description, quantity, amount, rate };
+    await base44.entities.ScopeLine.update(line.id, saved);
+    await recalcContractSum(lines.map((item) => (item.id === line.id ? { ...item, ...saved } : item)));
+    await load();
+  };
+
+  const handleLineDelete = async (line) => {
+    if (!window.confirm('Remove this scope line from the quote?')) return;
+    await base44.entities.ScopeLine.delete(line.id);
+    await recalcContractSum(lines.filter((item) => item.id !== line.id));
+    await load();
+  };
 
   return (
     <div className="space-y-6">
@@ -163,7 +185,7 @@ export default function JobDetail() {
           <h2 className="font-heading text-sm font-semibold">Scope lines</h2>
           <div className="flex items-center gap-3">
             <span className="text-[11px] text-muted-foreground">{lines.length} quoted lines</span>
-            <Button variant="outline" size="sm" onClick={() => setLineDialog({ open: true, line: null })}>
+            <Button variant="outline" size="sm" onClick={() => setAddLineOpen(true)}>
               <Plus className="mr-1.5 h-3.5 w-3.5" /> Add line
             </Button>
           </div>
@@ -172,7 +194,8 @@ export default function JobDetail() {
           lines={lines}
           evidenceByLine={evidenceByLine}
           claims={claims}
-          onEdit={(line) => setLineDialog({ open: true, line })}
+          onSave={handleLineSave}
+          onDelete={handleLineDelete}
         />
       </section>
 
@@ -230,14 +253,7 @@ export default function JobDetail() {
 
       <EditJobDialog open={editJobOpen} onOpenChange={setEditJobOpen} job={job} onSaved={load} />
 
-      <ScopeLineDialog
-        open={lineDialog.open}
-        onOpenChange={(open) => setLineDialog({ open, line: open ? lineDialog.line : null })}
-        job={job}
-        lines={lines}
-        line={lineDialog.line}
-        onSaved={load}
-      />
+      <ScopeLineDialog open={addLineOpen} onOpenChange={setAddLineOpen} job={job} lines={lines} line={null} onSaved={load} />
     </div>
   );
 }

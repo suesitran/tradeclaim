@@ -52,6 +52,22 @@ export default function ClaimDetail() {
 
   const status = claim ? effectiveStatus(claim) : 'draft';
 
+  const claimLines = useMemo(() => {
+    if (!claim) return [];
+    const base = claim.lines || [];
+    const extra = (claim.variations_included || [])
+      .filter((variation) => !base.some((line) => line.variation_id === variation.variation_id))
+      .map((variation) => ({
+        scope_line_id: null,
+        variation_id: variation.variation_id,
+        area: 'Variation',
+        description: variation.description,
+        percent_this_claim: 100,
+        amount_this_claim: Number(variation.amount || 0),
+      }));
+    return [...base, ...extra];
+  }, [claim]);
+
   const appendix = useMemo(() => {
     if (!claim) return [];
     const ids = new Set((claim.lines || []).map((line) => line.scope_line_id));
@@ -177,7 +193,7 @@ export default function ClaimDetail() {
         <div className="space-y-5">
           <section className="overflow-hidden rounded-[4px] border border-border bg-card">
             <div className="flex items-center justify-between border-b border-border px-5 py-3">
-              <h2 className="font-heading text-sm font-semibold">Scope lines in this claim</h2>
+              <h2 className="font-heading text-sm font-semibold">Lines in this claim</h2>
               <span className="text-[11px] text-muted-foreground">
                 {formatDate(claim.period_from)} to {formatDate(claim.period_to)}
               </span>
@@ -192,8 +208,8 @@ export default function ClaimDetail() {
                   </tr>
                 </thead>
                 <tbody>
-                  {(claim.lines || []).map((line) => (
-                    <tr key={line.scope_line_id} className="border-b border-border last:border-b-0">
+                  {claimLines.map((line) => (
+                    <tr key={line.variation_id || line.scope_line_id} className="border-b border-border last:border-b-0">
                       <td className="px-5 py-2.5">
                         <p className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground">{line.area}</p>
                         <p className="text-[12px] leading-snug">{line.description}</p>
@@ -205,17 +221,9 @@ export default function ClaimDetail() {
                 </tbody>
               </table>
             </div>
-            {(claim.variations_included || []).length ? (
-              <div className="border-t border-border px-5 py-3">
-                <p className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground">Variations included</p>
-                {(claim.variations_included || []).map((variation) => (
-                  <div key={variation.variation_id} className="mt-1.5 flex items-start justify-between gap-3 text-[12px]">
-                    <span className="flex-1">{variation.description}</span>
-                    <span className="num">{formatAud(variation.amount)}</span>
-                  </div>
-                ))}
-              </div>
-            ) : null}
+            <p className="border-t border-border px-5 py-2.5 text-[11px] text-muted-foreground">
+              Variations appear in this list as their own claim line.
+            </p>
           </section>
 
           <section className="space-y-3">
