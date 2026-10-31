@@ -1,0 +1,108 @@
+{
+  "name": "DefectVisit",
+  "type": "object",
+  "properties": {
+    "job_id": {
+      "type": "string"
+    },
+    "defect_id": {
+      "type": "string"
+    },
+    "attended_at": {
+      "type": "string",
+      "format": "date"
+    },
+    "attended_by": {
+      "type": "string"
+    },
+    "hours": {
+      "type": "number"
+    },
+    "cost": {
+      "type": "number",
+      "description": "Labour and materials absorbed on the call-back, excluding GST"
+    },
+    "work_done": {
+      "type": "string"
+    },
+    "outcome": {
+      "type": "string",
+      "enum": [
+        "resolved",
+        "further_work",
+        "no_access",
+        "not_our_work"
+      ],
+      "default": "resolved"
+    },
+    "photo_uri": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "job_id",
+    "defect_id",
+    "work_done"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "user"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "user"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "user"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "user"
+          }
+        }
+      ]
+    }
+  }
+}

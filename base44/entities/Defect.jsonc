@@ -1,0 +1,121 @@
+{
+  "name": "Defect",
+  "type": "object",
+  "properties": {
+    "job_id": {
+      "type": "string"
+    },
+    "scope_line_id": {
+      "type": "string"
+    },
+    "area": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "raised_by": {
+      "type": "string",
+      "description": "Who raised the defect, for example the builder or site supervisor"
+    },
+    "raised_at": {
+      "type": "string",
+      "format": "date"
+    },
+    "due_at": {
+      "type": "string",
+      "format": "date"
+    },
+    "liability": {
+      "type": "string",
+      "enum": [
+        "workmanship",
+        "outside_scope",
+        "other_trade",
+        "unclear"
+      ],
+      "default": "unclear"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "open",
+        "rectified",
+        "disputed"
+      ],
+      "default": "open"
+    },
+    "rectified_at": {
+      "type": "string",
+      "format": "date"
+    },
+    "photo_uri": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "job_id",
+    "description"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "user"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "user"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "user"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "user"
+          }
+        }
+      ]
+    }
+  }
+}

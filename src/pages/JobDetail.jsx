@@ -7,6 +7,7 @@ import StatusPill from '@/components/StatusPill';
 import EvidenceGrid from '@/components/EvidenceGrid';
 import ScopeLineTable from '@/components/jobs/ScopeLineTable';
 import NewClaimDialog from '@/components/claims/NewClaimDialog';
+import DefectRegister from '@/components/defects/DefectRegister';
 import { effectiveStatus, nextActionFor } from '@/lib/claims';
 import { formatAud, formatDate } from '@/lib/format';
 import { jurisdictionFor } from '@/lib/jurisdictions';
@@ -24,22 +25,28 @@ export default function JobDetail() {
   const [evidence, setEvidence] = useState([]);
   const [variations, setVariations] = useState([]);
   const [claims, setClaims] = useState([]);
+  const [defects, setDefects] = useState([]);
+  const [defectVisits, setDefectVisits] = useState([]);
   const [loading, setLoading] = useState(true);
   const [claimOpen, setClaimOpen] = useState(false);
 
   const load = async () => {
-    const [jobRecord, linePage, evidencePage, variationPage, claimPage] = await Promise.all([
+    const [jobRecord, linePage, evidencePage, variationPage, claimPage, defectPage, visitPage] = await Promise.all([
       base44.entities.Job.get(jobId).catch(() => null),
       base44.entities.ScopeLine.filter({ job_id: jobId }, { limit: 200, sort: 'sort_order' }),
       base44.entities.Evidence.filter({ job_id: jobId }, { limit: 400, sort: '-captured_at' }),
       base44.entities.Variation.filter({ job_id: jobId }, { limit: 100, sort: '-created_date' }),
       base44.entities.Claim.filter({ job_id: jobId }, { limit: 100, sort: '-claim_number' }),
+      base44.entities.Defect.filter({ job_id: jobId }, { limit: 200, sort: '-raised_at' }),
+      base44.entities.DefectVisit.filter({ job_id: jobId }, { limit: 400, sort: '-attended_at' }),
     ]);
     setJob(jobRecord);
     setLines((linePage && linePage.items) || []);
     setEvidence((evidencePage && evidencePage.items) || []);
     setVariations((variationPage && variationPage.items) || []);
     setClaims((claimPage && claimPage.items) || []);
+    setDefects((defectPage && defectPage.items) || []);
+    setDefectVisits((visitPage && visitPage.items) || []);
     setLoading(false);
   };
 
@@ -182,6 +189,8 @@ export default function JobDetail() {
           <p className="px-5 py-8 text-sm text-muted-foreground">No variations recorded. Anything instructed outside the quote should be captured the same day.</p>
         )}
       </section>
+
+      <DefectRegister job={job} lines={lines} defects={defects} visits={defectVisits} onChanged={load} />
 
       <section className="space-y-3">
         <div className="flex items-center justify-between">
