@@ -10,10 +10,20 @@ function audioContextConstructor() {
   return window.AudioContext || window.webkitAudioContext;
 }
 
+function messageForAudioError(err) {
+  if (err && (err.name === 'NotAllowedError' || err.name === 'SecurityError')) {
+    return 'Microphone access was blocked. Allow the microphone for this site, or open the published app in its own browser tab, then start again.';
+  }
+  if (err && err.name === 'NotFoundError') return 'No microphone was found on this device.';
+  if (err && err.name === 'NotReadableError') return 'The microphone is in use by another app or tab.';
+  return (err && err.message) || 'The voice session could not be started';
+}
+
 export default function useGeminiLive({ instruction, tools, onToolCall }) {
   const [status, setStatus] = useState('idle');
   const [error, setError] = useState('');
   const [messages, setMessages] = useState([]);
+  const [micActive, setMicActive] = useState(false);
 
   const socketRef = useRef(null);
   const streamRef = useRef(null);
@@ -24,6 +34,8 @@ export default function useGeminiLive({ instruction, tools, onToolCall }) {
   const nextStartRef = useRef(0);
   const manualCloseRef = useRef(false);
   const configRef = useRef({ instruction, tools, onToolCall });
+  const setupDoneRef = useRef(false);
+  const micReportedRef = useRef(false);
 
   useEffect(() => {
     configRef.current = { instruction, tools, onToolCall };
@@ -127,14 +139,18 @@ export default function useGeminiLive({ instruction, tools, onToolCall }) {
     });
     streamRef.current = stream;
     const Ctor = audioContextConstructor();
-    const context = new Ctor();
+    const context = captureRef.current || new Ctor();
     captureRef.current = context;
-    if (context.state === 'suspended') context.resume();
+    if (context.state === 'suspended') await context.resume();
     const source = context.createMediaStreamSource(stream);
     const processor = context.createScriptProcessor(4096, 1, 1);
     const silence = context.createGain();
     silence.gain.value = 0;
     processor.onaudioprocess = (event) => {
+      if (!micReportedRef.current) {
+        micReportedRef.current = true;
+        setMicActive(true);
+      }
       const input = event.inputBuffer.getChannelData(0);
       const samples = downsample(input, context.sampleRate, INPUT_RATE);
       const pcm = floatToPcm16(samples);
@@ -178,7 +194,15 @@ export default function useGeminiLive({ instruction, tools, onToolCall }) {
     }
 
     if (payload.setupComplete) {
+      setupDoneRef.current = true;
       setStatus('live');
+      return;
+    }
+
+    if (payload.error) {
+      setError(payload.error.message || 'The voice session reported an error');
+      setStatus('error');
+      shutdown();
       return;
     }
 
@@ -203,13 +227,35 @@ export default function useGeminiLive({ instruction, tools, onToolCall }) {
     if (content.outputTranscription && content.outputTranscription.text) {
       appendText('model', content.outputTranscription.text);
     }
-  }, [appendText, playChunk, runTools, stopPlayback]);
+  }, [appendText, playChunk, runTools, shutdown, stopPlayback]);
 
   const start = useCallback(async () => {
     setError('');
     setMessages([]);
-    setStatus('connecting');
+    setMicActive(false);
     manualCloseRef.current = false;
+    setupDoneRef.current = false;
+    micReportedRef.current = false;
+
+    const Ctor = audioContextConstructor();
+    if (!Ctor) {
+      setError('This browser cannot play live audio. Try Chrome or Safari.');
+      return;
+    }
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      setError('No microphone is available here. Open the published app in its own browser tab and allow the microphone.');
+      return;
+    }
+
+    // Both audio contexts are created and unlocked inside the tap, before any
+    // network await. Created later, mobile browsers keep them suspended, so no
+    // audio is ever sent to the model or played back.
+    if (!playbackRef.current) playbackRef.current = new Ctor();
+    if (!captureRef.current) captureRef.current = new Ctor();
+    playbackRef.current.resume().catch(() => {});
+    captureRef.current.resume().catch(() => {});
+
+    setStatus('connecting');
     try {
       const response = await base44.functions.invoke('geminiLiveToken', {});
       const data = (response && response.data) || {};
@@ -245,20 +291,25 @@ export default function useGeminiLive({ instruction, tools, onToolCall }) {
         setStatus('error');
       };
 
-      socket.onclose = () => {
+      socket.onclose = (event) => {
         if (manualCloseRef.current) return;
         stopPlayback();
         teardownCapture();
-        setStatus((current) => (current === 'error' ? current : 'idle'));
+        if (setupDoneRef.current) {
+          setStatus('idle');
+          return;
+        }
+        setError(event && event.reason ? `The voice session closed: ${event.reason}` : 'The voice session closed before it started. Check the network and try again.');
+        setStatus('error');
       };
     } catch (err) {
       shutdown();
-      setError(err.message || 'The voice session could not be started');
+      setError(messageForAudioError(err));
       setStatus('error');
     }
   }, [handleMessage, shutdown, startCapture, stopPlayback, teardownCapture]);
 
   useEffect(() => () => shutdown(), [shutdown]);
 
-  return { status, error, messages, start, stop };
+  return { status, error, messages, micActive, start, stop };
 }

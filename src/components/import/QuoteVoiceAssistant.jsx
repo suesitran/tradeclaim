@@ -81,7 +81,7 @@ export default function QuoteVoiceAssistant({ job, onPatch, onAddLine }) {
     return { result: 'That tool is not available' };
   };
 
-  const { status, error, messages, start, stop } = useGeminiLive({
+  const { status, error, messages, micActive, start, stop } = useGeminiLive({
     instruction: buildInstruction(job, lineCount),
     tools: TOOLS,
     onToolCall: handleToolCall,
@@ -105,7 +105,8 @@ export default function QuoteVoiceAssistant({ job, onPatch, onAddLine }) {
         <div className="flex items-center gap-2">
           {live ? (
             <span className="inline-flex items-center gap-1.5 rounded-full border border-border px-2.5 py-1 text-[11px] text-muted-foreground">
-              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-accent" /> Listening
+              <span className={cn('h-1.5 w-1.5 rounded-full', micActive ? 'animate-pulse bg-accent' : 'bg-destructive')} />
+              {micActive ? 'Listening' : 'Microphone not sending audio'}
             </span>
           ) : null}
           {live || connecting ? (
