@@ -4,10 +4,11 @@ import { ArrowRight, Loader2, Plus, Sparkles } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import JobCard from '@/components/jobs/JobCard';
-import ShepherdStrip from '@/components/jobs/ShepherdStrip';
+import NextStepGuide from '@/components/tutorial/NextStepGuide';
 import { effectiveStatus } from '@/lib/claims';
 import { createDemoJob } from '@/lib/demoJob';
 import { formatAud } from '@/lib/format';
+import { TUTORIAL_HIDDEN_KEY, tutorialState } from '@/lib/tutorial';
 
 export default function Jobs() {
   const navigate = useNavigate();
@@ -15,17 +16,23 @@ export default function Jobs() {
   const [claims, setClaims] = useState([]);
   const [loading, setLoading] = useState(true);
   const [demoLoading, setDemoLoading] = useState(false);
+  const [hasEvidence, setHasEvidence] = useState(false);
+  const [guideHidden, setGuideHidden] = useState(
+    () => sessionStorage.getItem(TUTORIAL_HIDDEN_KEY) === '1',
+  );
 
   useEffect(() => {
     let alive = true;
     Promise.all([
       base44.entities.Job.filter({}, { limit: 100, sort: 'created_date' }),
       base44.entities.Claim.filter({}, { limit: 400, sort: '-created_date' }),
+      base44.entities.Evidence.filter({}, { limit: 1 }),
     ])
-      .then(([jobPage, claimPage]) => {
+      .then(([jobPage, claimPage, evidencePage]) => {
         if (!alive) return;
         setJobs((jobPage && jobPage.items) || []);
         setClaims((claimPage && claimPage.items) || []);
+        setHasEvidence(Boolean(evidencePage && evidencePage.items && evidencePage.items.length));
       })
       .finally(() => {
         if (alive) setLoading(false);
@@ -50,6 +57,12 @@ export default function Jobs() {
     .filter((claim) => !claim.paid_at)
     .reduce((total, claim) => total + Number(claim.amount_claimed_ex_gst || 0), 0);
 
+  const guide = tutorialState({ jobs, hasEvidence, claims });
+  const hideGuide = () => {
+    sessionStorage.setItem(TUTORIAL_HIDDEN_KEY, '1');
+    setGuideHidden(true);
+  };
+
   return (
     <div className="space-y-8">
       <div className="flex flex-wrap items-end justify-between gap-4">
@@ -60,14 +73,23 @@ export default function Jobs() {
             Every quoted scope line, its evidence, and the claim clock. Open a job to serve the next claim.
           </p>
         </div>
-        <Button asChild className="bg-primary">
-          <Link to="/import">
-            <Plus className="mr-2 h-4 w-4" /> Import a quote
-          </Link>
-        </Button>
+        <div className="flex items-center gap-2">
+          {!guide.complete && guideHidden ? (
+            <Button variant="ghost" size="sm" onClick={() => setGuideHidden(false)}>
+              Show the guided start
+            </Button>
+          ) : null}
+          <Button asChild className="bg-primary">
+            <Link to="/import">
+              <Plus className="mr-2 h-4 w-4" /> Import a quote
+            </Link>
+          </Button>
+        </div>
       </div>
 
-      <ShepherdStrip />
+      {!guide.complete && !guideHidden ? (
+        <NextStepGuide steps={guide.steps} activeIndex={guide.activeIndex} onHide={hideGuide} />
+      ) : null}
 
       <div className="grid gap-3 sm:grid-cols-3">
         <div className="rounded-[4px] border border-border bg-card px-4 py-3">
