@@ -20,8 +20,13 @@ export default function JobCard({ job, claims }) {
       <div>
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <p className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
+            <p className="flex flex-wrap items-center gap-2 text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
               {job.job_number ? `Job ${job.job_number}` : 'Job'}
+              {job.quote_status === 'draft' ? (
+                <span className="rounded-full border border-[#F0D6B7] bg-[#FBEDDD] px-1.5 py-0.5 text-[9px] tracking-[0.08em] text-[#8A4B12]">
+                  Draft quote
+                </span>
+              ) : null}
             </p>
             <h3 className="mt-1 truncate font-heading text-lg font-semibold leading-tight">{job.name}</h3>
             <p className="mt-1 truncate text-xs text-muted-foreground">{job.builder_name}</p>

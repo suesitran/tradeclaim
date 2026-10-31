@@ -37,6 +37,18 @@ const TOOLS = [
       required: ['description', 'quantity', 'unit', 'rate'],
     },
   },
+  {
+    name: 'save_quote_draft',
+    description:
+      'Save everything recorded so far as a draft quote so nothing is lost. Call this yourself as the conversation goes, without asking the user to press anything.',
+    parameters: { type: 'OBJECT', properties: {} },
+  },
+  {
+    name: 'save_quote_final',
+    description:
+      'Save the quote as the final quote for this job once the user confirms the quote is complete.',
+    parameters: { type: 'OBJECT', properties: {} },
+  },
 ];
 
 function buildInstruction(job, lineCount) {
@@ -55,6 +67,7 @@ function buildInstruction(job, lineCount) {
     '3. The builder name and the builder email address used when serving claims.',
     '4. Each quoted scope line: area or level, description, quantity, unit and rate. Rate is dollars per unit excluding GST. If they only give a total, ask for the quantity and the rate.',
     '5. Retention percent, only if it is not the usual five percent.',
+    '6. Whether the quote is complete, and anything still missing from it.',
     '',
     'Every job is in Victoria and counted under the Victorian security of payment Act. Never ask for a state or territory.',
     '',
@@ -65,17 +78,21 @@ function buildInstruction(job, lineCount) {
     '- If the user does not name the level or area, ask which area the line belongs to.',
     '- Use unit as m2, lm, no or item, whichever the user says.',
     '- Dates are recorded as YYYY-MM-DD.',
-    '- When the quote and the job details are recorded, tell them the job is ready and to press Create the job.',
+    '- Saving is your job, not theirs. As soon as you have the job name, the builder name and the builder email, call save_quote_draft yourself so the work is kept. Never ask the user to press a save button.',
+    '- Call save_quote_draft again after you add or correct scope lines, so the saved draft always matches what has been said.',
+    '- When the user says the quote is complete, agrees the total, or asks you to finish it, call save_quote_final, then say in one short sentence that it is saved as the final quote.',
+    '- If a save tool replies that something is still needed, ask for exactly that, then save again.',
+    '- Once save_quote_final has succeeded, do not call it again.',
     '',
     `Already recorded: ${JSON.stringify(job)}. ${lineCount} scope lines have been read so far.`,
   ].join('\n');
 }
 
-export default function QuoteVoiceAssistant({ job, onPatch, onAddLine }) {
+export default function QuoteVoiceAssistant({ job, onPatch, onAddLine, onSaveDraft, onSaveFinal }) {
   const scrollerRef = useRef(null);
   const lineCount = Number(job.line_count || 0);
 
-  const handleToolCall = (name, args) => {
+  const handleToolCall = async (name, args) => {
     if (name === 'update_job_details') {
       onPatch(args);
       return { result: 'Saved' };
@@ -83,6 +100,14 @@ export default function QuoteVoiceAssistant({ job, onPatch, onAddLine }) {
     if (name === 'add_scope_line') {
       onAddLine(args);
       return { result: 'Line added to the quote' };
+    }
+    if (name === 'save_quote_draft') {
+      const outcome = await onSaveDraft();
+      return { result: outcome.message };
+    }
+    if (name === 'save_quote_final') {
+      const outcome = await onSaveFinal();
+      return { result: outcome.message };
     }
     return { result: 'That tool is not available' };
   };
@@ -156,7 +181,7 @@ export default function QuoteVoiceAssistant({ job, onPatch, onAddLine }) {
 
         {!connecting && !error && !messages.length ? (
           <p className="text-[12px] leading-relaxed text-muted-foreground">
-            Start talking and it greets you, then asks one question at a time as it fills this form, asking again whenever something is unclear. It collects the job name, site address, builder and email, then each quoted line with its area, quantity, unit and rate. Allow microphone access when asked.
+            Start talking and it greets you, then asks one question at a time as it fills this form, asking again whenever something is unclear. It collects the job name, site address, builder and email, then each quoted line with its area, quantity, unit and rate, and saves the quote as a draft itself as you go. Allow microphone access when asked.
           </p>
         ) : null}
 

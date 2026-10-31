@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, FileUp } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
@@ -24,57 +24,129 @@ export default function ImportQuote() {
   const [retention, setRetention] = useState('5');
   const [dlp, setDlp] = useState('');
   const [nextClaim, setNextClaim] = useState(addDays(todayYmd(), 30));
-  const [saving, setSaving] = useState(false);
+  const [saving, setSaving] = useState('');
+  const [saved, setSaved] = useState(null);
   const [error, setError] = useState('');
+  const fieldsRef = useRef({});
+  const linesRef = useRef([]);
+  const jobIdRef = useRef(null);
+  const saveChainRef = useRef(Promise.resolve());
 
   const parsed = csv.trim() ? csvToScopeLines(csv) : { lines: [], error: null };
   const lines = parsed.lines;
   const total = lines.reduce((sum, line) => sum + Number(line.amount || 0), 0);
 
-  const handleImport = async () => {
-    if (!lines.length) {
-      setError('Paste the quote as CSV first.');
-      return;
+  // The voice assistant calls this mid conversation, so the latest values are
+  // read from refs rather than state: a patch and a save can arrive in the same
+  // tool-call batch, before React has re-rendered.
+  useEffect(() => {
+    fieldsRef.current = {
+      job_number: jobNumber,
+      name,
+      site_address: siteAddress,
+      builder_name: builderName,
+      builder_email: builderEmail,
+      retention_percent: retention,
+      dlp_end_date: dlp,
+      next_claim_date: nextClaim,
+    };
+    linesRef.current = lines;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [jobNumber, name, siteAddress, builderName, builderEmail, retention, dlp, nextClaim, csv]);
+
+  const persistQuote = async (kind) => {
+    const fields = fieldsRef.current;
+    const scopeLines = linesRef.current;
+    const jobName = String(fields.name || '').trim();
+    const jobBuilder = String(fields.builder_name || '').trim();
+    const jobBuilderEmail = String(fields.builder_email || '').trim();
+
+    if (!jobName || !jobBuilder || !jobBuilderEmail) {
+      return { ok: false, message: 'Still needed before this can be saved: the job name, the builder and the builder email address.' };
     }
-    if (!name.trim() || !builderName.trim() || !builderEmail.trim()) {
-      setError('The job needs a name, a builder and a builder email address.');
-      return;
+    if (kind === 'final' && !scopeLines.length) {
+      return { ok: false, message: 'Still needed before the quote can be final: at least one quoted scope line.' };
     }
-    setSaving(true);
+
+    const sum = scopeLines.reduce((running, line) => running + Number(line.amount || 0), 0);
+    const payload = {
+      job_number: String(fields.job_number || '').trim(),
+      name: jobName,
+      site_address: String(fields.site_address || '').trim(),
+      builder_name: jobBuilder,
+      builder_email: jobBuilderEmail,
+      state: DEFAULT_JURISDICTION,
+      contract_sum_ex_gst: Math.round(sum * 100) / 100,
+      claim_period: 'monthly',
+      retention_percent: Number(fields.retention_percent || 0),
+      quote_status: kind,
+    };
+    if (fields.dlp_end_date) payload.dlp_end_date = fields.dlp_end_date;
+    if (fields.next_claim_date) payload.next_claim_date = fields.next_claim_date;
+
+    setSaving(kind);
     setError('');
     try {
-      const payload = {
-        job_number: jobNumber.trim(),
-        name: name.trim(),
-        site_address: siteAddress.trim(),
-        builder_name: builderName.trim(),
-        builder_email: builderEmail.trim(),
-        state: DEFAULT_JURISDICTION,
-        contract_sum_ex_gst: Math.round(total * 100) / 100,
-        claim_period: 'monthly',
-        retention_percent: Number(retention || 0),
-      };
-      if (dlp) payload.dlp_end_date = dlp;
-      if (nextClaim) payload.next_claim_date = nextClaim;
-      const job = await base44.entities.Job.create(payload);
-      await base44.entities.ScopeLine.bulkCreate(lines.map((line) => ({ ...line, job_id: job.id })));
-      navigate(`/jobs/${job.id}`);
+      let jobId = jobIdRef.current;
+      if (jobId) {
+        await base44.entities.Job.update(jobId, payload);
+        await base44.entities.ScopeLine.deleteMany({ job_id: jobId });
+      } else {
+        const job = await base44.entities.Job.create(payload);
+        jobId = job.id;
+        jobIdRef.current = jobId;
+      }
+      if (scopeLines.length) {
+        await base44.entities.ScopeLine.bulkCreate(scopeLines.map((line) => ({ ...line, job_id: jobId })));
+      }
+      setSaved({ kind, at: new Date() });
+      if (kind === 'final') {
+        navigate(`/jobs/${jobId}`);
+        return { ok: true, message: 'Saved as the final quote for this job.' };
+      }
+      return { ok: true, message: 'Draft saved. Keep adding lines.' };
     } catch (err) {
-      setError(err.message || 'The job could not be created');
+      setError(err.message || 'The quote could not be saved');
+      return { ok: false, message: err.message || 'The quote could not be saved' };
     } finally {
-      setSaving(false);
+      setSaving('');
     }
   };
 
+  // Saves run one after another so a burst of voice tool calls cannot create
+  // two jobs or overlap a delete and an insert of the same scope lines.
+  const saveQuote = (kind) => {
+    const run = saveChainRef.current.then(() => persistQuote(kind));
+    saveChainRef.current = run.then(
+      () => undefined,
+      () => undefined,
+    );
+    return run;
+  };
+
+  const saveDraft = () => saveQuote('draft');
+  const saveFinal = () => saveQuote('final');
+
   const applyVoicePatch = (patch) => {
-    if (patch.job_number !== undefined) setJobNumber(String(patch.job_number));
-    if (patch.name !== undefined) setName(String(patch.name));
-    if (patch.site_address !== undefined) setSiteAddress(String(patch.site_address));
-    if (patch.builder_name !== undefined) setBuilderName(String(patch.builder_name));
-    if (patch.builder_email !== undefined) setBuilderEmail(String(patch.builder_email));
-    if (patch.retention_percent !== undefined) setRetention(String(patch.retention_percent));
-    if (patch.dlp_end_date !== undefined) setDlp(String(patch.dlp_end_date));
-    if (patch.next_claim_date !== undefined) setNextClaim(String(patch.next_claim_date));
+    const next = { ...fieldsRef.current };
+    if (patch.job_number !== undefined) next.job_number = String(patch.job_number);
+    if (patch.name !== undefined) next.name = String(patch.name);
+    if (patch.site_address !== undefined) next.site_address = String(patch.site_address);
+    if (patch.builder_name !== undefined) next.builder_name = String(patch.builder_name);
+    if (patch.builder_email !== undefined) next.builder_email = String(patch.builder_email);
+    if (patch.retention_percent !== undefined) next.retention_percent = String(patch.retention_percent);
+    if (patch.dlp_end_date !== undefined) next.dlp_end_date = String(patch.dlp_end_date);
+    if (patch.next_claim_date !== undefined) next.next_claim_date = String(patch.next_claim_date);
+    fieldsRef.current = next;
+
+    if (patch.job_number !== undefined) setJobNumber(next.job_number);
+    if (patch.name !== undefined) setName(next.name);
+    if (patch.site_address !== undefined) setSiteAddress(next.site_address);
+    if (patch.builder_name !== undefined) setBuilderName(next.builder_name);
+    if (patch.builder_email !== undefined) setBuilderEmail(next.builder_email);
+    if (patch.retention_percent !== undefined) setRetention(next.retention_percent);
+    if (patch.dlp_end_date !== undefined) setDlp(next.dlp_end_date);
+    if (patch.next_claim_date !== undefined) setNextClaim(next.next_claim_date);
   };
 
   const appendVoiceLine = (line) => {
@@ -94,6 +166,19 @@ export default function ImportQuote() {
         return /[",\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
       })
       .join(',');
+    linesRef.current = [
+      ...linesRef.current,
+      {
+        area: line.area || '',
+        description: line.description || '',
+        quantity,
+        unit: line.unit || '',
+        rate,
+        amount: Math.round(quantity * rate * 100) / 100,
+        sort_order: linesRef.current.length + 1,
+        percent_complete_to_date: 0,
+      },
+    ];
     setCsv((current) => {
       const body = current.replace(/\s+$/, '');
       return body ? `${body}\n${row}` : `Area,Description,Quantity,Unit,Rate,Amount\n${row}`;
@@ -125,11 +210,17 @@ export default function ImportQuote() {
         <p className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground">Step one</p>
         <h1 className="mt-1 font-heading text-3xl font-semibold tracking-tight">Import a quote</h1>
         <p className="mt-1.5 max-w-xl text-sm text-muted-foreground">
-          Paste the quote as CSV with columns for area, description, quantity, unit, rate and amount. Every line becomes a tracked scope line for evidence and claims.
+          Talk it through and the assistant fills the quote in and saves the draft as you go, or paste it as CSV with columns for area, description, quantity, unit, rate and amount. Every line becomes a tracked scope line for evidence and claims.
         </p>
       </div>
 
-      <QuoteVoiceAssistant job={voiceJob} onPatch={applyVoicePatch} onAddLine={appendVoiceLine} />
+      <QuoteVoiceAssistant
+        job={voiceJob}
+        onPatch={applyVoicePatch}
+        onAddLine={appendVoiceLine}
+        onSaveDraft={saveDraft}
+        onSaveFinal={saveFinal}
+      />
 
       <div className="space-y-4 rounded-[4px] border border-border bg-card p-5">
         <div className="flex flex-wrap items-center justify-between gap-2">
@@ -166,14 +257,14 @@ export default function ImportQuote() {
           </p>
         ) : null}
         {lines.length ? (
-          <div className="max-h-52 overflow-y-auto rounded-[3px] border border-border">
+          <div className="max-h-52 overflow-auto rounded-[3px] border border-border">
             <table className="w-full border-collapse text-left text-[11px]">
               <tbody>
                 {lines.map((line) => (
                   <tr key={line.sort_order} className="border-b border-border last:border-b-0">
-                    <td className="px-3 py-1.5 text-muted-foreground">{line.area}</td>
-                    <td className="px-3 py-1.5">{line.description}</td>
-                    <td className="num px-3 py-1.5 text-right">{formatAud(line.amount)}</td>
+                    <td className="break-words px-2 py-1.5 text-muted-foreground sm:px-3">{line.area}</td>
+                    <td className="break-words px-2 py-1.5 sm:px-3">{line.description}</td>
+                    <td className="num whitespace-nowrap px-2 py-1.5 text-right sm:px-3">{formatAud(line.amount)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -229,10 +320,22 @@ export default function ImportQuote() {
 
         {error ? <p className="text-[12px] text-destructive">{error}</p> : null}
 
-        <Button onClick={handleImport} disabled={saving} className="bg-primary">
-          <FileUp className="mr-2 h-4 w-4" />
-          {saving ? 'Creating the job' : 'Create the job'}
-        </Button>
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+          <Button onClick={saveFinal} disabled={Boolean(saving)} className="w-full bg-primary sm:w-auto">
+            <FileUp className="mr-2 h-4 w-4" />
+            {saving === 'final' ? 'Saving the final quote' : 'Save final quote'}
+          </Button>
+          <Button variant="outline" onClick={saveDraft} disabled={Boolean(saving)} className="w-full sm:w-auto">
+            {saving === 'draft' ? 'Saving the draft' : 'Save as draft'}
+          </Button>
+        </div>
+
+        {saved ? (
+          <p className="text-[11px] leading-relaxed text-muted-foreground">
+            {saved.kind === 'final' ? 'Final quote saved' : 'Draft saved'} at{' '}
+            {saved.at.toLocaleTimeString('en-AU', { hour: 'numeric', minute: '2-digit' })}.
+          </p>
+        ) : null}
       </div>
     </div>
   );

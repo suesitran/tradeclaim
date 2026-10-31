@@ -46,6 +46,15 @@
     "next_claim_date": {
       "type": "string",
       "format": "date"
+    },
+    "quote_status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "final"
+      ],
+      "default": "draft",
+      "description": "A draft quote is still being built and can be saved again as it changes. A final quote is confirmed, and the job can be claimed against it"
     }
   },
   "required": [

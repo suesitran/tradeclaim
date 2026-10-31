@@ -94,8 +94,8 @@ export default function NewClaimDialog({ open, onOpenChange, job, scopeLines, cl
           </DialogDescription>
         </DialogHeader>
 
-        <div className="max-h-[52vh] overflow-y-auto">
-          <table className="w-full border-collapse text-left">
+        <div className="max-h-[52vh] overflow-auto">
+          <table className="w-full min-w-[520px] border-collapse text-left">
             <thead className="sticky top-0 z-10 bg-card">
               <tr className="border-b border-border text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
                 <th className="px-5 py-2 font-medium">Scope line</th>
