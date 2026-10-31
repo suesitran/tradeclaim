@@ -6,7 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { SAMPLE_QUOTE, csvToScopeLines } from '@/lib/csv';
+import { csvToScopeLines } from '@/lib/csv';
+import { SAMPLES, SAMPLE_PLACEHOLDER } from '@/lib/sampleQuotes';
 import { formatAud } from '@/lib/format';
 import { addDays, todayYmd } from '@/lib/clock';
 import { DEFAULT_JURISDICTION, JURISDICTIONS, jurisdictionFor, stateCodeFromText } from '@/lib/jurisdictions';
@@ -133,18 +134,31 @@ export default function ImportQuote() {
       <QuoteVoiceAssistant job={voiceJob} onPatch={applyVoicePatch} onAddLine={appendVoiceLine} />
 
       <div className="space-y-4 rounded-[4px] border border-border bg-card p-5">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-2">
           <Label htmlFor="csv">Quoted scope, CSV</Label>
-          <button type="button" onClick={() => setCsv(SAMPLE_QUOTE)} className="text-[11px] text-accent hover:underline">
-            Load a sample painting quote
-          </button>
+          <span className="text-[11px] text-muted-foreground">Sample quote</span>
+        </div>
+        <div className="flex flex-wrap gap-1.5">
+          {SAMPLES.map((sample) => (
+            <button
+              key={sample.id}
+              type="button"
+              onClick={() => {
+                setCsv(sample.csv);
+                setError('');
+              }}
+              className="rounded-[3px] border border-border px-2.5 py-1 text-[11px] text-foreground transition-colors hover:border-accent hover:text-accent"
+            >
+              {sample.trade}
+            </button>
+          ))}
         </div>
         <Textarea
           id="csv"
           rows={8}
           value={csv}
           onChange={(event) => setCsv(event.target.value)}
-          placeholder={'Area,Description,Quantity,Unit,Rate,Amount\nL1 Corridors,Paint walls PT1 low sheen,1240,m2,12.50,15500'}
+          placeholder={SAMPLE_PLACEHOLDER}
           className="num text-[12px]"
         />
         {parsed.error ? <p className="text-[12px] text-destructive">{parsed.error}</p> : null}
