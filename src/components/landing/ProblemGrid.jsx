@@ -14,7 +14,7 @@ const PROBLEMS = [
   {
     title: 'Variations disappear',
     body:
-      'Instructed on the phone, never written down. By claim time nobody can say who asked for the extra coat, or when — so it goes unpaid.',
+      'Instructed on the phone, never written down. By claim time nobody can say who asked for the extra coat, or when, so it goes unpaid.',
   },
   {
     title: 'The clock runs out unattended',

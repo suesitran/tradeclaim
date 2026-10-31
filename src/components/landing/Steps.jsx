@@ -3,7 +3,7 @@ import React from 'react';
 const STEPS = [
   {
     title: 'Import the quote you already sent',
-    body: 'Your scope lines become the schedule every claim is built from, priced against the contract — no retyping at claim time.',
+    body: 'Your scope lines become the schedule every claim is built from, priced against the contract, with no retyping at claim time.',
   },
   {
     title: 'Log progress by voice, on site',
