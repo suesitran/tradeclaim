@@ -23,7 +23,7 @@ export default function Hero({ cta }) {
         </h1>
 
         <p className="mt-5 max-w-2xl text-[15px] leading-relaxed text-muted-foreground sm:text-base">
-          Survival Kit runs the Victorian claims process end to end: a compliant payment claim served under
+          TradeClaim runs the Victorian claims process end to end: a compliant payment claim served under
           the Security of Payment Act 2002 (Vic), 10 business days for the builder's payment schedule, and a
           notice of intention drafted the moment that date passes unpaid.
         </p>

@@ -89,7 +89,7 @@ export default async function (req) {
       emailResult = await emailPdf(base44, {
         to: job.builder_email,
         subject,
-        body: `${intro}\n\nDraft, for lawyer review.\n\nSent from the Subcontractor Survival Kit.`,
+        body: `${intro}\n\nDraft, for lawyer review.\n\nSent from TradeClaim.`,
         fileUri,
         filename,
       });

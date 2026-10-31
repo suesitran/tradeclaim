@@ -52,7 +52,7 @@ export default function WhyItPersists() {
             <p className="mt-5 text-[13px] leading-relaxed text-muted-foreground">
               Quoting software stops at the invoice. Photo tools stop at the photo. Builder portals consume your
               evidence rather than create it. Nothing carries quote to scope to evidence to claim for the trade
-              doing the work, which is the gap Survival Kit fills.
+              doing the work, which is the gap TradeClaim fills.
             </p>
           </div>
         </div>

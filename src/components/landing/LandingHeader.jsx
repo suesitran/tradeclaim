@@ -8,10 +8,10 @@ export default function LandingHeader({ cta, signIn }) {
       <div className="mx-auto flex w-full max-w-5xl items-center gap-4 px-4 py-3 sm:px-6">
         <Link to="/" className="flex items-center gap-2.5">
           <span className="flex h-8 w-8 items-center justify-center rounded-[3px] bg-primary font-mono text-[11px] font-semibold tracking-tight text-primary-foreground">
-            SK
+            TC
           </span>
           <span className="leading-none">
-            <span className="block font-heading text-[15px] font-semibold tracking-tight">Survival Kit</span>
+            <span className="block font-heading text-[15px] font-semibold tracking-tight">TradeClaim</span>
             <span className="mt-0.5 hidden text-[10px] uppercase tracking-[0.16em] text-muted-foreground sm:block">Payment claims, Victoria</span>
           </span>
         </Link>

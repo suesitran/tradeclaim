@@ -8,10 +8,10 @@ export default function LandingFooter() {
           <span className="flex h-7 w-7 items-center justify-center rounded-[3px] bg-primary font-mono text-[10px] font-semibold text-primary-foreground">
             SK
           </span>
-          <span className="text-[12px] text-muted-foreground">Survival Kit · Payment claims, Victoria</span>
+          <span className="text-[12px] text-muted-foreground">TradeClaim · Payment claims, Victoria</span>
         </div>
         <p className="max-w-xl text-[11px] leading-relaxed text-muted-foreground">
-          Documents are generated as drafts for lawyer review. Survival Kit is not a law firm and does not give
+          Documents are generated as drafts for lawyer review. TradeClaim is not a law firm and does not give
           legal advice.
         </p>
       </div>

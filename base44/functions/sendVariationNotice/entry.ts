@@ -36,7 +36,7 @@ export default async function (req) {
       emailResult = await emailPdf(base44, {
         to: job.builder_email,
         subject: `Variation notice, ${job.name}, estimated ${formatAud(variation.estimated_amount)} excluding GST`,
-        body: `Please find attached a variation notice for ${job.name}.\n\nInstructed by: ${variation.instructed_by}\nWork: ${variation.description}\nEstimated value: ${formatAud(variation.estimated_amount)} excluding GST\n\nPlease confirm in writing that this work is a variation and that the estimated value is accepted.\n\nDraft, for lawyer review.\n\nSent from the Subcontractor Survival Kit.`,
+        body: `Please find attached a variation notice for ${job.name}.\n\nInstructed by: ${variation.instructed_by}\nWork: ${variation.description}\nEstimated value: ${formatAud(variation.estimated_amount)} excluding GST\n\nPlease confirm in writing that this work is a variation and that the estimated value is accepted.\n\nDraft, for lawyer review.\n\nSent from TradeClaim.`,
         fileUri,
         filename,
       });
