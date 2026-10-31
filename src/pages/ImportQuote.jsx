@@ -9,6 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { SAMPLE_QUOTE, csvToScopeLines } from '@/lib/csv';
 import { formatAud } from '@/lib/format';
 import { addDays, todayYmd } from '@/lib/clock';
+import QuoteVoiceAssistant from '@/components/import/QuoteVoiceAssistant';
 
 export default function ImportQuote() {
   const navigate = useNavigate();
@@ -62,6 +63,54 @@ export default function ImportQuote() {
     }
   };
 
+  const applyVoicePatch = (patch) => {
+    if (patch.job_number !== undefined) setJobNumber(String(patch.job_number));
+    if (patch.name !== undefined) setName(String(patch.name));
+    if (patch.site_address !== undefined) setSiteAddress(String(patch.site_address));
+    if (patch.builder_name !== undefined) setBuilderName(String(patch.builder_name));
+    if (patch.builder_email !== undefined) setBuilderEmail(String(patch.builder_email));
+    if (patch.retention_percent !== undefined) setRetention(String(patch.retention_percent));
+    if (patch.dlp_end_date !== undefined) setDlp(String(patch.dlp_end_date));
+    if (patch.next_claim_date !== undefined) setNextClaim(String(patch.next_claim_date));
+  };
+
+  const appendVoiceLine = (line) => {
+    const quantity = Number(line.quantity || 0);
+    const rate = Number(line.rate || 0);
+    const cells = [
+      line.area || '',
+      line.description || '',
+      line.quantity ?? '',
+      line.unit || '',
+      line.rate ?? '',
+      Math.round(quantity * rate * 100) / 100,
+    ];
+    const row = cells
+      .map((cell) => {
+        const text = String(cell);
+        return /[",\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+      })
+      .join(',');
+    setCsv((current) => {
+      const body = current.replace(/\s+$/, '');
+      return body ? `${body}\n${row}` : `Area,Description,Quantity,Unit,Rate,Amount\n${row}`;
+    });
+    setError('');
+  };
+
+  const voiceJob = {
+    job_number: jobNumber,
+    name,
+    site_address: siteAddress,
+    builder_name: builderName,
+    builder_email: builderEmail,
+    retention_percent: Number(retention || 0),
+    dlp_end_date: dlp,
+    next_claim_date: nextClaim,
+    line_count: lines.length,
+    quote_total: total,
+  };
+
   return (
     <div className="mx-auto max-w-3xl space-y-6">
       <button type="button" onClick={() => navigate('/app')} className="inline-flex items-center gap-1.5 text-[12px] text-muted-foreground hover:text-foreground">
@@ -75,6 +124,8 @@ export default function ImportQuote() {
           Paste the quote as CSV with columns for area, description, quantity, unit, rate and amount. Every line becomes a tracked scope line for evidence and claims.
         </p>
       </div>
+
+      <QuoteVoiceAssistant job={voiceJob} onPatch={applyVoicePatch} onAddLine={appendVoiceLine} />
 
       <div className="space-y-4 rounded-[4px] border border-border bg-card p-5">
         <div className="flex items-center justify-between">
