@@ -38,6 +38,25 @@ const RETENTION_FAQ = [
   },
 ];
 
+const FEE_FAQ = [
+  {
+    q: 'Is there a subscription?',
+    a: 'No. There is no monthly fee and no charge for importing a quote, capturing evidence, preparing a payment claim or serving it. The only charge is a success fee on escalated claims that recover more than the builder scheduled.',
+  },
+  {
+    q: 'How is the fee worked out?',
+    a: 'Three per cent of the difference between what the builder scheduled and what actually reached your account after escalation, capped at A$300 per claim. If the schedule allowed A$20,000 and A$24,000 is paid, the fee is 3 per cent of A$4,000, which is A$120.',
+  },
+  {
+    q: 'What if escalation recovers nothing?',
+    a: 'There is no fee. A claim paid as scheduled, or paid without a notice of intention, carries no charge at all, whatever the amount.',
+  },
+  {
+    q: 'When do I see the fee?',
+    a: 'The fee sits on the claim itself and updates the moment a payment is recorded, so the number is visible before it is ever invoiced. Nothing is deducted from the payment you receive.',
+  },
+];
+
 function FaqGroup({ title, items }) {
   return (
     <div>
@@ -59,6 +78,7 @@ export default function StepsFaq() {
     <div className="mt-10 space-y-9">
       <FaqGroup title="Payment claim deadlines, answered" items={DEADLINE_FAQ} />
       <FaqGroup title="Retention and defects liability, answered" items={RETENTION_FAQ} />
+      <FaqGroup title="What TradeClaim costs, answered" items={FEE_FAQ} />
       <p className="text-[11px] leading-relaxed text-muted-foreground">
         General information about security of payment law across Australia, not legal advice.
       </p>

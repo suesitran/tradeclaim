@@ -6,6 +6,7 @@ import IndustryStatement from '@/components/landing/IndustryStatement';
 import ProblemGrid from '@/components/landing/ProblemGrid';
 import Steps from '@/components/landing/Steps';
 import ClockBand from '@/components/landing/ClockBand';
+import Pricing from '@/components/landing/Pricing';
 import LandingFooter from '@/components/landing/LandingFooter';
 
 export default function Landing() {
@@ -38,6 +39,7 @@ export default function Landing() {
         <ProblemGrid />
         <Steps />
         <ClockBand cta={cta} />
+        <Pricing cta={cta} />
       </main>
       <LandingFooter />
     </div>
