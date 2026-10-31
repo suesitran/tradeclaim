@@ -1,17 +1,19 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, FileUp } from 'lucide-react';
+import { ArrowLeft, Download, FileUp } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { csvToScopeLines } from '@/lib/csv';
+import { csvToScopeLines, scopeLineToCsvRow, scopeLinesToCsv } from '@/lib/csv';
+import { CSV_TEMPLATE, downloadTextFile } from '@/lib/quoteTemplate';
 import { SAMPLES, SAMPLE_PLACEHOLDER } from '@/lib/sampleQuotes';
 import { formatAud } from '@/lib/format';
 import { addDays, todayYmd } from '@/lib/clock';
 import { DEFAULT_JURISDICTION, jurisdictionFor } from '@/lib/jurisdictions';
 import QuoteVoiceAssistant from '@/components/import/QuoteVoiceAssistant';
+import QuotePdfImport from '@/components/import/QuotePdfImport';
 
 export default function ImportQuote() {
   const navigate = useNavigate();
@@ -149,40 +151,48 @@ export default function ImportQuote() {
     if (patch.next_claim_date !== undefined) setNextClaim(next.next_claim_date);
   };
 
-  const appendVoiceLine = (line) => {
-    const quantity = Number(line.quantity || 0);
-    const rate = Number(line.rate || 0);
-    const cells = [
-      line.area || '',
-      line.description || '',
-      line.quantity ?? '',
-      line.unit || '',
-      line.rate ?? '',
-      Math.round(quantity * rate * 100) / 100,
-    ];
-    const row = cells
-      .map((cell) => {
-        const text = String(cell);
-        return /[",\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+  const appendVoiceLines = (incoming) => {
+    const read = (incoming || [])
+      .map((line) => {
+        const description = String((line && line.description) || '').trim();
+        if (!description) return null;
+        const quantity = Number(line.quantity || 0);
+        const rate = Number(line.rate || 0);
+        return {
+          area: line.area || '',
+          description,
+          quantity,
+          unit: line.unit || '',
+          rate,
+          amount: Math.round(quantity * rate * 100) / 100,
+          percent_complete_to_date: 0,
+        };
       })
-      .join(',');
-    linesRef.current = [
-      ...linesRef.current,
-      {
-        area: line.area || '',
-        description: line.description || '',
-        quantity,
-        unit: line.unit || '',
-        rate,
-        amount: Math.round(quantity * rate * 100) / 100,
-        sort_order: linesRef.current.length + 1,
-        percent_complete_to_date: 0,
-      },
-    ];
+      .filter(Boolean);
+    if (!read.length) return 0;
+
+    const withOrder = read.map((line, index) => ({ ...line, sort_order: linesRef.current.length + index + 1 }));
+    linesRef.current = [...linesRef.current, ...withOrder];
     setCsv((current) => {
       const body = current.replace(/\s+$/, '');
-      return body ? `${body}\n${row}` : `Area,Description,Quantity,Unit,Rate,Amount\n${row}`;
+      const rows = withOrder.map(scopeLineToCsvRow).join('\n');
+      return body ? `${body}\n${rows}` : `Area,Description,Quantity,Unit,Rate,Amount\n${rows}`;
     });
+    setError('');
+    return withOrder.length;
+  };
+
+  const applyExtractedQuote = (data) => {
+    const header = data.job || {};
+    const patch = {};
+    if (header.job_number) patch.job_number = header.job_number;
+    if (header.name) patch.name = header.name;
+    if (header.site_address) patch.site_address = header.site_address;
+    if (header.builder_name) patch.builder_name = header.builder_name;
+    if (header.builder_email) patch.builder_email = header.builder_email;
+    if (header.retention_percent) patch.retention_percent = header.retention_percent;
+    if (Object.keys(patch).length) applyVoicePatch(patch);
+    setCsv(scopeLinesToCsv((data.lines || []).map((line, index) => ({ ...line, sort_order: index + 1 }))));
     setError('');
   };
 
@@ -210,14 +220,16 @@ export default function ImportQuote() {
         <p className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground">Step one</p>
         <h1 className="mt-1 font-heading text-3xl font-semibold tracking-tight">Import a quote</h1>
         <p className="mt-1.5 max-w-xl text-sm text-muted-foreground">
-          Talk it through and the assistant fills the quote in and saves the draft as you go, or paste it as CSV with columns for area, description, quantity, unit, rate and amount. Every line becomes a tracked scope line for evidence and claims.
+          Upload the quote as a PDF, talk it through, or paste it as CSV with columns for area, description, quantity, unit, rate and amount. Every line becomes a tracked scope line for evidence and claims.
         </p>
       </div>
+
+      <QuotePdfImport onExtracted={applyExtractedQuote} />
 
       <QuoteVoiceAssistant
         job={voiceJob}
         onPatch={applyVoicePatch}
-        onAddLine={appendVoiceLine}
+        onAddLines={appendVoiceLines}
         onSaveDraft={saveDraft}
         onSaveFinal={saveFinal}
       />
@@ -225,7 +237,16 @@ export default function ImportQuote() {
       <div className="space-y-4 rounded-[4px] border border-border bg-card p-5">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <Label htmlFor="csv">Quoted scope, CSV</Label>
-          <span className="text-[11px] text-muted-foreground">Sample quote</span>
+          <div className="flex flex-wrap items-center gap-3">
+            <span className="text-[11px] text-muted-foreground">Sample quote</span>
+            <button
+              type="button"
+              onClick={() => downloadTextFile('tradeclaim-quote-template.csv', CSV_TEMPLATE)}
+              className="inline-flex items-center gap-1 text-[11px] text-accent hover:underline"
+            >
+              <Download className="h-3 w-3" /> Download the CSV template
+            </button>
+          </div>
         </div>
         <div className="flex flex-wrap gap-1.5">
           {SAMPLES.map((sample) => (

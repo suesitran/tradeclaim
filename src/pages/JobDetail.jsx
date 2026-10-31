@@ -1,12 +1,14 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { ArrowLeft, Camera, FileText, Plus } from 'lucide-react';
+import { ArrowLeft, Camera, FileText, Pencil, Plus } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import StatusPill from '@/components/StatusPill';
 import EvidenceGrid from '@/components/EvidenceGrid';
 import ScopeLineTable from '@/components/jobs/ScopeLineTable';
 import NewClaimDialog from '@/components/claims/NewClaimDialog';
+import EditJobDialog from '@/components/jobs/EditJobDialog';
+import ScopeLineDialog from '@/components/jobs/ScopeLineDialog';
 import DefectRegister from '@/components/defects/DefectRegister';
 import { effectiveStatus, nextActionFor } from '@/lib/claims';
 import { formatAud, formatDate } from '@/lib/format';
@@ -29,6 +31,8 @@ export default function JobDetail() {
   const [defectVisits, setDefectVisits] = useState([]);
   const [loading, setLoading] = useState(true);
   const [claimOpen, setClaimOpen] = useState(false);
+  const [editJobOpen, setEditJobOpen] = useState(false);
+  const [lineDialog, setLineDialog] = useState({ open: false, line: null });
 
   const load = async () => {
     const [jobRecord, linePage, evidencePage, variationPage, claimPage, defectPage, visitPage] = await Promise.all([
@@ -82,6 +86,9 @@ export default function JobDetail() {
           <p className="mt-1 text-sm text-muted-foreground">{job.site_address}{job.site_address ? '  |  ' : ''}{jurisdiction.name}</p>
         </div>
         <div className="flex flex-wrap gap-2">
+          <Button variant="outline" onClick={() => setEditJobOpen(true)}>
+            <Pencil className="mr-2 h-4 w-4" /> Edit job
+          </Button>
           <Button asChild variant="outline">
             <Link to={`/jobs/${job.id}/capture`}>
               <Camera className="mr-2 h-4 w-4" /> Capture
@@ -154,9 +161,19 @@ export default function JobDetail() {
       <section className="overflow-hidden rounded-[4px] border border-border bg-card">
         <div className="flex items-center justify-between border-b border-border px-5 py-3">
           <h2 className="font-heading text-sm font-semibold">Scope lines</h2>
-          <span className="text-[11px] text-muted-foreground">{lines.length} quoted lines</span>
+          <div className="flex items-center gap-3">
+            <span className="text-[11px] text-muted-foreground">{lines.length} quoted lines</span>
+            <Button variant="outline" size="sm" onClick={() => setLineDialog({ open: true, line: null })}>
+              <Plus className="mr-1.5 h-3.5 w-3.5" /> Add line
+            </Button>
+          </div>
         </div>
-        <ScopeLineTable lines={lines} evidenceByLine={evidenceByLine} claims={claims} />
+        <ScopeLineTable
+          lines={lines}
+          evidenceByLine={evidenceByLine}
+          claims={claims}
+          onEdit={(line) => setLineDialog({ open: true, line })}
+        />
       </section>
 
       <section className="overflow-hidden rounded-[4px] border border-border bg-card">
@@ -209,6 +226,17 @@ export default function JobDetail() {
         evidence={evidence}
         variations={variations}
         onCreated={() => load()}
+      />
+
+      <EditJobDialog open={editJobOpen} onOpenChange={setEditJobOpen} job={job} onSaved={load} />
+
+      <ScopeLineDialog
+        open={lineDialog.open}
+        onOpenChange={(open) => setLineDialog({ open, line: open ? lineDialog.line : null })}
+        job={job}
+        lines={lines}
+        line={lineDialog.line}
+        onSaved={load}
       />
     </div>
   );

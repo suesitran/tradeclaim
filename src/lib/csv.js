@@ -40,6 +40,21 @@ function toNumber(value) {
   return Number.isFinite(parsed) ? parsed : 0;
 }
 
+export function csvCell(value) {
+  const text = String(value ?? '');
+  return /[",\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+}
+
+export function scopeLineToCsvRow(line) {
+  return [line.area ?? '', line.description ?? '', line.quantity ?? '', line.unit ?? '', line.rate ?? '', line.amount ?? '']
+    .map(csvCell)
+    .join(',');
+}
+
+export function scopeLinesToCsv(lines) {
+  return ['Area,Description,Quantity,Unit,Rate,Amount', ...(lines || []).map(scopeLineToCsvRow)].join('\n');
+}
+
 export function csvToScopeLines(text) {
   const rows = parseCsv(text);
   if (!rows.length) return { lines: [], error: 'Nothing to import' };

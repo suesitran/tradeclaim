@@ -4,6 +4,7 @@ import { ArrowRight, Plus } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import JobCard from '@/components/jobs/JobCard';
+import HowItWorks from '@/components/jobs/HowItWorks';
 import { effectiveStatus } from '@/lib/claims';
 import { formatAud } from '@/lib/format';
 
@@ -67,6 +68,8 @@ export default function Jobs() {
           <p className="num mt-1 text-xl">{formatAud(outstanding)}</p>
         </div>
       </div>
+
+      <HowItWorks />
 
       {loading ? (
         <p className="py-12 text-center text-sm text-muted-foreground">Loading jobs</p>

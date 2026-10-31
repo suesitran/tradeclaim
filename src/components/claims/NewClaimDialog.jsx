@@ -45,7 +45,7 @@ export default function NewClaimDialog({ open, onOpenChange, job, scopeLines, cl
 
   const handleCreate = async () => {
     const chosen = items.filter((item) => item.percent > 0);
-    if (!chosen.length) return;
+    if (!chosen.length && !chosenVariations.length) return;
     setSaving(true);
     try {
       const user = await base44.auth.me().catch(() => null);
@@ -74,9 +74,11 @@ export default function NewClaimDialog({ open, onOpenChange, job, scopeLines, cl
         claimant_name: user ? user.full_name || user.email : '',
         claimant_email: user ? user.email : '',
       });
-      await base44.entities.ScopeLine.bulkUpdate(
-        chosen.map((item) => ({ id: item.id, percent_complete_to_date: Math.min(100, Math.round((item.claimed + item.percent) * 10) / 10) })),
-      );
+      if (chosen.length) {
+        await base44.entities.ScopeLine.bulkUpdate(
+          chosen.map((item) => ({ id: item.id, percent_complete_to_date: Math.min(100, Math.round((item.claimed + item.percent) * 10) / 10) })),
+        );
+      }
       onCreated(claim);
       onOpenChange(false);
     } finally {
@@ -90,7 +92,7 @@ export default function NewClaimDialog({ open, onOpenChange, job, scopeLines, cl
         <DialogHeader className="border-b border-border px-5 py-4">
           <DialogTitle className="font-heading text-lg">Generate claim {nextClaimNumber(claims)}</DialogTitle>
           <DialogDescription>
-            Set the percentage of each scope line to claim this period. Lines with photos are pre-filled.
+            Set the percentage of each scope line to claim this period. Lines with photos are pre-filled. Tick variations to claim them too, even when no scope line is ready.
           </DialogDescription>
         </DialogHeader>
 

@@ -23,18 +23,29 @@ const TOOLS = [
     },
   },
   {
-    name: 'add_scope_line',
-    description: 'Add one quoted scope line to the quote being imported.',
+    name: 'add_scope_lines',
+    description:
+      'Add quoted scope lines to the quote. Send every line you have understood in a single call, however many there are.',
     parameters: {
       type: 'OBJECT',
       properties: {
-        area: { type: 'STRING', description: 'Level or area, for example L1 Apartments' },
-        description: { type: 'STRING' },
-        quantity: { type: 'NUMBER' },
-        unit: { type: 'STRING', description: 'm2, lm, no or item' },
-        rate: { type: 'NUMBER', description: 'Dollars per unit excluding GST' },
+        lines: {
+          type: 'ARRAY',
+          description: 'Each quoted wording as its own scope line',
+          items: {
+            type: 'OBJECT',
+            properties: {
+              area: { type: 'STRING', description: 'Level or area, for example L1 Apartments' },
+              description: { type: 'STRING', description: 'The wording of the work, without area or money' },
+              quantity: { type: 'NUMBER' },
+              unit: { type: 'STRING', description: 'm2, lm, no or item' },
+              rate: { type: 'NUMBER', description: 'Dollars per unit excluding GST' },
+            },
+            required: ['description'],
+          },
+        },
       },
-      required: ['description', 'quantity', 'unit', 'rate'],
+      required: ['lines'],
     },
   },
   {
@@ -57,30 +68,27 @@ function buildInstruction(job, lineCount) {
     '',
     'Speak in Australian English, plainly, like a helpful estimator. Keep every reply to one or two short sentences. Never use em dashes.',
     '',
-    'You run the conversation. You speak first: greet the user in one short sentence, then ask your first question, so they never have to work out what to say. After that, ask one question at a time, wait for the answer, record it with a tool, say in one short sentence what you saved, then ask the next question. Never read out the whole list of questions at once, and never stay silent waiting for them to lead.',
+    'You run the conversation. You speak first: greet the user in one short sentence, then invite them to give you the quote however they like, either the whole quote in one go or a piece at a time. After each thing they say, record it with a tool and say in one short sentence what was recorded. Keep the flow moving and never stay silent waiting for them to lead. If they are giving the job details first, ask only for the next detail they have not given.',
     '',
     'Record answers with the tools as you go. Never invent a number, a date, an email address or a scope line. If an answer sounds ambiguous or incomplete, ask a clarifying question before recording it. Repeat money amounts and email addresses back to the user for confirmation.',
     '',
-    'What to collect, in this order:',
-    '1. The job name, and the job number if they have one.',
-    '2. The site address.',
-    '3. The builder name and the builder email address used when serving claims.',
-    '4. Each quoted scope line: area or level, description, quantity, unit and rate. Rate is dollars per unit excluding GST. If they only give a total, ask for the quantity and the rate.',
-    '5. Retention percent, only if it is not the usual five percent.',
-    '6. Whether the quote is complete, and anything still missing from it.',
+    'How to work:',
+    '- Take the whole quote in one go. When the user reads out or pastes many wordings, level after level or trade after trade, split them yourself into one scope line per wording and record them all in a single add_scope_lines call. Never ask them to slow down, repeat themselves or go one line at a time.',
+    '- Work out the area, description, quantity, unit and rate yourself from what they said. Only ask about something genuinely missing or unclear, for example a quantity with no unit, a rate that is clearly a total, or a line with no area when the others have one. Ask one question at a time, and only when the answer is needed to record what they just said.',
+    '- Never invent a quantity, a rate, a date or an email address. Read money amounts and email addresses back for confirmation before saving.',
+    '',
+    'What to collect, asking only for what they have not already given:',
+    '1. The job name and job number, the site address, the builder name, and the builder email used when serving claims.',
+    '2. Every quoted scope line, with its area, description, quantity, unit and rate in dollars per unit excluding GST.',
+    '3. Retention percent, only if it is not the usual five percent.',
+    '4. Whether the quote is complete, and anything still missing from it.',
     '',
     'Every job is in Victoria and counted under the Victorian security of payment Act. Never ask for a state or territory.',
     '',
-    'Rules:',
-    '- Call add_scope_line as soon as you understand one line. Do not wait for the whole quote.',
-    '- After recording a line, read the quantity, unit and rate back in one sentence, then ask for the next line.',
-    '- Ask again for anything you are unsure of rather than guessing.',
-    '- If the user does not name the level or area, ask which area the line belongs to.',
-    '- Use unit as m2, lm, no or item, whichever the user says.',
-    '- Dates are recorded as YYYY-MM-DD.',
-    '- Saving is your job, not theirs. As soon as you have the job name, the builder name and the builder email, call save_quote_draft yourself so the work is kept. Never ask the user to press a save button.',
+    'Saving:',
+    '- Saving is your job, not theirs. As soon as you have the job name, the builder name and the builder email, call save_quote_draft yourself.',
     '- Call save_quote_draft again after you add or correct scope lines, so the saved draft always matches what has been said.',
-    '- When the user says the quote is complete, agrees the total, or asks you to finish it, call save_quote_final, then say in one short sentence that it is saved as the final quote.',
+    '- When the user says the quote is complete or asks you to finish, read back the job name, the number of lines and the total in one sentence, then call save_quote_final.',
     '- If a save tool replies that something is still needed, ask for exactly that, then save again.',
     '- Once save_quote_final has succeeded, do not call it again.',
     '',
@@ -88,7 +96,7 @@ function buildInstruction(job, lineCount) {
   ].join('\n');
 }
 
-export default function QuoteVoiceAssistant({ job, onPatch, onAddLine, onSaveDraft, onSaveFinal }) {
+export default function QuoteVoiceAssistant({ job, onPatch, onAddLines, onSaveDraft, onSaveFinal }) {
   const scrollerRef = useRef(null);
   const lineCount = Number(job.line_count || 0);
 
@@ -97,9 +105,9 @@ export default function QuoteVoiceAssistant({ job, onPatch, onAddLine, onSaveDra
       onPatch(args);
       return { result: 'Saved' };
     }
-    if (name === 'add_scope_line') {
-      onAddLine(args);
-      return { result: 'Line added to the quote' };
+    if (name === 'add_scope_lines') {
+      const added = onAddLines((args && args.lines) || []);
+      return { result: added ? `${added} scope lines added to the quote` : 'No lines were added, send each line with a description' };
     }
     if (name === 'save_quote_draft') {
       const outcome = await onSaveDraft();
@@ -181,7 +189,7 @@ export default function QuoteVoiceAssistant({ job, onPatch, onAddLine, onSaveDra
 
         {!connecting && !error && !messages.length ? (
           <p className="text-[12px] leading-relaxed text-muted-foreground">
-            Start talking and it greets you, then asks one question at a time as it fills this form, asking again whenever something is unclear. It collects the job name, site address, builder and email, then each quoted line with its area, quantity, unit and rate, and saves the quote as a draft itself as you go. Allow microphone access when asked.
+            Start talking and it greets you. Read the whole quote out in one go and it splits every wording into its own scope line, or give it a piece at a time and it will ask for just what is missing. It also takes the job name, site address, builder and email, and saves the quote as a draft itself as you go. Allow microphone access when asked.
           </p>
         ) : null}
 

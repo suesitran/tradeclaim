@@ -1,6 +1,7 @@
-import { formatAud, formatDate } from '@/lib/format';
+import { formatAud } from '@/lib/format';
+import { Pencil } from 'lucide-react';
 
-export default function ScopeLineTable({ lines, evidenceByLine, claims }) {
+export default function ScopeLineTable({ lines, evidenceByLine, claims, onEdit }) {
   const claimedPercent = (lineId) =>
     (claims || []).reduce((total, claim) => {
       const match = (claim.lines || []).filter((line) => line.scope_line_id === lineId);
@@ -20,7 +21,10 @@ export default function ScopeLineTable({ lines, evidenceByLine, claims }) {
             <th className="px-3 py-2.5 text-right font-medium">Amount</th>
             <th className="px-3 py-2.5 text-right font-medium">Claimed</th>
             <th className="px-3 py-2.5 font-medium">Evidence</th>
-            <th className="px-5 py-2.5 text-right font-medium">Done</th>
+            <th className="px-3 py-2.5 text-right font-medium">Done</th>
+            <th className="px-5 py-2.5 text-right font-medium">
+              <span className="sr-only">Edit</span>
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -45,7 +49,18 @@ export default function ScopeLineTable({ lines, evidenceByLine, claims }) {
                     <span className="rounded-full border border-[#CBDCEB] bg-[#E7EEF5] px-2 py-0.5 text-[10px] text-[#1F4A70]">C {counts.clear}</span>
                   </div>
                 </td>
-                <td className="num px-5 py-3 text-right text-[13px]">{Math.round(percent)}%</td>
+                <td className="num px-3 py-3 text-right text-[13px]">{Math.round(percent)}%</td>
+                <td className="px-5 py-3 text-right">
+                  {onEdit ? (
+                    <button
+                      type="button"
+                      onClick={() => onEdit(line)}
+                      className="inline-flex items-center gap-1 rounded-[3px] border border-border px-2 py-1 text-[11px] text-muted-foreground transition-colors hover:border-accent hover:text-accent"
+                    >
+                      <Pencil className="h-3 w-3" /> Edit
+                    </button>
+                  ) : null}
+                </td>
               </tr>
             );
           })}
