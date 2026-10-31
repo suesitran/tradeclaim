@@ -19,13 +19,13 @@ export default function Hero({ cta }) {
         </p>
 
         <h1 className="mt-5 max-w-3xl font-heading text-[34px] font-semibold leading-[1.05] tracking-tight sm:text-5xl">
-          The work is done. Getting paid is the hard part.
+          The work is done. Getting paid in Victoria is the hard part.
         </h1>
 
         <p className="mt-5 max-w-2xl text-[15px] leading-relaxed text-muted-foreground sm:text-base">
-          Survival Kit turns what happened on site into a compliant payment claim, serves it to the
-          builder on time, and runs the statutory clock from the moment it lands, so the deadline works
-          against them, not you.
+          Survival Kit runs the Victorian claims process end to end: a compliant payment claim served under
+          the Security of Payment Act 2002 (Vic), 10 business days for the builder's payment schedule, and a
+          notice of intention drafted the moment that date passes unpaid.
         </p>
 
         <div className="mt-8 flex flex-wrap items-center gap-3">
