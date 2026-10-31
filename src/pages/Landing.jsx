@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import LandingHeader from '@/components/landing/LandingHeader';
 import Hero from '@/components/landing/Hero';
+import IndustryStatement from '@/components/landing/IndustryStatement';
 import ProblemGrid from '@/components/landing/ProblemGrid';
 import Steps from '@/components/landing/Steps';
 import ClockBand from '@/components/landing/ClockBand';
@@ -32,6 +33,7 @@ export default function Landing() {
       <LandingHeader cta={cta} />
       <main>
         <Hero cta={cta} />
+        <IndustryStatement />
         <ProblemGrid />
         <Steps />
         <ClockBand cta={cta} />
