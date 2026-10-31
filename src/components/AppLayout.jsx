@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { LayoutGrid, CalendarClock, Upload, LogOut } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
+import AppPricingNote from '@/components/AppPricingNote';
 
 const LINKS = [
   { to: '/app', label: 'Jobs', icon: LayoutGrid, end: true },
@@ -66,6 +67,8 @@ export default function AppLayout() {
           </div>
         </div>
       </header>
+
+      <AppPricingNote />
 
       <main className="mx-auto w-full max-w-6xl px-4 pb-28 pt-6 sm:px-6 md:pb-14">
         <Outlet />
