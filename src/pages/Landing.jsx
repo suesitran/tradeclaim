@@ -15,12 +15,13 @@ export default function Landing() {
 
   const cta = loggedIn ? { to: '/app', label: 'Go to app' } : { to: '/register', label: 'Sign up' };
   const signIn = loggedIn ? null : { to: '/login', label: 'Log in' };
+  const trial = loggedIn ? cta : { to: '/demo', label: 'Try it free, no account' };
 
   return (
     <div className="min-h-screen bg-background">
       <LandingHeader cta={cta} signIn={signIn} />
       <main>
-        <Hero cta={cta} />
+        <Hero cta={trial} />
         <IndustryStatement />
         <ProblemGrid />
         <WhyItPersists />
