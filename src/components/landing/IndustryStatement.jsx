@@ -55,17 +55,20 @@ export default function IndustryStatement() {
           ))}
         </dl>
 
-        <p className="mt-5 text-[11px] leading-relaxed text-primary-foreground/55">
-          Sources:{' '}
+        <p className="mt-6 text-[10px] uppercase tracking-[0.1em] leading-relaxed text-primary-foreground/30">
           {SOURCES.map((source, index) => (
             <React.Fragment key={source.href}>
-              {index > 0 ? ', ' : ''}
-              <a href={source.href} target="_blank" rel="noreferrer" className="underline underline-offset-2">
+              {index > 0 ? ' / ' : ''}
+              <a
+                href={source.href}
+                target="_blank"
+                rel="noreferrer"
+                className="transition-colors hover:text-primary-foreground/60"
+              >
                 {source.label}
               </a>
             </React.Fragment>
           ))}
-          .
         </p>
       </div>
     </section>
