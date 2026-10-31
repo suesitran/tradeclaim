@@ -40,6 +40,25 @@ export default function Steps() {
           ))}
         </ol>
 
+        <div className="mt-6 grid gap-px overflow-hidden rounded-[3px] border border-border bg-border sm:grid-cols-2">
+          <div className="bg-card p-5">
+            <p className="num text-[10px] uppercase tracking-[0.14em] text-accent">If they keep ignoring it</p>
+            <p className="mt-2 text-[13px] leading-relaxed text-muted-foreground">
+              The schedule deadline passes with no answer, so the unpaid claim is escalated to a notice of
+              intention: the amount, the work it covers and the date it was served, drafted and ready to send.
+              The deadline is then tracked against the builder, not against you.
+            </p>
+          </div>
+          <div className="bg-card p-5">
+            <p className="num text-[10px] uppercase tracking-[0.14em] text-accent">If they argue or pay short</p>
+            <p className="mt-2 text-[13px] leading-relaxed text-muted-foreground">
+              A disputed or short payment schedule moves to adjudication. The scope lines, the photos and the
+              amount are already assembled in one document, with the apply-by date tracked so the right to
+              adjudicate is not lost weeks after the work was finished.
+            </p>
+          </div>
+        </div>
+
         <p className="mt-6 max-w-2xl text-[12px] leading-relaxed text-muted-foreground">
           Builders never need an account. They receive the claim and the notices by email, and the record of
           when each one was served stays with the job.
