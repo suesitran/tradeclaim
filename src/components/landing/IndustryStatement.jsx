@@ -1,9 +1,24 @@
 import React from 'react';
 
 const STATS = [
-  ['About 1 in 10', 'Australian workers are employed in construction'],
-  ['98%', 'of construction businesses are small businesses'],
-  ['Most', 'insolvencies of any Australian industry happen in construction'],
+  ['1.3 million', 'people employed in Australian construction'],
+  ['98.5%', 'of construction businesses have fewer than 20 employees'],
+  ['26%', 'of all Australian insolvencies were in construction in 2024-25'],
+];
+
+const SOURCES = [
+  {
+    label: 'ABS, Australian Industry 2023-24',
+    href: 'https://www.abs.gov.au/articles/nuts-and-bolts-australian-construction-industry',
+  },
+  {
+    label: 'ABS and RBA, Size Matters (2025)',
+    href: 'https://www.rba.gov.au/publications/other-confs/abs-and-rba-joint-conferences/2025/pdf/abs-rba-conference-2025-wilson-brooks.pdf',
+  },
+  {
+    label: 'Building and Plumbing Commission Victoria, insolvency research',
+    href: 'https://www.bpc.vic.gov.au/resource-hub/research-projects/insolvency-in-the-construction-industry',
+  },
 ];
 
 export default function IndustryStatement() {
@@ -13,20 +28,21 @@ export default function IndustryStatement() {
         <p className="num text-[11px] uppercase tracking-[0.18em] text-accent">The scale of it</p>
 
         <h2 className="mt-4 max-w-3xl font-heading text-2xl font-semibold leading-[1.15] tracking-tight sm:text-[32px]">
-          Almost every building in Australia is finished by subcontractors. Most of them are small businesses.
+          Most of the work on an Australian building site is done by subcontractors. Almost all of them are small
+          businesses.
         </h2>
 
         <div className="mt-6 grid max-w-3xl gap-4 text-[13px] leading-relaxed text-primary-foreground/75 sm:grid-cols-2">
           <p>
-            Construction is one of the country&rsquo;s largest employers, and nearly all of its businesses are small.
-            The work is passed down a chain of contracts until it reaches a crew that has already paid for wages,
-            paint and time out of its own pocket.
+            Construction employed around 1.3 million people and produced 7.0 per cent of Australia&rsquo;s GDP in
+            2023-24. The trades earned $116.6 billion from subcontracting work and $71.4 billion from head contracts,
+            so the business doing the work is usually not the business holding the contract.
           </p>
           <p>
-            When a builder stops paying, the loss lands at the bottom of that chain, on trades with no reserves to
-            carry it. That is exactly why security of payment laws exist in every state. The right to be paid is
-            strong, but the claim has to be served correctly and the next step taken inside the deadline, or the
-            debt quietly becomes unrecoverable.
+            When a builder stops paying, the loss lands at the bottom of that chain, on businesses with no reserves to
+            carry it. In 2024-25, construction accounted for 26 per cent of all insolvencies in Australia. That is why
+            security of payment laws exist in every state, and why a claim must be served correctly and the next step
+            taken inside the deadline, or the debt quietly becomes unrecoverable.
           </p>
         </div>
 
@@ -38,6 +54,19 @@ export default function IndustryStatement() {
             </div>
           ))}
         </dl>
+
+        <p className="mt-5 text-[11px] leading-relaxed text-primary-foreground/55">
+          Sources:{' '}
+          {SOURCES.map((source, index) => (
+            <React.Fragment key={source.href}>
+              {index > 0 ? ', ' : ''}
+              <a href={source.href} target="_blank" rel="noreferrer" className="underline underline-offset-2">
+                {source.label}
+              </a>
+            </React.Fragment>
+          ))}
+          .
+        </p>
       </div>
     </section>
   );
