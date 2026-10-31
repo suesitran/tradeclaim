@@ -75,7 +75,14 @@ export default function Jobs() {
         </div>
         <div className="flex items-center gap-2">
           {!guide.complete && guideHidden ? (
-            <Button variant="ghost" size="sm" onClick={() => setGuideHidden(false)}>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                sessionStorage.removeItem(TUTORIAL_HIDDEN_KEY);
+                setGuideHidden(false);
+              }}
+            >
               Show the guided start
             </Button>
           ) : null}

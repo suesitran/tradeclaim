@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
-import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { LayoutGrid, CalendarClock, Upload, LogOut } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import AppPricingNote from '@/components/AppPricingNote';
+import GuidedStartBar from '@/components/tutorial/GuidedStartBar';
+import useGuidedStart from '@/hooks/useGuidedStart';
 
 const LINKS = [
   { to: '/app', label: 'Jobs', icon: LayoutGrid, end: true },
@@ -13,6 +15,10 @@ const LINKS = [
 export default function AppLayout() {
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
+  const { pathname } = useLocation();
+  const guide = useGuidedStart();
+  // The Jobs screen carries the full guided start, so the bar skips it there.
+  const showGuideBar = guide.loaded && !guide.complete && !guide.hidden && pathname !== '/app';
 
   useEffect(() => {
     base44.auth.me().then(setUser).catch(() => setUser(null));
@@ -69,6 +75,10 @@ export default function AppLayout() {
       </header>
 
       <AppPricingNote />
+
+      {showGuideBar ? (
+        <GuidedStartBar steps={guide.steps} activeIndex={guide.activeIndex} onHide={guide.hide} />
+      ) : null}
 
       <main className="mx-auto w-full max-w-6xl px-4 pb-28 pt-6 sm:px-6 md:pb-14">
         <Outlet />
