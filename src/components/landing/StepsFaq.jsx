@@ -60,7 +60,7 @@ export default function StepsFaq() {
       <FaqGroup title="Payment claim deadlines, answered" items={DEADLINE_FAQ} />
       <FaqGroup title="Retention and defects liability, answered" items={RETENTION_FAQ} />
       <p className="text-[11px] leading-relaxed text-muted-foreground">
-        General information about the Victorian security of payment scheme, not legal advice.
+        General information about security of payment law across Australia, not legal advice.
       </p>
     </div>
   );

@@ -17,7 +17,7 @@ export default function ClockBand({ cta }) {
           Every deadline is counted for you, in business days
         </h2>
         <p className="mt-3 max-w-2xl text-[14px] leading-relaxed text-primary-foreground/70">
-          Weekends and Victorian public holidays are excluded automatically, so the date you see is the date
+          Weekends and public holidays are excluded automatically, so the date you see is the date
           that counts.
         </p>
 

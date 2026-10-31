@@ -23,7 +23,7 @@ export default function Hero({ cta }) {
         </h1>
 
         <p className="mt-5 max-w-2xl text-[15px] leading-relaxed text-muted-foreground sm:text-base">
-          Survival Kit turns what happened on site into a compliant Victorian payment claim, serves it to the
+          Survival Kit turns what happened on site into a compliant payment claim, serves it to the
           builder on time, and runs the statutory clock from the moment it lands, so the deadline works
           against them, not you.
         </p>
