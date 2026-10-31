@@ -1,6 +1,6 @@
 import React from 'react';
 
-const FAQ = [
+const DEADLINE_FAQ = [
   {
     q: 'How long does a builder have to respond?',
     a: 'A payment schedule is due within 10 business days of the claim being served, or sooner if the contract names a shorter period. The date is worked out from the day the claim was emailed, counting business days only, so weekends and public holidays do not eat into it.',
@@ -19,19 +19,47 @@ const FAQ = [
   },
 ];
 
-export default function StepsFaq() {
+const RETENTION_FAQ = [
+  {
+    q: 'What is retention?',
+    a: 'A slice of every progress payment, usually 5 per cent, held back by the builder as security for the work. The contract rate is recorded against the job, so the amount being held is always visible rather than buried in a payment schedule.',
+  },
+  {
+    q: 'Does retention come off each claim?',
+    a: 'The claim is served for the value of work done excluding GST. TradeClaim keeps the contract percentage on the job instead of quietly reducing your claim, so a deduction that looks too high can be queried straight away.',
+  },
+  {
+    q: 'What is the defects liability period?',
+    a: 'The period after practical completion, commonly 12 months, when you have to return and fix defects. The end date sits on the job alongside the retention percentage.',
+  },
+  {
+    q: 'How do I get the retention back?',
+    a: 'Once the defects liability period ends, the retained amount is claimed like any other payment claim. The end date is on the job so it does not quietly lapse while you are on the next project.',
+  },
+];
+
+function FaqGroup({ title, items }) {
   return (
-    <div className="mt-10">
-      <h3 className="font-heading text-[15px] font-semibold tracking-tight">Payment claim deadlines, answered</h3>
+    <div>
+      <h3 className="font-heading text-[15px] font-semibold tracking-tight">{title}</h3>
       <dl className="mt-4 border-t border-border">
-        {FAQ.map((item) => (
+        {items.map((item) => (
           <div key={item.q} className="border-b border-border py-4 sm:grid sm:grid-cols-[minmax(0,14rem)_1fr] sm:gap-6">
             <dt className="text-[13px] font-medium text-foreground">{item.q}</dt>
             <dd className="mt-1.5 text-[13px] leading-relaxed text-muted-foreground sm:mt-0">{item.a}</dd>
           </div>
         ))}
       </dl>
-      <p className="mt-3 text-[11px] leading-relaxed text-muted-foreground">
+    </div>
+  );
+}
+
+export default function StepsFaq() {
+  return (
+    <div className="mt-10 space-y-9">
+      <FaqGroup title="Payment claim deadlines, answered" items={DEADLINE_FAQ} />
+      <FaqGroup title="Retention and defects liability, answered" items={RETENTION_FAQ} />
+      <p className="text-[11px] leading-relaxed text-muted-foreground">
         General information about the Victorian security of payment scheme, not legal advice.
       </p>
     </div>
