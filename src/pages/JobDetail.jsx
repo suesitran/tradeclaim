@@ -9,6 +9,7 @@ import ScopeLineTable from '@/components/jobs/ScopeLineTable';
 import NewClaimDialog from '@/components/claims/NewClaimDialog';
 import { effectiveStatus, nextActionFor } from '@/lib/claims';
 import { formatAud, formatDate } from '@/lib/format';
+import { jurisdictionFor } from '@/lib/jurisdictions';
 
 const VARIATION_TONES = {
   sent: 'bg-[#E7EEF5] text-[#1F4A70] border-[#CBDCEB]',
@@ -57,6 +58,8 @@ export default function JobDetail() {
   if (loading) return <p className="py-16 text-center text-sm text-muted-foreground">Loading job</p>;
   if (!job) return <p className="py-16 text-center text-sm text-muted-foreground">This job could not be found.</p>;
 
+  const jurisdiction = jurisdictionFor(job.state);
+
   return (
     <div className="space-y-6">
       <Link to="/app" className="inline-flex items-center gap-1.5 text-[12px] text-muted-foreground hover:text-foreground">
@@ -69,7 +72,7 @@ export default function JobDetail() {
             {job.job_number ? `Job ${job.job_number}` : 'Job'}  |  {job.builder_name}
           </p>
           <h1 className="mt-1 font-heading text-3xl font-semibold tracking-tight">{job.name}</h1>
-          <p className="mt-1 text-sm text-muted-foreground">{job.site_address}</p>
+          <p className="mt-1 text-sm text-muted-foreground">{job.site_address}{job.site_address ? '  |  ' : ''}{jurisdiction.name}</p>
         </div>
         <div className="flex flex-wrap gap-2">
           <Button asChild variant="outline">

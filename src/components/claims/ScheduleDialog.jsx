@@ -7,8 +7,9 @@ import { Label } from '@/components/ui/label';
 import { base44 } from '@/api/base44Client';
 import { formatAud, formatDate } from '@/lib/format';
 import { addBusinessDays, todayYmd } from '@/lib/clock';
+import { jurisdictionFor } from '@/lib/jurisdictions';
 
-export default function ScheduleDialog({ open, onOpenChange, claim, holidays, onSaved }) {
+export default function ScheduleDialog({ open, onOpenChange, claim, job, holidays, onSaved }) {
   const [amount, setAmount] = useState('');
   const [reasons, setReasons] = useState('');
   const [receivedAt, setReceivedAt] = useState(todayYmd());
@@ -23,7 +24,8 @@ export default function ScheduleDialog({ open, onOpenChange, claim, holidays, on
 
   const scheduled = Number(amount || 0);
   const claimed = Number(claim?.amount_claimed_ex_gst || 0);
-  const applyBy = addBusinessDays(receivedAt, 10, holidays);
+  const jurisdiction = jurisdictionFor(job?.state);
+  const applyBy = addBusinessDays(receivedAt, jurisdiction.applyDays, holidays, jurisdiction.code);
   const short = scheduled < claimed - 0.005;
 
   const handleSave = async () => {
@@ -77,7 +79,11 @@ export default function ScheduleDialog({ open, onOpenChange, claim, holidays, on
           </div>
           <p className="rounded-[3px] border border-border bg-secondary px-3 py-2 text-[12px] text-muted-foreground">
             {short ? (
-              <>Scheduled short by {formatAud(claimed - scheduled)}. Apply for adjudication by <span className="text-foreground">{formatDate(applyBy)}</span>.</>
+              <>
+                Scheduled short by {formatAud(claimed - scheduled)}. Apply for adjudication by{' '}
+                <span className="text-foreground">{formatDate(applyBy)}</span>, {jurisdiction.applyDays} {jurisdiction.unit} under the{' '}
+                {jurisdiction.act}.
+              </>
             ) : (
               <>Scheduled in full. Next step is to record the payment.</>
             )}

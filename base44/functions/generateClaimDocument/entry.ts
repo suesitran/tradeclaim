@@ -2,6 +2,7 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.54';
 import { buildPaymentClaim, buildNoticeOfIntention, buildAdjudicationPreview } from '../../shared/documents.ts';
 import { loadPhotoMap, evidenceForLines, uploadPdf, emailPdf } from '../../shared/photos.ts';
 import { loadHolidaySet, addBusinessDays, toYmd, formatAud, formatYmdAu } from '../../shared/clock.ts';
+import { jurisdictionFor } from '../../shared/jurisdictions.ts';
 
 const TITLES = {
   payment_claim: 'Payment claim',
@@ -27,11 +28,12 @@ export default async function (req) {
     if (!job) return Response.json({ error: 'Job not found' }, { status: 404 });
 
     let current = { ...claim };
+    const jurisdiction = jurisdictionFor(job.state);
 
     if (body.serve && type === 'payment_claim' && !current.served_at) {
       const servedAt = body.served_at || toYmd(new Date());
-      const holidays = await loadHolidaySet(base44);
-      const dueAt = addBusinessDays(servedAt, 10, holidays);
+      const holidays = await loadHolidaySet(base44, job.state);
+      const dueAt = addBusinessDays(servedAt, jurisdiction.scheduleDays, holidays, job.state);
       current = await base44.entities.Claim.update(claim.id, {
         served_at: servedAt,
         schedule_due_at: dueAt,
@@ -78,8 +80,12 @@ export default async function (req) {
           : `Notice of intention to apply for adjudication, claim ${current.claim_number}, ${job.name}`;
       const intro =
         type === 'payment_claim'
-          ? `Please find attached payment claim ${current.claim_number} for ${job.name}, served ${formatYmdAu(current.served_at)}. This is a payment claim made under the Building and Construction Industry Security of Payment Act 2002 (Vic). A payment schedule is required within 10 business days, by ${formatYmdAu(current.schedule_due_at)}.`
-          : `Please find attached a notice of intention to apply for adjudication of claim ${current.claim_number} for ${job.name}. A payment schedule was required by ${formatYmdAu(current.schedule_due_at)} and has not been received. A payment schedule is now required within 2 business days of this notice.`;
+          ? `Please find attached payment claim ${current.claim_number} for ${job.name}, served ${formatYmdAu(current.served_at)}. This is a payment claim made under the ${jurisdiction.act}. A payment schedule is required within ${jurisdiction.scheduleDays} ${jurisdiction.unit}, by ${formatYmdAu(current.schedule_due_at)}.`
+          : `Please find attached a notice of intention to apply for adjudication of claim ${current.claim_number} for ${job.name}. A payment schedule was required by ${formatYmdAu(current.schedule_due_at)} and has not been received. ${
+              jurisdiction.noticeDays
+                ? `A payment schedule is now required within ${jurisdiction.noticeDays} ${jurisdiction.unit} of this notice.`
+                : 'An application for adjudication may now be made.'
+            }`;
       emailResult = await emailPdf(base44, {
         to: job.builder_email,
         subject,

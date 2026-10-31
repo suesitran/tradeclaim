@@ -40,7 +40,7 @@ export default function Jobs() {
     <div className="space-y-8">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground">Victoria, one trade pack</p>
+          <p className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground">One trade pack, eight jurisdictions</p>
           <h1 className="mt-1 font-heading text-3xl font-semibold tracking-tight">Jobs</h1>
           <p className="mt-1.5 max-w-xl text-sm text-muted-foreground">
             Every quoted scope line, its evidence, and the claim clock. Open a job to serve the next claim.

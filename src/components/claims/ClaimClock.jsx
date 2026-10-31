@@ -1,6 +1,8 @@
 import { formatDate } from '@/lib/format';
+import { jurisdictionFor } from '@/lib/jurisdictions';
 
-export default function ClaimClock({ claim, status }) {
+export default function ClaimClock({ claim, status, job }) {
+  const jurisdiction = jurisdictionFor(job?.state);
   const rows = [
     { label: 'Served', value: claim.served_at },
     { label: 'Payment schedule due', value: claim.schedule_due_at },
@@ -13,7 +15,10 @@ export default function ClaimClock({ claim, status }) {
     <div className="rounded-[4px] border border-border bg-card">
       <div className="border-b border-border px-5 py-3">
         <h2 className="font-heading text-sm font-semibold">The clock</h2>
-        <p className="mt-0.5 text-[11px] text-muted-foreground">10 business days for a schedule, then 10 business days to apply.</p>
+        <p className="mt-0.5 text-[11px] text-muted-foreground">
+          {jurisdiction.name}: {jurisdiction.scheduleDays} {jurisdiction.unit} for a schedule, then {jurisdiction.applyDays}{' '}
+          {jurisdiction.unit} to apply under the {jurisdiction.act}.
+        </p>
       </div>
       <dl className="divide-y divide-border">
         {rows.map((row) => (
@@ -25,7 +30,10 @@ export default function ClaimClock({ claim, status }) {
       </dl>
       {status === 'ignored' ? (
         <p className="border-t border-border px-5 py-3 text-[11px] text-[#8C2A1E]">
-          The schedule date has passed with no schedule on record. The notice of intention gives the builder 2 business days.
+          The schedule date has passed with no schedule on record.{' '}
+          {jurisdiction.noticeDays
+            ? `The notice of intention gives the builder ${jurisdiction.noticeDays} ${jurisdiction.unit}.`
+            : 'A notice of intention records the claim before the application for adjudication is made.'}
         </p>
       ) : null}
       {status === 'scheduled_short' ? (

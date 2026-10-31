@@ -20,7 +20,7 @@ export default async function (req) {
       .map((line) => `id: ${line.id} | area: ${line.area || 'n/a'} | ${line.description} | currently ${Math.round(Number(line.percent_complete_to_date || 0))}% complete`)
       .join('\n');
 
-    const prompt = `You are reading a site foreman's dictated progress note for a Victorian painting subcontractor and turning it into structured progress against a quoted scope of work.
+    const prompt = `You are reading a site foreman's dictated progress note for an Australian painting subcontractor and turning it into structured progress against a quoted scope of work.
 
 Scope lines for this job:
 ${list}

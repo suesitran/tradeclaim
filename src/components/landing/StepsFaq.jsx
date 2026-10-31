@@ -3,7 +3,7 @@ import React from 'react';
 const DEADLINE_FAQ = [
   {
     q: 'How long does a builder have to respond?',
-    a: 'A payment schedule is due within 10 business days of the claim being served, or sooner if the contract names a shorter period. The date is worked out from the day the claim was emailed, counting business days only, so weekends and public holidays do not eat into it.',
+    a: 'It depends on the state or territory: 10 business days in New South Wales, Victoria, Tasmania and the ACT, 15 in Queensland, South Australia and Western Australia, or sooner if the contract names a shorter period. The date is worked out from the day the claim was emailed, counting business days only, so weekends, public holidays and the end of year shutdown do not eat into it.',
   },
   {
     q: 'What if the deadline passes with no answer?',

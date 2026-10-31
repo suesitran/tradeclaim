@@ -11,6 +11,21 @@
     "site_address": {
       "type": "string"
     },
+    "state": {
+      "type": "string",
+      "enum": [
+        "NSW",
+        "VIC",
+        "QLD",
+        "WA",
+        "SA",
+        "TAS",
+        "ACT",
+        "NT"
+      ],
+      "default": "VIC",
+      "description": "State or territory whose security of payment Act governs this job"
+    },
     "builder_name": {
       "type": "string"
     },

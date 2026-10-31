@@ -14,6 +14,7 @@ const TOOLS = [
         job_number: { type: 'STRING', description: 'The builder job number, for example 0447' },
         name: { type: 'STRING', description: 'The job name, for example L1 and L2 apartments repaint' },
         site_address: { type: 'STRING' },
+        state: { type: 'STRING', description: 'The Australian state or territory the site is in, as a code: NSW, VIC, QLD, WA, SA, TAS, ACT or NT' },
         builder_name: { type: 'STRING' },
         builder_email: { type: 'STRING' },
         retention_percent: { type: 'NUMBER' },
@@ -41,7 +42,7 @@ const TOOLS = [
 
 function buildInstruction(job, lineCount) {
   return [
-    'You are the voice assistant inside TradeClaim, a payment claim tool for Victorian painting subcontractors. You are helping the user import a painting quote so every line becomes a tracked scope line.',
+    'You are the voice assistant inside TradeClaim, a payment claim tool for painting subcontractors across Australia. You are helping the user import a painting quote so every line becomes a tracked scope line.',
     '',
     'Speak in Australian English, plainly, like a helpful estimator. Keep every reply to one or two short sentences. Never use em dashes.',
     '',
@@ -52,9 +53,10 @@ function buildInstruction(job, lineCount) {
     'What to collect, in this order:',
     '1. The job name, and the job number if they have one.',
     '2. The site address.',
-    '3. The builder name and the builder email address used when serving claims.',
-    '4. Each quoted scope line: area or level, description, quantity, unit and rate. Rate is dollars per unit excluding GST. If they only give a total, ask for the quantity and the rate.',
-    '5. Retention percent, only if it is not the usual five percent.',
+    '3. The state or territory, if the address does not make it clear. This decides which security of payment Act governs the job.',
+    '4. The builder name and the builder email address used when serving claims.',
+    '5. Each quoted scope line: area or level, description, quantity, unit and rate. Rate is dollars per unit excluding GST. If they only give a total, ask for the quantity and the rate.',
+    '6. Retention percent, only if it is not the usual five percent.',
     '',
     'Rules:',
     '- Call add_scope_line as soon as you understand one line. Do not wait for the whole quote.',

@@ -1,3 +1,5 @@
+import { isShutdownDay } from './jurisdictions';
+
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 export function todayYmd() {
@@ -18,25 +20,26 @@ export function isWeekend(ymd) {
   return day === 0 || day === 6;
 }
 
-export function isBusinessDay(ymd, holidays) {
+export function isBusinessDay(ymd, holidays, state) {
   const value = String(ymd).slice(0, 10);
   if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
-  return !isWeekend(value) && !(holidays && holidays.has(value));
+  if (isWeekend(value) || isShutdownDay(state, value)) return false;
+  return !(holidays && holidays.has(value));
 }
 
-export function addBusinessDays(ymd, days, holidays) {
+export function addBusinessDays(ymd, days, holidays, state) {
   let cursor = String(ymd).slice(0, 10);
   let added = 0;
   let guard = 0;
   while (added < days && guard < 400) {
     cursor = addDays(cursor, 1);
     guard += 1;
-    if (isBusinessDay(cursor, holidays)) added += 1;
+    if (isBusinessDay(cursor, holidays, state)) added += 1;
   }
   return cursor;
 }
 
-export function businessDaysUntil(ymd, holidays) {
+export function businessDaysUntil(ymd, holidays, state) {
   const today = todayYmd();
   if (!ymd) return 0;
   const target = String(ymd).slice(0, 10);
@@ -44,7 +47,7 @@ export function businessDaysUntil(ymd, holidays) {
   let count = 0;
   while (cursor < target && count < 400) {
     cursor = addDays(cursor, 1);
-    if (isBusinessDay(cursor, holidays)) count += 1;
+    if (isBusinessDay(cursor, holidays, state)) count += 1;
   }
   return cursor > target ? -1 : count;
 }

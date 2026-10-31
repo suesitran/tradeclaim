@@ -3,6 +3,7 @@ import {
   STAGE_LABEL, locationLabel, M, PAGE_W, CONTENT_W,
 } from './pdf.ts';
 import { formatAud, formatYmdAu } from './clock.ts';
+import { jurisdictionFor } from './jurisdictions.ts';
 
 function money(value: any): string {
   return formatAud(Number(value || 0));
@@ -54,8 +55,9 @@ function scopeTable(doc: any, claim: any, header: () => number, startY: number):
 
 export function buildPaymentClaim(input: any): any {
   const { claim, job, evidence, photos } = input;
+  const jurisdiction = jurisdictionFor(job.state);
   const doc = newDoc();
-  const header = () => banner(doc, 'Payment claim', 'Building and Construction Industry Security of Payment Act 2002 (Vic)');
+  const header = () => banner(doc, 'Payment claim', jurisdiction.act);
   let y = header();
 
   doc.setFont('helvetica', 'bold');
@@ -74,7 +76,7 @@ export function buildPaymentClaim(input: any): any {
 
   doc.setFillColor(246, 243, 237);
   doc.rect(M, y, CONTENT_W, 15, 'F');
-  paragraph(doc, 'This is a payment claim made under the Building and Construction Industry Security of Payment Act 2002 (Vic).', M + 4, y + 6, CONTENT_W - 8, 9.5);
+  paragraph(doc, `This is a payment claim made under the ${jurisdiction.act}.`, M + 4, y + 6, CONTENT_W - 8, 9.5);
   y += 24;
 
   y = sectionTitle(doc, 'Scope lines claimed', y);
@@ -188,8 +190,9 @@ export function buildPaymentClaim(input: any): any {
 
 export function buildNoticeOfIntention(input: any): any {
   const { claim, job } = input;
+  const jurisdiction = jurisdictionFor(job.state);
   const doc = newDoc();
-  let y = banner(doc, 'Notice of intention to apply for adjudication', 'Building and Construction Industry Security of Payment Act 2002 (Vic)');
+  let y = banner(doc, 'Notice of intention to apply for adjudication', jurisdiction.act);
 
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(12);
@@ -212,7 +215,9 @@ export function buildNoticeOfIntention(input: any): any {
 
   const body = `The payment claim identified above was served on the respondent on ${formatYmdAu(claim.served_at)}. A payment schedule was required by ${formatYmdAu(claim.schedule_due_at)}. No payment schedule has been received.`;
   y = paragraph(doc, body, M, y, CONTENT_W, 9.5) + 5;
-  const body2 = 'The respondent is given 2 business days from service of this notice to provide a payment schedule setting out the amount it proposes to pay and the reasons for any amount withheld. If a payment schedule is not received within that period, an application for adjudication of the payment claim will be made without further notice.';
+  const body2 = jurisdiction.noticeDays
+    ? `The respondent is given ${jurisdiction.noticeDays} ${jurisdiction.unit} from service of this notice to provide a payment schedule setting out the amount it proposes to pay and the reasons for any amount withheld. If a payment schedule is not received within that period, an application for adjudication of the payment claim will be made without further notice.`
+    : `A payment schedule has not been received. This notice records the claimant's intention to apply for adjudication of the payment claim under the ${jurisdiction.act}, and the application will be made within the period that Act allows.`;
   y = paragraph(doc, body2, M, y, CONTENT_W, 9.5) + 8;
 
   y = sectionTitle(doc, 'Signature', y);

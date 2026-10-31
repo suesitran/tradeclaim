@@ -19,9 +19,9 @@ import { formatAud, formatDate } from '@/lib/format';
 export default function ClaimDetail() {
   const { claimId } = useParams();
   const { toast } = useToast();
-  const { holidays } = useHolidays();
   const [claim, setClaim] = useState(null);
   const [job, setJob] = useState(null);
+  const { holidays } = useHolidays(job?.state);
   const [evidence, setEvidence] = useState([]);
   const [documents, setDocuments] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -242,7 +242,7 @@ export default function ClaimDetail() {
         </div>
 
         <div className="space-y-5">
-          <ClaimClock claim={claim} status={status} />
+          <ClaimClock claim={claim} status={status} job={job} />
           <ClaimMoneyCard claim={claim} />
 
           <section className="rounded-[4px] border border-border bg-card">
@@ -272,6 +272,7 @@ export default function ClaimDetail() {
         open={scheduleOpen}
         onOpenChange={setScheduleOpen}
         claim={claim}
+        job={job}
         holidays={holidays}
         onSaved={() => {
           toast({ title: 'Payment schedule recorded' });

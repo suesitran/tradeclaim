@@ -5,15 +5,17 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { formatAud, formatDate } from '@/lib/format';
 import { addBusinessDays, todayYmd } from '@/lib/clock';
+import { jurisdictionFor } from '@/lib/jurisdictions';
 
 export default function ServeDialog({ open, onOpenChange, claim, job, holidays, busy, onServe }) {
   const [servedAt, setServedAt] = useState(todayYmd());
+  const jurisdiction = jurisdictionFor(job?.state);
 
   useEffect(() => {
     if (open) setServedAt(todayYmd());
   }, [open]);
 
-  const dueAt = addBusinessDays(servedAt, 10, holidays);
+  const dueAt = addBusinessDays(servedAt, jurisdiction.scheduleDays, holidays, jurisdiction.code);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -36,8 +38,9 @@ export default function ServeDialog({ open, onOpenChange, claim, job, holidays, 
               <span className="num">{formatDate(dueAt)}</span>
             </div>
             <p className="mt-1.5 text-[11px] text-muted-foreground">
-              10 business days, skipping weekends and Victorian public holidays. Claiming {formatAud(claim?.amount_claimed_ex_gst)} excluding GST.
+              {jurisdiction.scheduleDays} {jurisdiction.unit} under the {jurisdiction.act}, skipping weekends, {jurisdiction.name} public holidays and the end of year shutdown. Claiming {formatAud(claim?.amount_claimed_ex_gst)} excluding GST.
             </p>
+            {jurisdiction.note ? <p className="mt-1.5 text-[11px] text-muted-foreground">{jurisdiction.note}</p> : null}
           </div>
         </div>
 

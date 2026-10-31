@@ -6,7 +6,7 @@ import { ArrowRight } from 'lucide-react';
 const FACTS = [
   ['Voice on site', 'Progress logged in seconds'],
   ['Photo evidence', 'Dated and located'],
-  ['10 business days', 'The clock does the chasing'],
+  ['10 to 15 business days', 'The clock does the chasing'],
 ];
 
 export default function Hero({ cta }) {

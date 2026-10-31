@@ -9,6 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { SAMPLE_QUOTE, csvToScopeLines } from '@/lib/csv';
 import { formatAud } from '@/lib/format';
 import { addDays, todayYmd } from '@/lib/clock';
+import { DEFAULT_JURISDICTION, JURISDICTIONS, jurisdictionFor, stateCodeFromText } from '@/lib/jurisdictions';
 import QuoteVoiceAssistant from '@/components/import/QuoteVoiceAssistant';
 
 export default function ImportQuote() {
@@ -19,6 +20,7 @@ export default function ImportQuote() {
   const [siteAddress, setSiteAddress] = useState('');
   const [builderName, setBuilderName] = useState('');
   const [builderEmail, setBuilderEmail] = useState('');
+  const [stateCode, setStateCode] = useState(DEFAULT_JURISDICTION);
   const [retention, setRetention] = useState('5');
   const [dlp, setDlp] = useState('');
   const [nextClaim, setNextClaim] = useState(addDays(todayYmd(), 30));
@@ -47,6 +49,7 @@ export default function ImportQuote() {
         site_address: siteAddress.trim(),
         builder_name: builderName.trim(),
         builder_email: builderEmail.trim(),
+        state: stateCode,
         contract_sum_ex_gst: Math.round(total * 100) / 100,
         claim_period: 'monthly',
         retention_percent: Number(retention || 0),
@@ -69,6 +72,7 @@ export default function ImportQuote() {
     if (patch.site_address !== undefined) setSiteAddress(String(patch.site_address));
     if (patch.builder_name !== undefined) setBuilderName(String(patch.builder_name));
     if (patch.builder_email !== undefined) setBuilderEmail(String(patch.builder_email));
+    if (patch.state !== undefined) setStateCode(stateCodeFromText(patch.state));
     if (patch.retention_percent !== undefined) setRetention(String(patch.retention_percent));
     if (patch.dlp_end_date !== undefined) setDlp(String(patch.dlp_end_date));
     if (patch.next_claim_date !== undefined) setNextClaim(String(patch.next_claim_date));
@@ -104,6 +108,7 @@ export default function ImportQuote() {
     site_address: siteAddress,
     builder_name: builderName,
     builder_email: builderEmail,
+    state: stateCode,
     retention_percent: Number(retention || 0),
     dlp_end_date: dlp,
     next_claim_date: nextClaim,
@@ -179,6 +184,25 @@ export default function ImportQuote() {
           <div className="space-y-1.5 sm:col-span-2">
             <Label htmlFor="site">Site address</Label>
             <Input id="site" value={siteAddress} onChange={(event) => setSiteAddress(event.target.value)} placeholder="18 Cremorne Street, Richmond VIC 3121" />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="state">State or territory</Label>
+            <select
+              id="state"
+              value={stateCode}
+              onChange={(event) => setStateCode(event.target.value)}
+              className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+            >
+              {JURISDICTIONS.map((entry) => (
+                <option key={entry.code} value={entry.code}>
+                  {entry.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="space-y-1.5">
+            <Label>Governing Act</Label>
+            <p className="text-[11px] leading-relaxed text-muted-foreground">{jurisdictionFor(stateCode).act}</p>
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="builder">Builder</Label>
