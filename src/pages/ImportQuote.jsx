@@ -64,7 +64,7 @@ export default function ImportQuote() {
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
-      <button type="button" onClick={() => navigate('/')} className="inline-flex items-center gap-1.5 text-[12px] text-muted-foreground hover:text-foreground">
+      <button type="button" onClick={() => navigate('/app')} className="inline-flex items-center gap-1.5 text-[12px] text-muted-foreground hover:text-foreground">
         <ArrowLeft className="h-3.5 w-3.5" /> All jobs
       </button>
 

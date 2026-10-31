@@ -59,7 +59,7 @@ export default function JobDetail() {
 
   return (
     <div className="space-y-6">
-      <Link to="/" className="inline-flex items-center gap-1.5 text-[12px] text-muted-foreground hover:text-foreground">
+      <Link to="/app" className="inline-flex items-center gap-1.5 text-[12px] text-muted-foreground hover:text-foreground">
         <ArrowLeft className="h-3.5 w-3.5" /> All jobs
       </Link>
 

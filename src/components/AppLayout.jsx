@@ -4,7 +4,7 @@ import { LayoutGrid, CalendarClock, Upload, LogOut } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 
 const LINKS = [
-  { to: '/', label: 'Jobs', icon: LayoutGrid, end: true },
+  { to: '/app', label: 'Jobs', icon: LayoutGrid, end: true },
   { to: '/claims', label: 'Claims', icon: CalendarClock },
   { to: '/import', label: 'Import a quote', icon: Upload },
 ];
@@ -26,7 +26,7 @@ export default function AppLayout() {
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-30 border-b border-border bg-background/85 backdrop-blur">
         <div className="mx-auto flex w-full max-w-6xl items-center gap-3 px-4 py-3 sm:px-6">
-          <NavLink to="/" className="flex items-center gap-2.5">
+          <NavLink to="/app" className="flex items-center gap-2.5">
             <span className="flex h-8 w-8 items-center justify-center rounded-[3px] bg-primary font-mono text-[11px] font-semibold tracking-tight text-primary-foreground">
               SK
             </span>
