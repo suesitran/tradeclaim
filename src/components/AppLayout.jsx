@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { LayoutGrid, CalendarClock, Upload, LogOut } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 
@@ -26,7 +26,7 @@ export default function AppLayout() {
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-30 border-b border-border bg-background/85 backdrop-blur">
         <div className="mx-auto flex w-full max-w-6xl items-center gap-3 px-4 py-3 sm:px-6">
-          <NavLink to="/app" className="flex items-center gap-2.5">
+          <Link to="/" className="flex items-center gap-2.5">
             <span className="flex h-8 w-8 items-center justify-center rounded-[3px] bg-primary font-mono text-[11px] font-semibold tracking-tight text-primary-foreground">
               SK
             </span>
@@ -34,7 +34,7 @@ export default function AppLayout() {
               <span className="block font-heading text-[15px] font-semibold tracking-tight">Survival Kit</span>
               <span className="mt-0.5 block text-[10px] uppercase tracking-[0.16em] text-muted-foreground">Payment claims, Victoria</span>
             </span>
-          </NavLink>
+          </Link>
 
           <nav className="ml-6 hidden items-center gap-1 md:flex">
             {LINKS.map((link) => (
