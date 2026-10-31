@@ -31,6 +31,26 @@ Allowance,Hoarding and protection of finished surfaces,1,item,4800,4800
 Allowance,Waste removal and site clean before handover,1,item,6200,6200`,
   },
   {
+    id: 'ceilings',
+    trade: 'Suspended ceilings',
+    csv: `${HEADER}
+L1 Corridors,Suspended grid ceiling and acoustic tiles 600x600,1240,m2,44.00,54560
+L1 Corridors,Bulkhead framing and lining to perimeter,380,lm,96,36480
+L1 Corridors,Access panels set into grid,46,no,185,8510
+L1 Corridors,Aluminium shadowline trim,380,lm,18.50,7030
+L1 Apartments,Suspended ceiling to bathrooms with moisture tiles,210,m2,52.00,10920
+L1 Apartments,Exhaust and downlight cutouts to grid,84,no,42,3528
+L1 Lobby,Feature baffle ceiling to entry,120,m2,128,15360
+L1 Lobby,Acoustic ceiling insulation batts,260,m2,14.50,3770
+L1 Lobby,Curved plasterboard bulkhead to lift lobby,46,lm,145,6670
+L2 Corridors,Suspended grid ceiling and acoustic tiles 600x600,980,m2,44.00,43120
+L2 Corridors,Bulkhead framing and lining to perimeter,340,lm,96,32640
+Stair 1,Suspended ceiling to stair landings,90,m2,68,6120
+Stair 2,Suspended ceiling to stair landings,90,m2,68,6120
+Allowance,Seismic bracing and certification,1,item,4200,4200
+Allowance,Protection and clean of ceiling tiles before handover,1,item,2200,2200`,
+  },
+  {
     id: 'painting',
     trade: 'Painting and decorating',
     csv: `${HEADER}
@@ -74,6 +94,25 @@ L2 Apartments,Floor tiling 300x300 to bathrooms,210,m2,72.00,15120
 L2 Apartments,Balcony tiling to falls,320,m2,88.00,28160
 Allowance,Protection of tiled surfaces,1,item,3200,3200
 Allowance,Silicone and final clean to wet areas,1,item,4800,4800`,
+  },
+  {
+    id: 'waterproofing',
+    trade: 'Waterproofing',
+    csv: `${HEADER}
+L1 Apartments,Waterproofing membrane to bathroom floors,210,m2,62.00,13020
+L1 Apartments,Waterproofing membrane to bathroom walls to 1800,640,m2,48.00,30720
+L1 Apartments,Preformed bandage and corner detailing,420,lm,18.50,7770
+L1 Apartments,Shower recess screed to falls,84,no,165,13860
+L1 Apartments,Flood test and certification,84,no,85,7140
+L1 Apartments,Balcony membrane with upturn,320,m2,68.00,21760
+L1 Apartments,Waterstop angle to door thresholds,168,lm,22.00,3696
+L1 Corridors,Membrane to planter boxes,90,m2,76.00,6840
+L1 Lobby,Below slab membrane to entry threshold,120,m2,58.00,6960
+L2 Apartments,Waterproofing membrane to bathroom floors,210,m2,62.00,13020
+L2 Apartments,Waterproofing membrane to bathroom walls to 1800,640,m2,48.00,30720
+L2 Apartments,Flood test and certification,84,no,85,7140
+Allowance,Protection board over membrane,1,item,2600,2600
+Allowance,Make good and re-test after following trades,1,item,3400,3400`,
   },
   {
     id: 'carpentry',
