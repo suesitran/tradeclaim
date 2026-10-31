@@ -6,7 +6,7 @@ import DefectRow from '@/components/defects/DefectRow';
 import DefectDialog from '@/components/defects/DefectDialog';
 import CallBackDialog from '@/components/defects/CallBackDialog';
 
-export default function DefectRegister({ job, lines = [], defects = [], visits = [], onChanged }) {
+export default function DefectRegister({ job, lines = [], defects = [], visits = [], onChanged, embedded = false }) {
   const [raiseOpen, setRaiseOpen] = useState(false);
   const [callBackFor, setCallBackFor] = useState(null);
 
@@ -14,11 +14,23 @@ export default function DefectRegister({ job, lines = [], defects = [], visits =
   const absorbed = visits.reduce((sum, visit) => sum + Number(visit.cost || 0), 0);
 
   return (
-    <section className="overflow-hidden rounded-[4px] border border-border bg-card">
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-5 py-3">
+    <section
+      className={
+        embedded
+          ? 'overflow-hidden rounded-[6px] border border-[#DED6C7] bg-white shadow-[0_10px_30px_-18px_rgba(60,40,15,0.35)]'
+          : 'overflow-hidden rounded-[4px] border border-border bg-card'
+      }
+    >
+      <div
+        className={
+          embedded
+            ? 'flex flex-wrap items-center justify-between gap-3 border-b border-[#DED6C7] bg-[#F6F1E6] px-5 py-[13px]'
+            : 'flex flex-wrap items-center justify-between gap-3 border-b border-border px-5 py-3'
+        }
+      >
         <div>
-          <h2 className="font-heading text-sm font-semibold">Defect register</h2>
-          <p className="mt-0.5 text-[11px] text-muted-foreground">
+          {embedded ? null : <h2 className="font-heading text-sm font-semibold">Defect register</h2>}
+          <p className={embedded ? 'text-[11px] text-[#6b6457]' : 'mt-0.5 text-[11px] text-muted-foreground'}>
             {defects.length} logged, {open} still open
             {absorbed ? `, ${formatAud(absorbed)} of call-back labour absorbed` : ''}
           </p>

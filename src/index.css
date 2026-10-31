@@ -100,3 +100,36 @@
     font-variant-numeric: tabular-nums;
   }
 }
+
+@keyframes tc-rise {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes tc-drift {
+  0% {
+    transform: scale(1.04) translateX(0);
+  }
+
+  100% {
+    transform: scale(1.1) translateX(-14px);
+  }
+}
+
+@layer utilities {
+  .animate-rise {
+    opacity: 0;
+    animation: tc-rise 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+  }
+
+  .animate-drift {
+    animation: tc-drift 18s ease-in-out infinite alternate;
+  }
+}
