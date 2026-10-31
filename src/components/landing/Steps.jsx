@@ -1,4 +1,5 @@
 import React from 'react';
+import StepsFaq from '@/components/landing/StepsFaq';
 
 const STEPS = [
   {
@@ -63,6 +64,8 @@ export default function Steps() {
           Builders never need an account. They receive the claim and the notices by email, and the record of
           when each one was served stays with the job.
         </p>
+
+        <StepsFaq />
       </div>
     </section>
   );
