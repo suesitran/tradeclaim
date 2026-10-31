@@ -24,6 +24,7 @@ export default function useGeminiLive({ instruction, tools, onToolCall, opening 
   const [error, setError] = useState('');
   const [messages, setMessages] = useState([]);
   const [micActive, setMicActive] = useState(false);
+  const [micLevel, setMicLevel] = useState(0);
 
   const socketRef = useRef(null);
   const streamRef = useRef(null);
@@ -36,6 +37,7 @@ export default function useGeminiLive({ instruction, tools, onToolCall, opening 
   const configRef = useRef({ instruction, tools, onToolCall, opening });
   const setupDoneRef = useRef(false);
   const micReportedRef = useRef(false);
+  const levelTickRef = useRef(0);
 
   useEffect(() => {
     configRef.current = { instruction, tools, onToolCall, opening };
@@ -152,11 +154,20 @@ export default function useGeminiLive({ instruction, tools, onToolCall, opening 
         setMicActive(true);
       }
       const input = event.inputBuffer.getChannelData(0);
+
+      const now = performance.now();
+      if (now - levelTickRef.current > 120) {
+        levelTickRef.current = now;
+        let sum = 0;
+        for (let index = 0; index < input.length; index += 1) sum += input[index] * input[index];
+        setMicLevel(Math.min(1, Math.sqrt(sum / input.length) * 10));
+      }
+
       const samples = downsample(input, context.sampleRate, INPUT_RATE);
       const pcm = floatToPcm16(samples);
       send({
         realtimeInput: {
-          mediaChunks: [{ mimeType: `audio/pcm;rate=${INPUT_RATE}`, data: bytesToBase64(new Uint8Array(pcm.buffer)) }],
+          audio: { mimeType: `audio/pcm;rate=${INPUT_RATE}`, data: bytesToBase64(new Uint8Array(pcm.buffer)) },
         },
       });
     };
@@ -241,6 +252,7 @@ export default function useGeminiLive({ instruction, tools, onToolCall, opening 
     setError('');
     setMessages([]);
     setMicActive(false);
+    setMicLevel(0);
     manualCloseRef.current = false;
     setupDoneRef.current = false;
     micReportedRef.current = false;
@@ -284,6 +296,17 @@ export default function useGeminiLive({ instruction, tools, onToolCall, opening 
               speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: 'Puck' } } },
             },
             systemInstruction: { parts: [{ text: config.instruction || '' }] },
+            // Speech detection tuned for a building site: it takes louder speech
+            // to start a turn, and a short pause ends it, so background noise does
+            // not keep the model stuck waiting for the user to finish.
+            realtimeInputConfig: {
+              automaticActivityDetection: {
+                startOfSpeechSensitivity: 'START_SENSITIVITY_LOW',
+                endOfSpeechSensitivity: 'END_SENSITIVITY_HIGH',
+                prefixPaddingMs: 20,
+                silenceDurationMs: 700,
+              },
+            },
             tools: config.tools && config.tools.length ? [{ functionDeclarations: config.tools }] : undefined,
             inputAudioTranscription: {},
             outputAudioTranscription: {},
@@ -319,5 +342,5 @@ export default function useGeminiLive({ instruction, tools, onToolCall, opening 
 
   useEffect(() => () => shutdown(), [shutdown]);
 
-  return { status, error, messages, micActive, start, stop };
+  return { status, error, messages, micActive, micLevel, start, stop };
 }
