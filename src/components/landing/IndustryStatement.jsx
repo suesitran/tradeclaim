@@ -41,8 +41,8 @@ export default function IndustryStatement() {
           <p>
             When a builder stops paying, the loss lands at the bottom of that chain, on businesses with no reserves to
             carry it. In 2024-25, construction accounted for 26 per cent of all insolvencies in Australia. That is why
-            security of payment laws exist in every state, and why a claim must be served correctly and the next step
-            taken inside the deadline, or the debt quietly becomes unrecoverable.
+            Victoria has a security of payment Act, and why a claim must be served correctly and the next step taken
+            inside the deadline, or the debt quietly becomes unrecoverable.
           </p>
         </div>
 

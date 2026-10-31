@@ -6,7 +6,7 @@ import { ArrowRight } from 'lucide-react';
 const FACTS = [
   ['Voice on site', 'Progress logged in seconds'],
   ['Photo evidence', 'Dated and located'],
-  ['10 to 15 business days', 'The clock does the chasing'],
+  ['10 business days', 'The clock does the chasing'],
 ];
 
 export default function Hero({ cta }) {
@@ -15,7 +15,7 @@ export default function Hero({ cta }) {
       <div className="mx-auto w-full max-w-5xl px-4 pb-14 pt-12 sm:px-6 sm:pb-20 sm:pt-16">
         <p className="flex items-center gap-2 text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
           <span className="h-1.5 w-1.5 rounded-full bg-accent" />
-          For painting and finishing subcontractors
+          For Victorian painting and finishing subcontractors
         </p>
 
         <h1 className="mt-5 max-w-3xl font-heading text-[34px] font-semibold leading-[1.05] tracking-tight sm:text-5xl">

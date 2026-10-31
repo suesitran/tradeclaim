@@ -90,8 +90,8 @@ export default function Claims() {
         <p className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground">The statutory clock</p>
         <h1 className="mt-1 font-heading text-3xl font-semibold tracking-tight">Claims</h1>
         <p className="mt-1.5 max-w-2xl text-sm text-muted-foreground">
-          Which builder owes a response today. Each claim is counted under the Act for its own state or territory, skipping
-          weekends, that state's public holidays and its end of year shutdown.
+          Which builder owes a response today. Every claim is counted under the Victorian Act, skipping weekends,
+          Victorian public holidays and the end of year shutdown.
         </p>
       </div>
 
@@ -133,7 +133,7 @@ export default function Claims() {
           <span>
             {loadedStates.length
               ? `${holidayCount} public holidays loaded for ${loadedStates.map((code) => jurisdictionFor(code).name).join(', ')}`
-              : 'No public holiday list loaded for the states in use'}
+              : 'No Victorian public holiday list loaded yet'}
             {missing.length
               ? `${loadedStates.length ? '. Still to load: ' : ': '}${missing.map((code) => jurisdictionFor(code).name).join(', ')}`
               : ''}

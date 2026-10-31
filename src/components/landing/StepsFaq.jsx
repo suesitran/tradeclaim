@@ -3,7 +3,7 @@ import React from 'react';
 const DEADLINE_FAQ = [
   {
     q: 'How long does a builder have to respond?',
-    a: 'It depends on the state or territory: 10 business days in New South Wales, Victoria, Tasmania and the ACT, 15 in Queensland, South Australia and Western Australia, or sooner if the contract names a shorter period. The date is worked out from the day the claim was emailed, counting business days only, so weekends, public holidays and the end of year shutdown do not eat into it.',
+    a: 'In Victoria, the builder has 10 business days from the day the claim is served to give a payment schedule, or sooner if the contract names a shorter period. The date is worked out from the day the claim was emailed, counting business days only, so weekends, Victorian public holidays and the end of year shutdown do not eat into it.',
   },
   {
     q: 'What if the deadline passes with no answer?',
@@ -80,7 +80,7 @@ export default function StepsFaq() {
       <FaqGroup title="Retention and defects liability, answered" items={RETENTION_FAQ} />
       <FaqGroup title="What TradeClaim costs, answered" items={FEE_FAQ} />
       <p className="text-[11px] leading-relaxed text-muted-foreground">
-        General information about security of payment law across Australia, not legal advice.
+        General information about security of payment law in Victoria, not legal advice.
       </p>
     </div>
   );

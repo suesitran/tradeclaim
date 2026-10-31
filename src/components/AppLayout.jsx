@@ -33,7 +33,7 @@ export default function AppLayout() {
             </span>
             <span className="leading-none">
               <span className="block font-heading text-[15px] font-semibold tracking-tight">Survival Kit</span>
-              <span className="mt-0.5 block text-[10px] uppercase tracking-[0.16em] text-muted-foreground">Payment claims, Australia</span>
+              <span className="mt-0.5 block text-[10px] uppercase tracking-[0.16em] text-muted-foreground">Payment claims, Victoria</span>
             </span>
           </Link>
 

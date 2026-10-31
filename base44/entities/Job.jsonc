@@ -14,17 +14,10 @@
     "state": {
       "type": "string",
       "enum": [
-        "NSW",
-        "VIC",
-        "QLD",
-        "WA",
-        "SA",
-        "TAS",
-        "ACT",
-        "NT"
+        "VIC"
       ],
       "default": "VIC",
-      "description": "State or territory whose security of payment Act governs this job"
+      "description": "TradeClaim is limited to Victoria, so every job is governed by the Building and Construction Industry Security of Payment Act 2002 (Vic)"
     },
     "builder_name": {
       "type": "string"

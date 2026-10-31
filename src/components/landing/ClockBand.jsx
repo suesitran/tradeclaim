@@ -3,9 +3,9 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 
 const CLOCK = [
-  ['10 to 15 business days', 'Builder must give a payment schedule after the claim is served, counted under its own Act.'],
-  ['10 to 30 business days', 'To apply for adjudication if the schedule is short or never arrives.'],
-  ['8 Acts, one clock', 'Every state and territory sets its own windows. The right one is applied to each job.'],
+  ['10 business days', 'Builder must give a payment schedule after the claim is served, counted under the Victorian Act.'],
+  ['10 business days', 'To apply for adjudication if the schedule is short or never arrives.'],
+  ['One Act, one clock', "Victoria's Security of Payment Act sets every window, so each job is counted the same way."],
 ];
 
 export default function ClockBand({ cta }) {
@@ -17,8 +17,8 @@ export default function ClockBand({ cta }) {
           Every deadline is counted for you, in business days
         </h2>
         <p className="mt-3 max-w-2xl text-[14px] leading-relaxed text-primary-foreground/70">
-          Weekends, state public holidays and each Act's end of year shutdown are excluded automatically,
-          so the date you see is the date that counts.
+          Weekends, Victorian public holidays and the industry shutdown over Christmas and January are excluded
+          automatically, so the date you see is the date that counts.
         </p>
 
         <dl className="mt-9 grid gap-6 border-t border-primary-foreground/15 pt-8 sm:grid-cols-3">
