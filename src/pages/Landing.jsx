@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { base44 } from '@/api/base44Client';
+import React from 'react';
+import useLoggedIn from '@/hooks/useLoggedIn';
 import LandingHeader from '@/components/landing/LandingHeader';
 import Hero from '@/components/landing/Hero';
 import IndustryStatement from '@/components/landing/IndustryStatement';
@@ -11,22 +11,7 @@ import Pricing from '@/components/landing/Pricing';
 import LandingFooter from '@/components/landing/LandingFooter';
 
 export default function Landing() {
-  const [loggedIn, setLoggedIn] = useState(false);
-
-  useEffect(() => {
-    let active = true;
-    base44.auth
-      .isAuthenticated()
-      .then((value) => {
-        if (active) setLoggedIn(Boolean(value));
-      })
-      .catch(() => {
-        if (active) setLoggedIn(false);
-      });
-    return () => {
-      active = false;
-    };
-  }, []);
+  const loggedIn = useLoggedIn();
 
   const cta = loggedIn ? { to: '/app', label: 'Go to app' } : { to: '/register', label: 'Sign up' };
   const signIn = loggedIn ? null : { to: '/login', label: 'Log in' };

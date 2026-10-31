@@ -13,6 +13,7 @@ import Register from '@/pages/Register';
 import ForgotPassword from '@/pages/ForgotPassword';
 import ResetPassword from '@/pages/ResetPassword';
 import Landing from '@/pages/Landing';
+import Faq from '@/pages/Faq';
 import Jobs from '@/pages/Jobs';
 import JobDetail from '@/pages/JobDetail';
 import Capture from '@/pages/Capture';
@@ -24,7 +25,7 @@ import ImportQuote from '@/pages/ImportQuote';
 // Pages anyone can open without signing in. Auth errors must not block these,
 // otherwise a logged-out visitor would be bounced to the login page instead of
 // seeing the landing page.
-const PUBLIC_PATHS = ['/', '/login', '/register', '/forgot-password', '/reset-password'];
+const PUBLIC_PATHS = ['/', '/faq', '/login', '/register', '/forgot-password', '/reset-password'];
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -55,6 +56,7 @@ const AuthenticatedApp = () => {
   return (
     <Routes>
       <Route path="/" element={<Landing />} />
+      <Route path="/faq" element={<Faq />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />

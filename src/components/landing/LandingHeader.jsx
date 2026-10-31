@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 
-export default function LandingHeader({ cta, signIn }) {
+export default function LandingHeader({ cta, signIn, showAnchor = true }) {
   return (
     <header className="sticky top-0 z-30 border-b border-border bg-background/85 backdrop-blur">
       <div className="mx-auto flex w-full max-w-5xl items-center gap-4 px-4 py-3 sm:px-6">
@@ -17,12 +17,20 @@ export default function LandingHeader({ cta, signIn }) {
         </Link>
 
         <div className="ml-auto flex items-center gap-2 sm:gap-4">
-          <a
-            href="#how-it-works"
+          {showAnchor ? (
+            <a
+              href="#how-it-works"
+              className="hidden text-[13px] text-muted-foreground transition-colors hover:text-foreground sm:block"
+            >
+              How it works
+            </a>
+          ) : null}
+          <Link
+            to="/faq"
             className="hidden text-[13px] text-muted-foreground transition-colors hover:text-foreground sm:block"
           >
-            How it works
-          </a>
+            FAQ
+          </Link>
           {signIn ? (
             <Link to={signIn.to} className="text-[13px] text-muted-foreground transition-colors hover:text-foreground">
               {signIn.label}

@@ -1,5 +1,6 @@
 import React from 'react';
-import StepsFaq from '@/components/landing/StepsFaq';
+import { Link } from 'react-router-dom';
+import { ArrowRight } from 'lucide-react';
 
 const STEPS = [
   {
@@ -65,7 +66,12 @@ export default function Steps() {
           when each one was served stays with the job.
         </p>
 
-        <StepsFaq />
+        <Link
+          to="/faq"
+          className="mt-8 inline-flex items-center gap-2 text-[13px] font-medium text-accent transition-opacity hover:opacity-80"
+        >
+          Deadlines, retention and fees, answered <ArrowRight className="h-3.5 w-3.5" />
+        </Link>
       </div>
     </section>
   );
