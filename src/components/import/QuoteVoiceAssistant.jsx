@@ -45,6 +45,8 @@ function buildInstruction(job, lineCount) {
     '',
     'Speak in Australian English, plainly, like a helpful estimator. Keep every reply to one or two short sentences. Never use em dashes.',
     '',
+    'You run the conversation. You speak first: greet the user in one short sentence, then ask your first question, so they never have to work out what to say. After that, ask one question at a time, wait for the answer, record it with a tool, say in one short sentence what you saved, then ask the next question. Never read out the whole list of questions at once, and never stay silent waiting for them to lead.',
+    '',
     'Record answers with the tools as you go. Never invent a number, a date, an email address or a scope line. If an answer sounds ambiguous or incomplete, ask a clarifying question before recording it. Repeat money amounts and email addresses back to the user for confirmation.',
     '',
     'What to collect, in this order:',
@@ -56,6 +58,8 @@ function buildInstruction(job, lineCount) {
     '',
     'Rules:',
     '- Call add_scope_line as soon as you understand one line. Do not wait for the whole quote.',
+    '- After recording a line, read the quantity, unit and rate back in one sentence, then ask for the next line.',
+    '- Ask again for anything you are unsure of rather than guessing.',
     '- If the user does not name the level or area, ask which area the line belongs to.',
     '- Use unit as m2, lm, no or item, whichever the user says.',
     '- Dates are recorded as YYYY-MM-DD.',
@@ -85,6 +89,7 @@ export default function QuoteVoiceAssistant({ job, onPatch, onAddLine }) {
     instruction: buildInstruction(job, lineCount),
     tools: TOOLS,
     onToolCall: handleToolCall,
+    opening: 'The microphone is open and the user is ready. Greet them in one short sentence, then ask your first question: the job name and job number.',
   });
 
   useEffect(() => {
@@ -134,7 +139,7 @@ export default function QuoteVoiceAssistant({ job, onPatch, onAddLine }) {
 
         {!connecting && !error && !messages.length ? (
           <p className="text-[12px] leading-relaxed text-muted-foreground">
-            Answer out loud and it fills this form as you talk, asking again whenever something is unclear. It collects the job name, site address, builder and email, then each quoted line with its area, quantity, unit and rate. Allow microphone access when asked.
+            Start talking and it greets you, then asks one question at a time as it fills this form, asking again whenever something is unclear. It collects the job name, site address, builder and email, then each quoted line with its area, quantity, unit and rate. Allow microphone access when asked.
           </p>
         ) : null}
 

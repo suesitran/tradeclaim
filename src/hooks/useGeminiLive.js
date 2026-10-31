@@ -19,7 +19,7 @@ function messageForAudioError(err) {
   return (err && err.message) || 'The voice session could not be started';
 }
 
-export default function useGeminiLive({ instruction, tools, onToolCall }) {
+export default function useGeminiLive({ instruction, tools, onToolCall, opening }) {
   const [status, setStatus] = useState('idle');
   const [error, setError] = useState('');
   const [messages, setMessages] = useState([]);
@@ -33,12 +33,12 @@ export default function useGeminiLive({ instruction, tools, onToolCall }) {
   const sourcesRef = useRef([]);
   const nextStartRef = useRef(0);
   const manualCloseRef = useRef(false);
-  const configRef = useRef({ instruction, tools, onToolCall });
+  const configRef = useRef({ instruction, tools, onToolCall, opening });
   const setupDoneRef = useRef(false);
   const micReportedRef = useRef(false);
 
   useEffect(() => {
-    configRef.current = { instruction, tools, onToolCall };
+    configRef.current = { instruction, tools, onToolCall, opening };
   });
 
   const send = useCallback((payload) => {
@@ -196,6 +196,14 @@ export default function useGeminiLive({ instruction, tools, onToolCall }) {
     if (payload.setupComplete) {
       setupDoneRef.current = true;
       setStatus('live');
+      // A live model waits for the user to speak first. Hand it an opening turn
+      // so it greets the user and starts asking its questions straight away.
+      send({
+        clientContent: {
+          turns: [{ role: 'user', parts: [{ text: configRef.current.opening || 'Start the conversation now.' }] }],
+          turnComplete: true,
+        },
+      });
       return;
     }
 
@@ -227,7 +235,7 @@ export default function useGeminiLive({ instruction, tools, onToolCall }) {
     if (content.outputTranscription && content.outputTranscription.text) {
       appendText('model', content.outputTranscription.text);
     }
-  }, [appendText, playChunk, runTools, shutdown, stopPlayback]);
+  }, [appendText, playChunk, runTools, send, shutdown, stopPlayback]);
 
   const start = useCallback(async () => {
     setError('');
