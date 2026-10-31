@@ -19,7 +19,7 @@ export default function AppLayout() {
 
   const handleLogout = async () => {
     await base44.auth.logout();
-    navigate('/login');
+    navigate('/');
   };
 
   return (
