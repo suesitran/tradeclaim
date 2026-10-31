@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 
-export default function LandingHeader({ cta }) {
+export default function LandingHeader({ cta, signIn }) {
   return (
     <header className="sticky top-0 z-30 border-b border-border bg-background/85 backdrop-blur">
       <div className="mx-auto flex w-full max-w-5xl items-center gap-4 px-4 py-3 sm:px-6">
@@ -23,6 +23,11 @@ export default function LandingHeader({ cta }) {
           >
             How it works
           </a>
+          {signIn ? (
+            <Link to={signIn.to} className="text-[13px] text-muted-foreground transition-colors hover:text-foreground">
+              {signIn.label}
+            </Link>
+          ) : null}
           <Button asChild size="sm" className="rounded-[3px]">
             <Link to={cta.to}>{cta.label}</Link>
           </Button>

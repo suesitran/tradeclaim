@@ -26,11 +26,12 @@ export default function Landing() {
     };
   }, []);
 
-  const cta = loggedIn ? { to: '/app', label: 'Go to app' } : { to: '/login', label: 'Log in' };
+  const cta = loggedIn ? { to: '/app', label: 'Go to app' } : { to: '/register', label: 'Sign up' };
+  const signIn = loggedIn ? null : { to: '/login', label: 'Log in' };
 
   return (
     <div className="min-h-screen bg-background">
-      <LandingHeader cta={cta} />
+      <LandingHeader cta={cta} signIn={signIn} />
       <main>
         <Hero cta={cta} />
         <IndustryStatement />
