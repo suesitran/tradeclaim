@@ -4,6 +4,7 @@ import LandingHeader from '@/components/landing/LandingHeader';
 import Hero from '@/components/landing/Hero';
 import IndustryStatement from '@/components/landing/IndustryStatement';
 import ProblemGrid from '@/components/landing/ProblemGrid';
+import WhyItPersists from '@/components/landing/WhyItPersists';
 import Steps from '@/components/landing/Steps';
 import ClockBand from '@/components/landing/ClockBand';
 import Pricing from '@/components/landing/Pricing';
@@ -37,6 +38,7 @@ export default function Landing() {
         <Hero cta={cta} />
         <IndustryStatement />
         <ProblemGrid />
+        <WhyItPersists />
         <Steps />
         <ClockBand cta={cta} />
         <Pricing cta={cta} />
