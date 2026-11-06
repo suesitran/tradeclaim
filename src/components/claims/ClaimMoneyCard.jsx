@@ -1,7 +1,9 @@
 import { formatAud } from '@/lib/format';
 import { feeFor, recoveredFor } from '@/lib/claims';
+import { useT } from '@/lib/i18n';
 
 export default function ClaimMoneyCard({ claim }) {
+  const t = useT();
   const rows = [
     { label: 'Claimed, ex GST', value: claim.amount_claimed_ex_gst },
     { label: 'GST', value: claim.gst },
@@ -17,26 +19,26 @@ export default function ClaimMoneyCard({ claim }) {
   return (
     <div className="sheet">
       <div className="border-b-2 border-foreground px-4 py-3">
-        <h2 className="text-[20px] font-extrabold">Money</h2>
+        <h2 className="text-[20px] font-extrabold">{t('Money')}</h2>
       </div>
       <dl>
         {rows.map((row) => (
           <div key={row.label} className="flex items-center justify-between gap-3 border-b border-foreground/30 px-4 py-2.5 text-[15px]">
-            <dt className={row.strong ? 'font-semibold' : ''}>{row.label}</dt>
+            <dt className={row.strong ? 'font-semibold' : ''}>{t(row.label)}</dt>
             <dd className={`num ${row.strong ? 'font-semibold' : ''}`}>{formatAud(row.value)}</dd>
           </div>
         ))}
       </dl>
       <div className="border-t-2 border-foreground px-4 py-3">
         <div className="flex items-center justify-between text-[15px]">
-          <span>Got back by escalating</span>
+          <span>{t('Got back by escalating')}</span>
           <span className="num font-semibold">{formatAud(recovered)}</span>
         </div>
         <div className="mt-1 flex items-center justify-between text-[15px]">
-          <span>Our fee</span>
+          <span>{t('Our fee')}</span>
           <span className="num font-semibold">{formatAud(fee)}</span>
         </div>
-        <p className="legal mt-2">3% of what escalating got back, capped at A$300. Nothing if the builder paid without a fight.</p>
+        <p className="legal mt-2">{t('3% of what escalating got back, capped at A$300. Nothing if the builder paid without a fight.')}</p>
       </div>
     </div>
   );
