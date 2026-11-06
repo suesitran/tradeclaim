@@ -2,15 +2,20 @@ import { useEffect, useState } from 'react';
 import { Camera, Check, Loader2 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { compressImage } from '@/lib/media';
 import { todayYmd } from '@/lib/clock';
 import { LIABILITY_OPTIONS } from '@/lib/defects';
+import { useT } from '@/lib/i18n';
+import MicButton from '@/components/MicButton';
+
+const FIELD = 'h-12 border-2 border-foreground text-[16px]';
+const SELECT = 'flex h-12 w-full border-2 border-foreground bg-card px-3 text-[16px] focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-accent';
 
 export default function DefectDialog({ open, onOpenChange, job, lines = [], onSaved }) {
+  const t = useT();
   const [description, setDescription] = useState('');
   const [area, setArea] = useState('');
   const [scopeLineId, setScopeLineId] = useState('');
@@ -50,7 +55,7 @@ export default function DefectDialog({ open, onOpenChange, job, lines = [], onSa
 
   const handleSave = async () => {
     if (!description.trim()) {
-      setError('Say what the builder has called defective.');
+      setError(t('Say what the builder wants fixed.'));
       return;
     }
     setSaving(true);
@@ -76,7 +81,7 @@ export default function DefectDialog({ open, onOpenChange, job, lines = [], onSa
       onSaved();
       onOpenChange(false);
     } catch (err) {
-      setError(err.message || 'The defect could not be saved');
+      setError(err.message || t('The defect could not be saved'));
     } finally {
       setSaving(false);
     }
@@ -86,36 +91,33 @@ export default function DefectDialog({ open, onOpenChange, job, lines = [], onSa
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[90vh] max-w-lg overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="font-heading text-lg">Raise a defect</DialogTitle>
-          <DialogDescription>Log the notice the day it arrives, so the date, the wording and whether it is your workmanship are all on record.</DialogDescription>
+          <DialogTitle className="text-[26px] font-extrabold">{t('Add a defect')}</DialogTitle>
+          <DialogDescription className="text-[15px]">{t('Write it down the day the builder raises it: what, when, and whose fault.')}</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-3">
           <div className="space-y-1.5">
-            <Label htmlFor="defectDescription">What was called defective</Label>
+            <Label htmlFor="defectDescription" className="text-[15px]">{t('What do they want fixed?')}</Label>
             <Textarea
               id="defectDescription"
               rows={3}
               value={description}
               onChange={(event) => setDescription(event.target.value)}
-              placeholder="Skirting line in L1 corridor 3 showing roller marks, asked to sand and re-coat"
+              placeholder={t('Roller marks on the skirting line, L1 corridor 3. Sand and re-coat.')}
+              className="border-2 border-foreground text-[16px]"
             />
+            <MicButton onText={(said) => setDescription((current) => `${current} ${said}`.trim())} />
           </div>
 
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="space-y-1.5">
-              <Label htmlFor="defectArea">Area or level</Label>
-              <Input id="defectArea" value={area} onChange={(event) => setArea(event.target.value)} placeholder="L1 Corridors" />
+              <Label htmlFor="defectArea" className="text-[15px]">{t('Area or level')}</Label>
+              <Input id="defectArea" value={area} onChange={(event) => setArea(event.target.value)} placeholder={t('L1 Corridors')} className={FIELD} />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="defectLine">Quoted scope line</Label>
-              <select
-                id="defectLine"
-                value={scopeLineId}
-                onChange={(event) => setScopeLineId(event.target.value)}
-                className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-              >
-                <option value="">Not tied to a line</option>
+              <Label htmlFor="defectLine" className="text-[15px]">{t('Which line')}</Label>
+              <select id="defectLine" value={scopeLineId} onChange={(event) => setScopeLineId(event.target.value)} className={SELECT}>
+                <option value="">{t('Not tied to a line')}</option>
                 {lines.map((line) => (
                   <option key={line.id} value={line.id}>
                     {line.description}
@@ -124,60 +126,49 @@ export default function DefectDialog({ open, onOpenChange, job, lines = [], onSa
               </select>
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="defectRaisedBy">Raised by</Label>
-              <Input id="defectRaisedBy" value={raisedBy} onChange={(event) => setRaisedBy(event.target.value)} placeholder="Site supervisor" />
+              <Label htmlFor="defectRaisedBy" className="text-[15px]">{t('Who raised it')}</Label>
+              <Input id="defectRaisedBy" value={raisedBy} onChange={(event) => setRaisedBy(event.target.value)} placeholder={t('Site supervisor')} className={FIELD} />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="defectRaisedAt">Date raised</Label>
-              <Input id="defectRaisedAt" type="date" value={raisedAt} onChange={(event) => setRaisedAt(event.target.value)} className="num" />
+              <Label htmlFor="defectRaisedAt" className="text-[15px]">{t('Date raised')}</Label>
+              <Input id="defectRaisedAt" type="date" value={raisedAt} onChange={(event) => setRaisedAt(event.target.value)} className={`${FIELD} num`} />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="defectDueAt">They want it by</Label>
-              <Input id="defectDueAt" type="date" value={dueAt} onChange={(event) => setDueAt(event.target.value)} className="num" />
+              <Label htmlFor="defectDueAt" className="text-[15px]">{t('They want it by')}</Label>
+              <Input id="defectDueAt" type="date" value={dueAt} onChange={(event) => setDueAt(event.target.value)} className={`${FIELD} num`} />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="defectLiability">Whose issue is it</Label>
-              <select
-                id="defectLiability"
-                value={liability}
-                onChange={(event) => setLiability(event.target.value)}
-                className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-              >
+              <Label htmlFor="defectLiability" className="text-[15px]">{t('Whose fault is it?')}</Label>
+              <select id="defectLiability" value={liability} onChange={(event) => setLiability(event.target.value)} className={SELECT}>
                 {LIABILITY_OPTIONS.map((option) => (
                   <option key={option.value} value={option.value}>
-                    {option.label}
+                    {t(option.label)}
                   </option>
                 ))}
               </select>
             </div>
           </div>
 
-          <label className="flex cursor-pointer items-center gap-3 rounded-[4px] border border-dashed border-[#C9C2B4] bg-secondary px-3 py-2.5">
-            {preview ? (
-              <img src={preview} alt="Defect photo" className="h-12 w-16 rounded-[3px] object-cover" />
-            ) : (
-              <Camera className="h-4 w-4 text-muted-foreground" />
-            )}
-            <span className="text-[12px] text-muted-foreground">
-              {preview ? 'Photo attached' : 'Photo of the defect, optional'}
-            </span>
+          <label className="flex cursor-pointer items-center gap-3 border-2 border-dashed border-foreground bg-secondary px-3 py-3">
+            {preview ? <img src={preview} alt={t('Defect photo')} className="h-12 w-16 object-cover" /> : <Camera className="h-5 w-5" />}
+            <span className="text-[15px]">{preview ? t('Photo attached') : t('Photo of the defect, optional')}</span>
             <input type="file" accept="image/*" capture="environment" onChange={handleFile} className="sr-only" />
           </label>
 
-          {error ? <p className="text-[12px] text-destructive">{error}</p> : null}
+          {error ? <p className="text-[14px] text-destructive">{error}</p> : null}
         </div>
 
-        <Button onClick={handleSave} disabled={saving} className="w-full bg-primary">
+        <button type="button" onClick={handleSave} disabled={saving} className="btn-ink w-full">
           {saving ? (
             <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving
+              <Loader2 className="h-5 w-5 animate-spin" /> {t('Saving')}
             </>
           ) : (
             <>
-              <Check className="mr-2 h-4 w-4" /> Add to the register
+              <Check className="h-5 w-5" /> {t('Save the defect')}
             </>
           )}
-        </Button>
+        </button>
       </DialogContent>
     </Dialog>
   );
