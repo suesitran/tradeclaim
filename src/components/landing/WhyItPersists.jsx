@@ -1,59 +1,41 @@
 import React from 'react';
+import { useT } from '@/lib/i18n';
 
 const REASONS = [
-  {
-    title: 'The paperwork is beyond a two-person firm',
-    body:
-      'A claim has to identify the work, state the amount, carry the right wording and go out from the right date. Every follow-up document after it is timed in business days, not weeks.',
-  },
-  {
-    title: 'There is no evidence when payment is withheld',
-    body:
-      'A camera roll with 400 unlabelled photos is not proof that the finish was complete on the day the builder walked through.',
-  },
-  {
-    title: 'Escalating feels like a declaration of war',
-    body:
-      'Nobody wants to be dropped from a builder’s list. Large subcontractors endorse every claim as routine admin, and there is no reason a small trade cannot do the same.',
-  },
+  { title: 'The paperwork is a full-time job', body: 'Every document has set wording and a set date, counted in business days.' },
+  { title: 'There is no proof when they hold the money', body: 'Four hundred unlabelled photos on your phone prove nothing.' },
+  { title: 'Escalating feels like starting a war', body: 'Big subbies do it as routine admin. You can too.' },
 ];
 
 export default function WhyItPersists() {
+  const t = useT();
   return (
-    <section className="border-b border-border bg-secondary">
+    <section className="border-b-[3px] border-foreground bg-secondary">
       <div className="mx-auto w-full max-w-5xl px-4 py-14 sm:px-6 sm:py-18">
-        <div className="grid gap-8 sm:grid-cols-[minmax(0,17rem)_1fr] sm:gap-12">
+        <div className="grid gap-8 sm:grid-cols-[minmax(0,18rem)_1fr] sm:gap-12">
           <div>
-            <p className="num text-[11px] uppercase tracking-[0.18em] text-accent">Why it persists</p>
-            <h2 className="mt-4 font-heading text-2xl font-semibold leading-[1.15] tracking-tight sm:text-[28px]">
-              The remedy already exists. Almost nobody uses it.
+            <p className="eyebrow">{t('Why it keeps happening')}</p>
+            <h2 className="mt-2 text-[34px] font-extrabold leading-[1] sm:text-[44px]">
+              {t('The law is on your side. Almost nobody uses it.')}
             </h2>
           </div>
 
           <div>
-            <p className="text-[14px] leading-relaxed text-muted-foreground">
-              The Security of Payment Act gives a subcontractor a fast, cheap, interim path to being paid. Serve a
-              compliant claim, the builder must respond inside a short fixed window, and a dispute goes to an
-              adjudicator in weeks rather than to a court in years. Pay when paid clauses are void under it.
+            <p className="text-[17px] leading-[1.5]">
+              {t('The Security of Payment Act gives you a fast, cheap way to get paid. Send a proper claim, the builder must reply in 10 business days, and a dispute goes to an adjudicator in weeks, not a court in years.')}
             </p>
 
-            <dl className="mt-6 border-t border-border">
+            <ol className="mt-6 border-t-2 border-foreground">
               {REASONS.map((reason, index) => (
-                <div key={reason.title} className="border-b border-border py-4">
-                  <dt className="flex gap-3">
-                    <span className="num text-[11px] text-muted-foreground">{String(index + 1).padStart(2, '0')}</span>
-                    <span className="text-[14px] font-medium text-foreground">{reason.title}</span>
-                  </dt>
-                  <dd className="mt-1.5 pl-7 text-[13px] leading-relaxed text-muted-foreground">{reason.body}</dd>
-                </div>
+                <li key={reason.title} className="flex gap-4 border-b-2 border-foreground py-4">
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center bg-foreground font-heading text-[20px] font-extrabold text-accent">{index + 1}</span>
+                  <div>
+                    <p className="font-heading text-[22px] font-bold uppercase leading-none">{t(reason.title)}</p>
+                    <p className="mt-1.5 text-[16px] leading-snug text-muted-foreground">{t(reason.body)}</p>
+                  </div>
+                </li>
               ))}
-            </dl>
-
-            <p className="mt-5 text-[13px] leading-relaxed text-muted-foreground">
-              Quoting software stops at the invoice. Photo tools stop at the photo. Builder portals consume your
-              evidence rather than create it. Nothing carries quote to scope to evidence to claim for the trade
-              doing the work, which is the gap TradeClaim fills.
-            </p>
+            </ol>
           </div>
         </div>
       </div>
