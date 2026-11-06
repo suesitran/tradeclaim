@@ -1,21 +1,25 @@
 import React from 'react';
 import { formatAud } from '@/lib/format';
+import { useT } from '@/lib/i18n';
+
+const TH = 'border-b-2 border-foreground px-3 py-2 font-heading text-[14px] font-bold uppercase tracking-[0.06em] text-muted-foreground';
 
 export default function DemoQuoteTable({ lines, total }) {
+  const t = useT();
   return (
-    <div className="overflow-x-auto rounded-[3px] border border-border bg-card">
-      <table className="w-full min-w-[520px] text-left text-[13px]">
-        <thead className="border-b border-border bg-secondary/50">
-          <tr className="num text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
-            <th className="px-3 py-2 font-medium">Area</th>
-            <th className="px-3 py-2 font-medium">Scope line</th>
-            <th className="px-3 py-2 text-right font-medium">Qty</th>
-            <th className="px-3 py-2 text-right font-medium">Amount</th>
+    <div className="sheet overflow-x-auto">
+      <table className="w-full min-w-[520px] text-left text-[15px]">
+        <thead>
+          <tr>
+            <th className={TH}>{t('Area')}</th>
+            <th className={TH}>{t('Line')}</th>
+            <th className={`${TH} text-right`}>{t('Qty')}</th>
+            <th className={`${TH} text-right`}>{t('Amount')}</th>
           </tr>
         </thead>
         <tbody>
           {lines.map((line) => (
-            <tr key={line.description} className="border-b border-border/70 last:border-0">
+            <tr key={line.description} className="border-b border-foreground/30 last:border-0">
               <td className="px-3 py-2.5 text-muted-foreground">{line.area}</td>
               <td className="px-3 py-2.5">{line.description}</td>
               <td className="num px-3 py-2.5 text-right text-muted-foreground">
@@ -25,12 +29,12 @@ export default function DemoQuoteTable({ lines, total }) {
             </tr>
           ))}
         </tbody>
-        <tfoot className="border-t border-border bg-secondary/40">
-          <tr>
-            <td className="px-3 py-2.5 text-[12px] text-muted-foreground" colSpan={3}>
-              Contract sum, ex GST
+        <tfoot>
+          <tr className="border-t-2 border-foreground bg-secondary">
+            <td className="px-3 py-2.5 font-semibold" colSpan={3}>
+              {t('Quote, ex GST')}
             </td>
-            <td className="num px-3 py-2.5 text-right font-medium">{formatAud(total)}</td>
+            <td className="num px-3 py-2.5 text-right font-semibold">{formatAud(total)}</td>
           </tr>
         </tfoot>
       </table>
