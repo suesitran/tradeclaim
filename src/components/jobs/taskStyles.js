@@ -1,30 +1,21 @@
-// Shared class strings for the checklist workflow screen (warm bone paper, hanging numerals).
-export const CARD =
-  'overflow-hidden rounded-[6px] border border-[#DED6C7] bg-white shadow-[0_10px_30px_-18px_rgba(60,40,15,0.35)]';
+// Shared class strings for the job sheet screens. Kept as names so the pages
+// read as what each piece is, not as a wall of utilities.
+export const CARD = 'sheet';
 
-export const CARD_HEAD = 'flex items-center justify-between gap-4 border-b border-[#DED6C7] bg-[#F6F1E6] px-5 py-[13px]';
+export const CARD_HEAD = 'sheet-head';
 
-export const CARD_META = 'flex flex-wrap items-center gap-x-[14px] gap-y-1 text-[11px] text-[#6b6457]';
+export const CARD_META = 'flex flex-wrap items-center gap-x-4 gap-y-1 text-[14px] text-muted-foreground';
 
-export const EMPTY =
-  'rounded-r-[4px] border-l-[3px] border-[#9A5B2A] bg-[#F1EBDE] px-5 py-[18px] text-[14px] leading-[1.55] text-[#6b6457]';
+export const EMPTY = 'border-l-[6px] border-accent bg-secondary px-4 py-4 text-[16px] leading-snug text-muted-foreground';
 
-export const SMALL_ACTION =
-  'inline-flex items-center gap-[5px] rounded-[3px] border border-[#DED6C7] bg-white px-[11px] py-[6px] text-[11px] font-semibold text-[#1B1A17] transition-colors duration-200 hover:border-[#9A5B2A] hover:text-[#9A5B2A] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#9A5B2A]';
+export const SMALL_ACTION = 'btn-small';
 
-export const SECTION_LINK =
-  'text-[11px] font-semibold text-[#9A5B2A] transition-colors duration-200 hover:text-[#1B1A17] hover:underline';
+export const SECTION_LINK = 'font-heading text-[15px] font-bold uppercase tracking-[0.02em] underline-offset-4 hover:underline';
 
-const HERO_ACTION_BASE =
-  'inline-flex items-center gap-2 rounded-[4px] border px-4 py-2.5 text-[13px] font-semibold text-[#FAF7F1] transition-colors duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#E3C9A8]';
+export const HERO_ACTION = 'btn-line';
 
-export const HERO_ACTION = `${HERO_ACTION_BASE} border-[#DED6C7] bg-transparent hover:bg-[rgba(250,247,241,0.14)] active:bg-[rgba(250,247,241,0.24)]`;
+export const HERO_ACTION_PRIMARY = 'btn-yellow';
 
-export const HERO_ACTION_PRIMARY = `${HERO_ACTION_BASE} border-[#9A5B2A] bg-[#9A5B2A] hover:bg-[#B06C36] active:bg-[#B06C36]`;
+export const TASK_ACTION = 'btn-ink';
 
-const TASK_ACTION_BASE =
-  'inline-flex flex-none items-center justify-center rounded-[4px] border-[1.5px] px-[22px] py-[14px] text-[14px] font-bold transition-colors duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-[#9A5B2A] active:shadow-[inset_0_2px_6px_rgba(0,0,0,0.35)]';
-
-export const TASK_ACTION = `${TASK_ACTION_BASE} border-[#1B1A17] bg-[#1B1A17] text-[#FAF7F1] hover:border-[#9A5B2A] hover:bg-[#9A5B2A]`;
-
-export const TASK_ACTION_OUTLINE = `${TASK_ACTION_BASE} border-[#1B1A17] bg-transparent text-[#1B1A17] hover:bg-[#1B1A17] hover:text-[#FAF7F1]`;
+export const TASK_ACTION_OUTLINE = 'btn-line';
