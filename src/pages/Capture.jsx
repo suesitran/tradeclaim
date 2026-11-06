@@ -5,8 +5,10 @@ import { base44 } from '@/api/base44Client';
 import { useToast } from '@/components/ui/use-toast';
 import CaptureSheet from '@/components/capture/CaptureSheet';
 import VoiceSheet from '@/components/capture/VoiceSheet';
+import { useT } from '@/lib/i18n';
 
 export default function Capture() {
+  const t = useT();
   const { jobId } = useParams();
   const { toast } = useToast();
   const [job, setJob] = useState(null);
@@ -42,34 +44,34 @@ export default function Capture() {
     return map;
   }, [evidence]);
 
-  if (loading) return <p className="py-16 text-center text-[16px] text-muted-foreground">Loading job</p>;
-  if (!job) return <p className="py-16 text-center text-[16px] text-muted-foreground">This job could not be found.</p>;
+  if (loading) return <p className="py-16 text-center text-[16px] text-muted-foreground">{t('Loading job')}</p>;
+  if (!job) return <p className="py-16 text-center text-[16px] text-muted-foreground">{t('This job could not be found.')}</p>;
 
   return (
     <div className="space-y-5">
       <Link to={`/jobs/${job.id}`} className="inline-flex items-center gap-1.5 font-heading text-[16px] font-bold uppercase tracking-[0.02em] hover:underline">
-        <ArrowLeft className="h-4 w-4" /> {job.name}
+        <ArrowLeft className="h-4 w-4 rtl:rotate-180" /> {job.name}
       </Link>
 
       <div className="border-b-[3px] border-foreground pb-4">
-        <p className="eyebrow">{job.job_number ? `Job ${job.job_number}` : 'Job'} | On site</p>
-        <h1 className="mt-1 text-[40px] font-extrabold leading-none">Take photos</h1>
-        <p className="mt-2 text-[16px] text-muted-foreground">Tap the line you worked on. Take the photo. Pick before, finish or clear.</p>
+        <p className="eyebrow">{job.job_number ? t('Job {number}', { number: job.job_number }) : t('Job')} | {t('On site')}</p>
+        <h1 className="mt-1 text-[40px] font-extrabold leading-none">{t('Take photos')}</h1>
+        <p className="mt-2 text-[16px] text-muted-foreground">{t('Tap the line you worked on. Take the photo. Pick before, finish or clear.')}</p>
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2">
         <button type="button" onClick={() => setVoiceOpen(true)} className="btn-yellow min-h-[56px]">
-          <Mic className="h-5 w-5" /> Say what's done
+          <Mic className="h-5 w-5" /> {t("Say what's done")}
         </button>
         <Link to={`/jobs/${job.id}/variation`} className="btn-line min-h-[56px]">
-          <Plus className="h-5 w-5" /> Record extra work
+          <Plus className="h-5 w-5" /> {t('Record extra work')}
         </Link>
       </div>
 
       <div className="sheet">
         <div className="sheet-head">
-          <h2 className="text-[20px] font-extrabold">Your lines</h2>
-          <span className="text-[14px] text-muted-foreground">{lines.length} on this job</span>
+          <h2 className="text-[20px] font-extrabold">{t('Your lines')}</h2>
+          <span className="text-[14px] text-muted-foreground">{t('{count} on this job', { count: lines.length })}</span>
         </div>
         {lines.length ? (
           <div>
@@ -86,9 +88,9 @@ export default function Capture() {
                     <p className="eyebrow">{line.area}</p>
                     <p className="text-[16px] leading-snug">{line.description}</p>
                     <p className="mt-1 flex flex-wrap gap-x-3 text-[13px]">
-                      <span className={count.before ? 'font-semibold' : 'text-muted-foreground'}>Before <span className="num">{count.before}</span></span>
-                      <span className={count.finish ? 'font-semibold' : 'text-muted-foreground'}>Finish <span className="num">{count.finish}</span></span>
-                      <span className={count.clear ? 'font-semibold' : 'text-muted-foreground'}>Clear <span className="num">{count.clear}</span></span>
+                      <span className={count.before ? 'font-semibold' : 'text-muted-foreground'}>{t('Before')} <span className="num">{count.before}</span></span>
+                      <span className={count.finish ? 'font-semibold' : 'text-muted-foreground'}>{t('Finish')} <span className="num">{count.finish}</span></span>
+                      <span className={count.clear ? 'font-semibold' : 'text-muted-foreground'}>{t('Clear')} <span className="num">{count.clear}</span></span>
                     </p>
                   </div>
                   <span className="flex h-12 w-12 shrink-0 items-center justify-center border-2 border-foreground bg-accent text-foreground">
@@ -99,7 +101,7 @@ export default function Capture() {
             })}
           </div>
         ) : (
-          <p className="px-4 py-8 text-[16px] text-muted-foreground">This job has no lines yet.</p>
+          <p className="px-4 py-8 text-[16px] text-muted-foreground">{t('This job has no lines yet.')}</p>
         )}
       </div>
 
@@ -111,7 +113,7 @@ export default function Capture() {
         jobId={job.id}
         line={activeLine}
         onSaved={() => {
-          toast({ title: 'Photo saved' });
+          toast({ title: t('Photo saved') });
           load();
         }}
       />
@@ -121,7 +123,7 @@ export default function Capture() {
         onOpenChange={setVoiceOpen}
         jobId={job.id}
         onApplied={(count) => {
-          toast({ title: `${count} lines updated` });
+          toast({ title: t('{count} lines updated', { count }) });
           load();
         }}
       />
