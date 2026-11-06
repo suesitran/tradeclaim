@@ -2,80 +2,82 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Site job sheet: white paper, black ink, safety yellow for the thing to do next,
+   red for overdue. Square corners, heavy rules, type that reads from a ute cab. */
 @layer base {
   :root {
-    --background: 40 20% 96%;
-    --foreground: 205 20% 10%;
+    --background: 45 25% 97%;
+    --foreground: 0 0% 7%;
     --card: 0 0% 100%;
-    --card-foreground: 205 20% 10%;
+    --card-foreground: 0 0% 7%;
     --popover: 0 0% 100%;
-    --popover-foreground: 205 20% 10%;
-    --primary: 205 25% 13%;
-    --primary-foreground: 40 20% 97%;
-    --secondary: 40 16% 92%;
-    --secondary-foreground: 205 20% 14%;
-    --muted: 40 16% 92%;
-    --muted-foreground: 205 8% 42%;
-    --accent: 28 74% 44%;
-    --accent-foreground: 40 20% 98%;
-    --destructive: 0 62% 46%;
+    --popover-foreground: 0 0% 7%;
+    --primary: 0 0% 7%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 45 12% 92%;
+    --secondary-foreground: 0 0% 7%;
+    --muted: 45 12% 92%;
+    --muted-foreground: 0 0% 38%;
+    --accent: 50 100% 50%;
+    --accent-foreground: 0 0% 7%;
+    --destructive: 0 68% 48%;
     --destructive-foreground: 0 0% 100%;
-    --border: 40 14% 85%;
-    --input: 40 14% 83%;
-    --ring: 28 74% 44%;
-    --chart-1: 28 74% 44%;
-    --chart-2: 158 32% 38%;
-    --chart-3: 205 25% 30%;
-    --chart-4: 43 74% 56%;
-    --chart-5: 350 55% 50%;
-    --radius: 0.375rem;
-    --font-heading: "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
-    --font-body: "Inter", ui-sans-serif, system-ui, sans-serif;
-    --font-display: "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
+    --border: 0 0% 7%;
+    --input: 0 0% 60%;
+    --ring: 50 100% 50%;
+    --chart-1: 50 100% 50%;
+    --chart-2: 140 55% 32%;
+    --chart-3: 0 0% 7%;
+    --chart-4: 0 68% 48%;
+    --chart-5: 0 0% 38%;
+    --radius: 0rem;
+    --font-heading: "Barlow Condensed", "Arial Narrow", ui-sans-serif, system-ui, sans-serif;
+    --font-body: "Barlow", ui-sans-serif, system-ui, sans-serif;
+    --font-display: "Barlow Condensed", "Arial Narrow", ui-sans-serif, system-ui, sans-serif;
     --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
-    --sidebar-background: 40 20% 96%;
-    --sidebar-foreground: 205 20% 14%;
-    --sidebar-primary: 205 25% 13%;
-    --sidebar-primary-foreground: 40 20% 97%;
-    --sidebar-accent: 40 16% 92%;
-    --sidebar-accent-foreground: 205 20% 14%;
-    --sidebar-border: 40 14% 85%;
-    --sidebar-ring: 28 74% 44%;
+    --sidebar-background: 45 25% 97%;
+    --sidebar-foreground: 0 0% 7%;
+    --sidebar-primary: 0 0% 7%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 45 12% 92%;
+    --sidebar-accent-foreground: 0 0% 7%;
+    --sidebar-border: 0 0% 7%;
+    --sidebar-ring: 50 100% 50%;
   }
 
   .dark {
-    --background: 205 20% 9%;
-    --foreground: 40 20% 96%;
-    --card: 205 20% 12%;
-    --card-foreground: 40 20% 96%;
-    --popover: 205 20% 12%;
-    --popover-foreground: 40 20% 96%;
-    --primary: 40 20% 96%;
-    --primary-foreground: 205 20% 9%;
-    --secondary: 205 14% 18%;
-    --secondary-foreground: 40 20% 96%;
-    --muted: 205 14% 18%;
-    --muted-foreground: 40 10% 65%;
-    --accent: 28 74% 50%;
-    --accent-foreground: 205 20% 9%;
-    --destructive: 0 62% 40%;
+    --background: 0 0% 7%;
+    --foreground: 45 25% 97%;
+    --card: 0 0% 11%;
+    --card-foreground: 45 25% 97%;
+    --popover: 0 0% 11%;
+    --popover-foreground: 45 25% 97%;
+    --primary: 45 25% 97%;
+    --primary-foreground: 0 0% 7%;
+    --secondary: 0 0% 16%;
+    --secondary-foreground: 45 25% 97%;
+    --muted: 0 0% 16%;
+    --muted-foreground: 0 0% 65%;
+    --accent: 50 100% 50%;
+    --accent-foreground: 0 0% 7%;
+    --destructive: 0 68% 48%;
     --destructive-foreground: 0 0% 100%;
-    --border: 205 14% 20%;
-    --input: 205 14% 22%;
-    --ring: 28 74% 50%;
-    --chart-1: 28 74% 50%;
-    --chart-2: 158 32% 45%;
-    --chart-3: 205 25% 55%;
-    --chart-4: 43 74% 60%;
-    --chart-5: 350 55% 58%;
-    --sidebar-background: 205 20% 9%;
-    --sidebar-foreground: 40 20% 96%;
-    --sidebar-primary: 40 20% 96%;
-    --sidebar-primary-foreground: 205 20% 9%;
-    --sidebar-accent: 205 14% 18%;
-    --sidebar-accent-foreground: 40 20% 96%;
-    --sidebar-border: 205 14% 20%;
-    --sidebar-ring: 28 74% 50%;
+    --border: 45 25% 97%;
+    --input: 0 0% 40%;
+    --ring: 50 100% 50%;
+    --chart-1: 50 100% 50%;
+    --chart-2: 140 55% 45%;
+    --chart-3: 45 25% 97%;
+    --chart-4: 0 68% 55%;
+    --chart-5: 0 0% 65%;
+    --sidebar-background: 0 0% 7%;
+    --sidebar-foreground: 45 25% 97%;
+    --sidebar-primary: 45 25% 97%;
+    --sidebar-primary-foreground: 0 0% 7%;
+    --sidebar-accent: 0 0% 16%;
+    --sidebar-accent-foreground: 45 25% 97%;
+    --sidebar-border: 45 25% 97%;
+    --sidebar-ring: 50 100% 50%;
   }
 }
 
@@ -86,13 +88,12 @@
 
   body {
     @apply bg-background text-foreground font-body antialiased;
-    font-feature-settings: "ss01" 1, "cv05" 1;
   }
 
   h1,
   h2,
   h3 {
-    @apply font-heading tracking-tight;
+    @apply font-heading uppercase tracking-[0.01em];
   }
 
   .num {
@@ -101,35 +102,48 @@
   }
 }
 
-@keyframes tc-rise {
-  from {
-    opacity: 0;
-    transform: translateY(18px);
+@layer components {
+  /* A label stamped on the sheet: short, loud, square. */
+  .tag {
+    @apply inline-flex items-center gap-1.5 border-2 border-foreground px-2 py-0.5 font-heading text-[14px] font-bold uppercase leading-[1.3] tracking-[0.02em];
   }
 
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
-
-@keyframes tc-drift {
-  0% {
-    transform: scale(1.04) translateX(0);
+  /* The small print under a plain label: what the Act calls it. */
+  .legal {
+    @apply block text-[11px] font-medium leading-snug text-muted-foreground;
   }
 
-  100% {
-    transform: scale(1.1) translateX(-14px);
-  }
-}
-
-@layer utilities {
-  .animate-rise {
-    opacity: 0;
-    animation: tc-rise 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+  /* Big black button, the main thing to do on a screen. */
+  .btn-ink {
+    @apply inline-flex min-h-[48px] items-center justify-center gap-2 border-2 border-foreground bg-foreground px-5 font-heading text-[18px] font-bold uppercase tracking-[0.02em] text-background transition-colors hover:bg-accent hover:text-foreground focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-accent disabled:opacity-50;
   }
 
-  .animate-drift {
-    animation: tc-drift 18s ease-in-out infinite alternate;
+  /* Yellow button, the thing the clock says to do now. */
+  .btn-yellow {
+    @apply inline-flex min-h-[48px] items-center justify-center gap-2 border-2 border-foreground bg-accent px-5 font-heading text-[18px] font-bold uppercase tracking-[0.02em] text-foreground transition-colors hover:bg-foreground hover:text-accent focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-foreground disabled:opacity-50;
+  }
+
+  /* Outlined button for the second choice. */
+  .btn-line {
+    @apply inline-flex min-h-[48px] items-center justify-center gap-2 border-2 border-foreground bg-transparent px-5 font-heading text-[18px] font-bold uppercase tracking-[0.02em] text-foreground transition-colors hover:bg-foreground hover:text-background focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-accent disabled:opacity-50;
+  }
+
+  /* Small outlined button for row actions. */
+  .btn-small {
+    @apply inline-flex min-h-[36px] items-center justify-center gap-1.5 border-2 border-foreground bg-card px-3 font-heading text-[14px] font-bold uppercase tracking-[0.02em] text-foreground transition-colors hover:bg-foreground hover:text-background focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-accent disabled:opacity-50;
+  }
+
+  /* A boxed section of the sheet. */
+  .sheet {
+    @apply border-2 border-foreground bg-card;
+  }
+
+  .sheet-head {
+    @apply flex flex-wrap items-center justify-between gap-3 border-b-2 border-foreground px-4 py-3;
+  }
+
+  /* The eyebrow over a heading. */
+  .eyebrow {
+    @apply font-heading text-[13px] font-bold uppercase tracking-[0.08em] text-muted-foreground;
   }
 }
