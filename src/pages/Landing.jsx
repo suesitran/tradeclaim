@@ -15,7 +15,7 @@ export default function Landing() {
 
   const cta = loggedIn ? { to: '/app', label: 'Go to app' } : { to: '/register', label: 'Sign up' };
   const signIn = loggedIn ? null : { to: '/login', label: 'Log in' };
-  const trial = loggedIn ? cta : { to: '/demo', label: 'Try it free, no account' };
+  const trial = loggedIn ? cta : { to: '/demo', label: 'Try it, no sign-up', demo: true };
 
   return (
     <div className="min-h-screen bg-[#FAF7F1] text-[#1B1A17]">
