@@ -28,25 +28,28 @@ export function effectiveStatus(claim, today = todayYmd()) {
   return 'draft';
 }
 
+// What to do next on a claim, as English templates. Screens pass action and
+// detail through t() so they come out in the chosen language; values fill the
+// {date} and {amount} slots after translation.
 export function nextActionFor(claim) {
   const status = effectiveStatus(claim);
   switch (status) {
     case 'draft':
-      return { action: 'Send the claim', detail: 'Not sent yet' };
+      return { action: 'Send the claim', detail: 'Not sent yet', values: {} };
     case 'served':
-      return { action: 'Wait for the builder', detail: `They have until ${formatDate(claim.schedule_due_at)}` };
+      return { action: 'Wait for the builder', detail: 'They have until {date}', values: { date: formatDate(claim.schedule_due_at) } };
     case 'ignored':
-      return { action: 'Send the notice', detail: `Their reply was due ${formatDate(claim.schedule_due_at)}` };
+      return { action: 'Send the notice', detail: 'Their reply was due {date}', values: { date: formatDate(claim.schedule_due_at) } };
     case 'scheduled_short':
-      return { action: 'Get ready to escalate', detail: `Apply by ${formatDate(claim.apply_by)}` };
+      return { action: 'Get ready to escalate', detail: 'Apply by {date}', values: { date: formatDate(claim.apply_by) } };
     case 'scheduled_in_full':
-      return { action: 'Record the payment', detail: `${formatAud(claim.scheduled_amount)} agreed` };
+      return { action: 'Record the payment', detail: '{amount} agreed', values: { amount: formatAud(claim.scheduled_amount) } };
     case 'adjudication_ready':
-      return { action: 'Record the payment', detail: 'Escalation paper is ready' };
+      return { action: 'Record the payment', detail: 'Escalation paper is ready', values: {} };
     case 'paid':
-      return { action: 'Paid', detail: `${formatAud(claim.paid_amount)} on ${formatDate(claim.paid_at)}` };
+      return { action: 'Paid', detail: '{amount} on {date}', values: { amount: formatAud(claim.paid_amount), date: formatDate(claim.paid_at) } };
     default:
-      return { action: '', detail: '' };
+      return { action: '', detail: '', values: {} };
   }
 }
 
