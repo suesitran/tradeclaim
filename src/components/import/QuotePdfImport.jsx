@@ -1,9 +1,10 @@
 import { useRef, useState } from 'react';
 import { FileSearch, Loader2 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
-import { Button } from '@/components/ui/button';
+import { useT } from '@/lib/i18n';
 
 export default function QuotePdfImport({ onExtracted }) {
+  const t = useT();
   const inputRef = useRef(null);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState('');
@@ -23,29 +24,29 @@ export default function QuotePdfImport({ onExtracted }) {
       const response = await base44.functions.invoke('extractQuotePdf', { file_url: signed.signed_url });
       const data = response.data || {};
       if (data.error) throw new Error(data.error);
-      if (!data.lines || !data.lines.length) throw new Error('No quoted items could be read from that document');
+      if (!data.lines || !data.lines.length) throw new Error(t('No lines could be read from that file'));
       onExtracted(data);
-      setMessage(`${data.lines.length} scope lines read from ${file.name}. Check them against the quote before saving.`);
+      setMessage(t('{count} lines read from {file}. Check them against the quote before saving.', { count: data.lines.length, file: file.name }));
     } catch (err) {
-      setError(err.message || 'That quote could not be read');
+      setError(err.message || t('That quote could not be read'));
     } finally {
       setBusy(false);
     }
   };
 
   return (
-    <div className="space-y-2 rounded-[4px] border border-border bg-card p-5">
+    <div className="sheet space-y-2 p-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <p className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground">Or read the quote itself</p>
-          <p className="mt-1 text-[12px] leading-relaxed text-muted-foreground">
-            Upload the quote as a PDF or a photo and every wording is read into the scope lines below.
+          <p className="text-[20px] font-extrabold">{t('Upload the quote')}</p>
+          <p className="mt-1 text-[15px] leading-snug text-muted-foreground">
+            {t('A PDF or a photo. Every line on it is read in for you.')}
           </p>
         </div>
-        <Button variant="outline" onClick={() => inputRef.current && inputRef.current.click()} disabled={busy}>
-          {busy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <FileSearch className="mr-2 h-4 w-4" />}
-          {busy ? 'Reading the quote' : 'Upload quote'}
-        </Button>
+        <button type="button" className="btn-ink" onClick={() => inputRef.current && inputRef.current.click()} disabled={busy}>
+          {busy ? <Loader2 className="h-5 w-5 animate-spin" /> : <FileSearch className="h-5 w-5" />}
+          {busy ? t('Reading the quote') : t('Choose the file')}
+        </button>
         <input
           ref={inputRef}
           type="file"
@@ -54,8 +55,8 @@ export default function QuotePdfImport({ onExtracted }) {
           onChange={handleFile}
         />
       </div>
-      {message ? <p className="text-[12px] text-muted-foreground">{message}</p> : null}
-      {error ? <p className="text-[12px] text-destructive">{error}</p> : null}
+      {message ? <p className="text-[15px]">{message}</p> : null}
+      {error ? <p className="text-[14px] text-destructive">{error}</p> : null}
     </div>
   );
 }
