@@ -5,7 +5,6 @@ import { base44 } from '@/api/base44Client';
 import { useToast } from '@/components/ui/use-toast';
 import CaptureSheet from '@/components/capture/CaptureSheet';
 import VoiceSheet from '@/components/capture/VoiceSheet';
-import { STAGE_LABELS } from '@/lib/format';
 
 export default function Capture() {
   const { jobId } = useParams();
@@ -20,12 +19,12 @@ export default function Capture() {
   const load = async () => {
     const [jobRecord, linePage, evidencePage] = await Promise.all([
       base44.entities.Job.get(jobId).catch(() => null),
-      base44.entities.ScopeLine.filter({ job_id: jobId }, { limit: 200, sort: 'sort_order' }),
-      base44.entities.Evidence.filter({ job_id: jobId }, { limit: 400, sort: '-captured_at' }),
+      base44.entities.ScopeLine.filter({ job_id: jobId }, 'sort_order', 200),
+      base44.entities.Evidence.filter({ job_id: jobId }, '-captured_at', 400),
     ]);
     setJob(jobRecord);
-    setLines((linePage && linePage.items) || []);
-    setEvidence((evidencePage && evidencePage.items) || []);
+    setLines(linePage || []);
+    setEvidence(evidencePage || []);
     setLoading(false);
   };
 
@@ -43,45 +42,37 @@ export default function Capture() {
     return map;
   }, [evidence]);
 
-  if (loading) return <p className="py-16 text-center text-sm text-muted-foreground">Loading job</p>;
-  if (!job) return <p className="py-16 text-center text-sm text-muted-foreground">This job could not be found.</p>;
+  if (loading) return <p className="py-16 text-center text-[16px] text-muted-foreground">Loading job</p>;
+  if (!job) return <p className="py-16 text-center text-[16px] text-muted-foreground">This job could not be found.</p>;
 
   return (
     <div className="space-y-5">
-      <Link to={`/jobs/${job.id}`} className="inline-flex items-center gap-1.5 text-[12px] text-muted-foreground hover:text-foreground">
-        <ArrowLeft className="h-3.5 w-3.5" /> {job.name}
+      <Link to={`/jobs/${job.id}`} className="inline-flex items-center gap-1.5 font-heading text-[16px] font-bold uppercase tracking-[0.02em] hover:underline">
+        <ArrowLeft className="h-4 w-4" /> {job.name}
       </Link>
 
-      <div>
-        <p className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
-          {job.job_number ? `Job ${job.job_number}` : 'Job'}  |  On site
-        </p>
-        <h1 className="mt-1 font-heading text-2xl font-semibold tracking-tight">Capture</h1>
-        <p className="mt-1 text-[13px] text-muted-foreground">Tap a scope line, take the photo, pick the stage. Twenty seconds a line.</p>
+      <div className="border-b-[3px] border-foreground pb-4">
+        <p className="eyebrow">{job.job_number ? `Job ${job.job_number}` : 'Job'} | On site</p>
+        <h1 className="mt-1 text-[40px] font-extrabold leading-none">Take photos</h1>
+        <p className="mt-2 text-[16px] text-muted-foreground">Tap the line you worked on. Take the photo. Pick before, finish or clear.</p>
       </div>
 
-      <div className="grid gap-2 sm:grid-cols-2">
-        <button
-          type="button"
-          onClick={() => setVoiceOpen(true)}
-          className="flex items-center justify-center gap-2 rounded-[4px] bg-accent px-4 py-4 text-sm font-medium text-accent-foreground transition-opacity hover:opacity-90"
-        >
-          <Mic className="h-5 w-5" /> Dictate progress
+      <div className="grid gap-3 sm:grid-cols-2">
+        <button type="button" onClick={() => setVoiceOpen(true)} className="btn-yellow min-h-[56px]">
+          <Mic className="h-5 w-5" /> Say what's done
         </button>
-        <Link
-          to={`/jobs/${job.id}/variation`}
-          className="flex items-center justify-center gap-2 rounded-[4px] border border-border bg-card px-4 py-4 text-sm font-medium transition-colors hover:bg-secondary"
-        >
-          <Plus className="h-5 w-5" /> Record a variation
+        <Link to={`/jobs/${job.id}/variation`} className="btn-line min-h-[56px]">
+          <Plus className="h-5 w-5" /> Record extra work
         </Link>
       </div>
 
-      <div className="overflow-hidden rounded-[4px] border border-border bg-card">
-        <div className="border-b border-border px-4 py-3">
-          <h2 className="font-heading text-sm font-semibold">Scope lines</h2>
+      <div className="sheet">
+        <div className="sheet-head">
+          <h2 className="text-[20px] font-extrabold">Your lines</h2>
+          <span className="text-[14px] text-muted-foreground">{lines.length} on this job</span>
         </div>
         {lines.length ? (
-          <div className="divide-y divide-border">
+          <div>
             {lines.map((line) => {
               const count = counts[line.id] || { before: 0, finish: 0, clear: 0, total: 0 };
               return (
@@ -89,32 +80,28 @@ export default function Capture() {
                   key={line.id}
                   type="button"
                   onClick={() => setActiveLine(line)}
-                  className="flex w-full items-center gap-3 px-4 py-3.5 text-left transition-colors hover:bg-secondary/60"
+                  className="flex w-full items-center gap-3 border-b-2 border-foreground px-4 py-3.5 text-left transition-colors last:border-b-0 hover:bg-secondary"
                 >
                   <div className="min-w-0 flex-1">
-                    <p className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground">{line.area}</p>
-                    <p className="truncate text-[13px] leading-snug">{line.description}</p>
-                    <p className="mt-1 flex flex-wrap gap-1.5 text-[10px] text-muted-foreground">
-                      <span className="rounded-full border border-[#DCD7CB] bg-[#EDEBE4] px-1.5 py-0.5">B {count.before}</span>
-                      <span className="rounded-full border border-[#C6DFCE] bg-[#E4F0E8] px-1.5 py-0.5">F {count.finish}</span>
-                      <span className="rounded-full border border-[#CBDCEB] bg-[#E7EEF5] px-1.5 py-0.5">C {count.clear}</span>
+                    <p className="eyebrow">{line.area}</p>
+                    <p className="text-[16px] leading-snug">{line.description}</p>
+                    <p className="mt-1 flex flex-wrap gap-x-3 text-[13px]">
+                      <span className={count.before ? 'font-semibold' : 'text-muted-foreground'}>Before <span className="num">{count.before}</span></span>
+                      <span className={count.finish ? 'font-semibold' : 'text-muted-foreground'}>Finish <span className="num">{count.finish}</span></span>
+                      <span className={count.clear ? 'font-semibold' : 'text-muted-foreground'}>Clear <span className="num">{count.clear}</span></span>
                     </p>
                   </div>
-                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground">
-                    <Camera className="h-5 w-5" />
+                  <span className="flex h-12 w-12 shrink-0 items-center justify-center border-2 border-foreground bg-accent text-foreground">
+                    <Camera className="h-6 w-6" />
                   </span>
                 </button>
               );
             })}
           </div>
         ) : (
-          <p className="px-4 py-8 text-sm text-muted-foreground">This job has no scope lines yet.</p>
+          <p className="px-4 py-8 text-[16px] text-muted-foreground">This job has no lines yet.</p>
         )}
       </div>
-
-      <p className="pb-2 text-center text-[11px] text-muted-foreground">
-        Stages: {STAGE_LABELS.before}, {STAGE_LABELS.finish}, {STAGE_LABELS.clear}.
-      </p>
 
       <CaptureSheet
         open={Boolean(activeLine)}
@@ -124,7 +111,7 @@ export default function Capture() {
         jobId={job.id}
         line={activeLine}
         onSaved={() => {
-          toast({ title: 'Photo saved to the scope line' });
+          toast({ title: 'Photo saved' });
           load();
         }}
       />
@@ -134,7 +121,7 @@ export default function Capture() {
         onOpenChange={setVoiceOpen}
         jobId={job.id}
         onApplied={(count) => {
-          toast({ title: `${count} scope lines updated from your note` });
+          toast({ title: `${count} lines updated` });
           load();
         }}
       />
