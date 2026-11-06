@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
@@ -8,6 +7,8 @@ import { base44 } from '@/api/base44Client';
 import { formatAud, formatDate } from '@/lib/format';
 import { addBusinessDays, todayYmd } from '@/lib/clock';
 import { jurisdictionFor } from '@/lib/jurisdictions';
+
+const FIELD = 'num h-12 border-2 border-foreground text-[16px]';
 
 export default function ScheduleDialog({ open, onOpenChange, claim, job, holidays, onSaved }) {
   const [amount, setAmount] = useState('');
@@ -50,51 +51,46 @@ export default function ScheduleDialog({ open, onOpenChange, claim, job, holiday
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-lg">
         <DialogHeader>
-          <DialogTitle className="font-heading text-lg">Record the payment schedule</DialogTitle>
-          <DialogDescription>
-            Claimed {formatAud(claimed)} excluding GST. If the builder pays less, record the amount and the reasons given.
+          <DialogTitle className="text-[26px] font-extrabold">What did the builder say?</DialogTitle>
+          <DialogDescription className="text-[15px]">
+            You claimed {formatAud(claimed)} ex GST. Put in what they say they will pay, and their reasons if it is less.
+            <span className="legal mt-1">This is the builder's payment schedule under the Act.</span>
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="space-y-1.5">
-              <Label htmlFor="scheduled">Scheduled amount, ex GST</Label>
-              <Input id="scheduled" type="number" inputMode="decimal" value={amount} onChange={(event) => setAmount(event.target.value)} className="num" />
+              <Label htmlFor="scheduled" className="text-[15px]">They will pay, ex GST</Label>
+              <Input id="scheduled" type="number" inputMode="decimal" value={amount} onChange={(event) => setAmount(event.target.value)} className={FIELD} />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="received">Date received</Label>
-              <Input id="received" type="date" value={receivedAt} onChange={(event) => setReceivedAt(event.target.value)} className="num" />
+              <Label htmlFor="received" className="text-[15px]">Date they replied</Label>
+              <Input id="received" type="date" value={receivedAt} onChange={(event) => setReceivedAt(event.target.value)} className={FIELD} />
             </div>
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="reasons">Reasons given for withholding</Label>
-            <Textarea
-              id="reasons"
-              rows={3}
-              placeholder="Defective finish, L1 corridors"
-              value={reasons}
-              onChange={(event) => setReasons(event.target.value)}
-            />
+            <Label htmlFor="reasons" className="text-[15px]">Their reasons for paying less</Label>
+            <Textarea id="reasons" rows={3} placeholder="Defective finish, L1 corridors" value={reasons} onChange={(event) => setReasons(event.target.value)} className="border-2 border-foreground text-[16px]" />
           </div>
-          <p className="rounded-[3px] border border-border bg-secondary px-3 py-2 text-[12px] text-muted-foreground">
+          <p className={`border-2 border-foreground px-3 py-3 text-[15px] ${short ? 'bg-accent' : 'bg-secondary'}`}>
             {short ? (
               <>
-                Scheduled short by {formatAud(claimed - scheduled)}. Apply for adjudication by{' '}
-                <span className="text-foreground">{formatDate(applyBy)}</span>, {jurisdiction.applyDays} {jurisdiction.unit} under the{' '}
-                {jurisdiction.act}.
+                That is <span className="num font-semibold">{formatAud(claimed - scheduled)}</span> short. If you want to fight it, apply by{' '}
+                <span className="num font-semibold">{formatDate(applyBy)}</span>.
+                <span className="legal mt-1 !text-foreground">{jurisdiction.applyDays} {jurisdiction.unit} to apply for adjudication under the {jurisdiction.act}.</span>
               </>
             ) : (
-              <>Scheduled in full. Next step is to record the payment.</>
+              <>They agreed to the full amount. Next, record the payment when it lands.</>
             )}
           </p>
         </div>
 
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-          <Button onClick={handleSave} disabled={saving || !amount} className="bg-primary">
-            {saving ? 'Saving' : 'Save schedule'}
-          </Button>
+        <DialogFooter className="gap-2">
+          <button type="button" className="btn-line" onClick={() => onOpenChange(false)}>Cancel</button>
+          <button type="button" className="btn-ink" onClick={handleSave} disabled={saving || !amount}>
+            {saving ? 'Saving' : 'Save'}
+          </button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
