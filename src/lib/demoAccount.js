@@ -4,8 +4,8 @@
 // account and its jobs, so keep it to demo data. Leave both empty to turn the
 // demo button into a link to the no-account walkthrough instead.
 export const DEMO_ACCOUNT = {
-  email: '',
-  password: '',
+  email: 'ahmed172@icloud.com',
+  password: 'Gun60&&TAM',
 };
 
 export const demoEnabled = Boolean(DEMO_ACCOUNT.email && DEMO_ACCOUNT.password);
