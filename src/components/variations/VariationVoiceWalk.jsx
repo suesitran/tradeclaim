@@ -1,14 +1,18 @@
 import { useEffect, useRef, useState } from 'react';
-import { Mic, MicOff } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Mic, Square } from 'lucide-react';
+import { speechLanguage, useLanguage, useT } from '@/lib/i18n';
 
 const STEPS = [
-  { key: 'instructed_by', prompt: 'Who instructed it?', example: 'Site manager, Dan Petrov' },
+  { key: 'instructed_by', prompt: 'Who asked for it?', example: 'Site manager, Dan Petrov' },
   { key: 'description', prompt: 'What is the work?', example: 'Fire stair walls, extra coat' },
-  { key: 'estimated_amount', prompt: 'What is the estimated amount, ex GST?', example: 'Eighteen hundred and fifty' },
+  { key: 'estimated_amount', prompt: 'Roughly how much, ex GST?', example: 'Eighteen hundred and fifty' },
 ];
 
+// Three questions, one at a time, answered by talking. Each answer lands in
+// the matching box below so it can still be fixed by typing.
 export default function VariationVoiceWalk({ onField }) {
+  const t = useT();
+  const { language } = useLanguage();
   const [step, setStep] = useState(0);
   const [listening, setListening] = useState(false);
   const [heard, setHeard] = useState('');
@@ -35,19 +39,17 @@ export default function VariationVoiceWalk({ onField }) {
     setListening(false);
   };
 
+  const Recognition = typeof window !== 'undefined' ? window.SpeechRecognition || window.webkitSpeechRecognition : null;
+  if (!Recognition) return null;
+
   const current = STEPS[step];
 
   const listen = () => {
-    const Recognition = typeof window !== 'undefined' ? window.SpeechRecognition || window.webkitSpeechRecognition : null;
-    if (!Recognition) {
-      setError('This browser cannot dictate. Type the answers instead.');
-      return;
-    }
     stop();
     setError('');
     setHeard('');
     const recognition = new Recognition();
-    recognition.lang = 'en-AU';
+    recognition.lang = speechLanguage(language);
     recognition.continuous = false;
     recognition.interimResults = false;
     recognition.onresult = (event) => {
@@ -57,7 +59,7 @@ export default function VariationVoiceWalk({ onField }) {
       if (current.key === 'estimated_amount') {
         const digits = said.replace(/[^0-9.]/g, '');
         if (!digits) {
-          setError('Say the amount as a number, for example eighteen hundred and fifty.');
+          setError(t('Say the amount as a number, like eighteen fifty.'));
           return;
         }
         onField('estimated_amount', String(Math.round(Number(digits))));
@@ -68,7 +70,7 @@ export default function VariationVoiceWalk({ onField }) {
     };
     recognition.onerror = () => {
       setListening(false);
-      setError('That was not picked up. Try again, or type it.');
+      setError(t('That was not picked up. Try again, or type it.'));
     };
     recognition.onend = () => setListening(false);
     recognitionRef.current = recognition;
@@ -79,29 +81,25 @@ export default function VariationVoiceWalk({ onField }) {
   const done = step >= STEPS.length;
 
   return (
-    <div className="rounded-[4px] border border-border bg-secondary/50 px-4 py-3">
+    <div className="border-l-[6px] border-accent bg-secondary px-4 py-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <p className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
-          {done ? 'All three answered' : `One field at a time, ${step + 1} of ${STEPS.length}`}
-        </p>
+        <p className="eyebrow">{done ? t('All three answered') : t('Talk it in, {step} of {total}', { step: step + 1, total: STEPS.length })}</p>
         {done ? (
-          <Button variant="ghost" size="sm" onClick={() => { setStep(0); setHeard(''); setError(''); }}>
-            Start again
-          </Button>
+          <button type="button" className="btn-small" onClick={() => { setStep(0); setHeard(''); setError(''); }}>
+            {t('Start again')}
+          </button>
         ) : (
-          <Button variant="outline" size="sm" onClick={listening ? stop : listen}>
-            {listening ? <MicOff className="mr-1.5 h-3.5 w-3.5" /> : <Mic className="mr-1.5 h-3.5 w-3.5" />}
-            {listening ? 'Stop' : 'Speak the answer'}
-          </Button>
+          <button type="button" className={`btn-small ${listening ? '!bg-accent' : ''}`} onClick={listening ? stop : listen}>
+            {listening ? <Square className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+            {listening ? t('Listening, tap to stop') : t('Talk instead')}
+          </button>
         )}
       </div>
 
-      <p className="mt-2 text-[13px] leading-snug">
-        {done ? 'Check the three answers below, then send the notice.' : current.prompt}
-      </p>
-      {!done ? <p className="mt-0.5 text-[11px] text-muted-foreground">For example: {current.example}</p> : null}
-      {heard ? <p className="num mt-1 text-[11px] text-muted-foreground">Heard: {heard}</p> : null}
-      {error ? <p className="mt-1 text-[11px] text-destructive">{error}</p> : null}
+      <p className="mt-2 text-[18px] font-semibold leading-snug">{done ? t('Check the three answers below, then send.') : t(current.prompt)}</p>
+      {!done ? <p className="mt-0.5 text-[14px] text-muted-foreground">{t('For example')}: {t(current.example)}</p> : null}
+      {heard ? <p className="mt-1 text-[14px] text-muted-foreground">{t('Heard')}: {heard}</p> : null}
+      {error ? <p className="mt-1 text-[14px] text-destructive">{error}</p> : null}
     </div>
   );
 }
