@@ -12,8 +12,8 @@ export default async function (req) {
     if (!jobId) return Response.json({ error: 'job_id is required' }, { status: 400 });
     if (!transcript) return Response.json({ error: 'Nothing was dictated' }, { status: 400 });
 
-    const page = await base44.entities.ScopeLine.filter({ job_id: jobId }, { limit: 200, sort: 'sort_order' });
-    const lines = page && page.items ? page.items : [];
+    const page = await base44.entities.ScopeLine.filter({ job_id: jobId }, 'sort_order', 200);
+    const lines = page || [];
     if (!lines.length) return Response.json({ error: 'This job has no scope lines yet' }, { status: 400 });
 
     const list = lines
