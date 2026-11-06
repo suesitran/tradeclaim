@@ -1,14 +1,16 @@
 import { formatAud, formatDate } from './format';
 import { todayYmd } from './clock';
 
+// Plain words first, the Act's term underneath. The documents keep the Act's
+// wording; these labels are only for the screens.
 export const STATUS_META = {
-  draft: { label: 'Draft', tone: 'bg-[#EDEBE4] text-[#4A4F55] border-[#DCD7CB]', dot: 'bg-[#8B8F94]' },
-  served: { label: 'Served', tone: 'bg-[#E7EEF5] text-[#1F4A70] border-[#CBDCEB]', dot: 'bg-[#2C6A9B]' },
-  scheduled_in_full: { label: 'Scheduled in full', tone: 'bg-[#E4F0E8] text-[#245B3B] border-[#C6DFCE]', dot: 'bg-[#2C7A4B]' },
-  scheduled_short: { label: 'Scheduled short', tone: 'bg-[#FBEDDD] text-[#8A4B12] border-[#F0D6B7]', dot: 'bg-[#C7741A]' },
-  ignored: { label: 'Ignored', tone: 'bg-[#FBE7E4] text-[#8C2A1E] border-[#F1CBC5]', dot: 'bg-[#B3341F]' },
-  adjudication_ready: { label: 'Adjudication ready', tone: 'bg-[#FBE7E4] text-[#8C2A1E] border-[#F1CBC5]', dot: 'bg-[#B3341F]' },
-  paid: { label: 'Paid', tone: 'bg-[#E4F0E8] text-[#245B3B] border-[#C6DFCE]', dot: 'bg-[#2C7A4B]' },
+  draft: { label: 'Not sent yet', legal: 'Draft claim', tone: 'bg-secondary text-foreground' },
+  served: { label: 'Waiting on builder', legal: 'Payment claim served', tone: 'bg-card text-foreground' },
+  scheduled_in_full: { label: 'Builder agreed to pay', legal: 'Payment schedule in full', tone: 'bg-[#1F7A3F] text-white border-[#1F7A3F]' },
+  scheduled_short: { label: 'Builder paid less', legal: 'Payment schedule short', tone: 'bg-accent text-foreground' },
+  ignored: { label: 'No reply from builder', legal: 'No payment schedule by the due date', tone: 'bg-destructive text-white border-destructive' },
+  adjudication_ready: { label: 'Ready to escalate', legal: 'Adjudication application ready', tone: 'bg-foreground text-accent' },
+  paid: { label: 'Paid', legal: 'Paid', tone: 'bg-[#1F7A3F] text-white border-[#1F7A3F]' },
 };
 
 export function effectiveStatus(claim, today = todayYmd()) {
@@ -30,17 +32,17 @@ export function nextActionFor(claim) {
   const status = effectiveStatus(claim);
   switch (status) {
     case 'draft':
-      return { action: 'Serve the claim', detail: 'Not served yet' };
+      return { action: 'Send the claim', detail: 'Not sent yet' };
     case 'served':
-      return { action: 'Wait for the payment schedule', detail: `Due ${formatDate(claim.schedule_due_at)}` };
+      return { action: 'Wait for the builder', detail: `They have until ${formatDate(claim.schedule_due_at)}` };
     case 'ignored':
-      return { action: 'Send the notice of intention', detail: `Schedule was due ${formatDate(claim.schedule_due_at)}` };
+      return { action: 'Send the notice', detail: `Their reply was due ${formatDate(claim.schedule_due_at)}` };
     case 'scheduled_short':
-      return { action: 'Adjudication ready to prepare', detail: `Apply by ${formatDate(claim.apply_by)}` };
+      return { action: 'Get ready to escalate', detail: `Apply by ${formatDate(claim.apply_by)}` };
     case 'scheduled_in_full':
-      return { action: 'Record the payment', detail: `${formatAud(claim.scheduled_amount)} scheduled` };
+      return { action: 'Record the payment', detail: `${formatAud(claim.scheduled_amount)} agreed` };
     case 'adjudication_ready':
-      return { action: 'Record the payment', detail: 'Preview document ready' };
+      return { action: 'Record the payment', detail: 'Escalation paper is ready' };
     case 'paid':
       return { action: 'Paid', detail: `${formatAud(claim.paid_amount)} on ${formatDate(claim.paid_at)}` };
     default:
