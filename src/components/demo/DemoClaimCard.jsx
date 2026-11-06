@@ -1,29 +1,29 @@
 import React from 'react';
 import { formatAud } from '@/lib/format';
+import { useT } from '@/lib/i18n';
 
 const ROWS = [
-  ['Work claimed this claim', 'exGst'],
+  ['Work done this claim', 'exGst'],
   ['GST', 'gst'],
-  ['Total incl GST', 'incGst'],
+  ['Total inc GST', 'incGst'],
 ];
 
 export default function DemoClaimCard({ exGst, gst, incGst }) {
+  const t = useT();
   const values = { exGst, gst, incGst };
 
   return (
-    <div className="rounded-[3px] border border-border bg-card p-4">
-      <p className="num text-[10px] uppercase tracking-[0.14em] text-muted-foreground">Payment claim 1</p>
+    <div className="sheet p-4">
+      <p className="eyebrow">{t('Claim 1')}</p>
       <dl className="mt-3 space-y-2">
         {ROWS.map(([label, key]) => (
           <div key={key} className="flex items-baseline justify-between gap-3">
-            <dt className={`text-[13px] ${key === 'incGst' ? 'font-medium' : 'text-muted-foreground'}`}>{label}</dt>
-            <dd className={`num text-[13px] ${key === 'incGst' ? 'font-medium' : ''}`}>{formatAud(values[key])}</dd>
+            <dt className={`text-[15px] ${key === 'incGst' ? 'font-semibold' : 'text-muted-foreground'}`}>{t(label)}</dt>
+            <dd className={`num text-[15px] ${key === 'incGst' ? 'font-semibold' : ''}`}>{formatAud(values[key])}</dd>
           </div>
         ))}
       </dl>
-      <p className="mt-3 border-t border-border pt-3 text-[11px] leading-relaxed text-muted-foreground">
-        Served against the quoted scope lines. 5 per cent retention stays on the job as the contract records it.
-      </p>
+      <p className="legal mt-3 border-t-2 border-foreground pt-3">{t('5% retention stays with the builder until the defects period ends.')}</p>
     </div>
   );
 }
