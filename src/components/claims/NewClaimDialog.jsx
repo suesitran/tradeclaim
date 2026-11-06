@@ -1,15 +1,16 @@
 import { useEffect, useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { base44 } from '@/api/base44Client';
 import { formatAud } from '@/lib/format';
 import { claimedPercentForLine, nextClaimNumber, previouslyPaidForJob } from '@/lib/claims';
 import { addDays, firstOfMonth, todayYmd } from '@/lib/clock';
+import { useT } from '@/lib/i18n';
 
 const round2 = (value) => Math.round(Number(value || 0) * 100) / 100;
 
 export default function NewClaimDialog({ open, onOpenChange, job, scopeLines, claims, evidence, variations, onCreated }) {
+  const t = useT();
   const [items, setItems] = useState([]);
   const [chosenVariations, setChosenVariations] = useState([]);
   const [saving, setSaving] = useState(false);
@@ -51,7 +52,7 @@ export default function NewClaimDialog({ open, onOpenChange, job, scopeLines, cl
       .map((item) => ({
         scope_line_id: null,
         variation_id: item.id,
-        area: 'Variation',
+        area: t('Extra work'),
         description: item.description,
         percent_this_claim: 100,
         amount_this_claim: round2(Number(item.estimated_amount || 0)),
@@ -102,29 +103,29 @@ export default function NewClaimDialog({ open, onOpenChange, job, scopeLines, cl
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[90vh] max-w-3xl overflow-hidden p-0">
-        <DialogHeader className="border-b border-border px-5 py-4">
-          <DialogTitle className="font-heading text-lg">Generate claim {nextClaimNumber(claims)}</DialogTitle>
-          <DialogDescription>
-            Set the percentage of each scope line to claim this period. Lines with photos are pre-filled. Tick a variation to claim it as its own line, even when no scope line is ready.
+        <DialogHeader className="border-b-2 border-foreground px-5 py-4">
+          <DialogTitle className="text-[26px] font-extrabold">{t('Make claim {number}', { number: nextClaimNumber(claims) })}</DialogTitle>
+          <DialogDescription className="text-[15px]">
+            {t('How much of each line are you claiming this time? Lines with photos are filled in for you. Tick any extra work to add it.')}
           </DialogDescription>
         </DialogHeader>
 
         <div className="max-h-[52vh] overflow-auto">
           <table className="w-full min-w-[520px] border-collapse text-left">
             <thead className="sticky top-0 z-10 bg-card">
-              <tr className="border-b border-border text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
-                <th className="px-5 py-2 font-medium">Scope line</th>
-                <th className="px-2 py-2 text-right font-medium">Line value</th>
-                <th className="px-2 py-2 text-right font-medium">Claimed</th>
-                <th className="px-5 py-2 text-right font-medium">This claim %</th>
+              <tr className="border-b-2 border-foreground font-heading text-[14px] font-bold uppercase tracking-[0.06em] text-muted-foreground">
+                <th className="px-5 py-2 font-bold">{t('Line')}</th>
+                <th className="px-2 py-2 text-right font-bold">{t('Amount')}</th>
+                <th className="px-2 py-2 text-right font-bold">{t('Claimed')}</th>
+                <th className="px-5 py-2 text-right font-bold">{t('This claim %')}</th>
               </tr>
             </thead>
             <tbody>
               {items.map((item) => (
-                <tr key={item.id} className="border-b border-border last:border-b-0">
+                <tr key={item.id} className="border-b border-foreground/30 last:border-b-0">
                   <td className="px-5 py-2.5">
-                    <p className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground">{item.area}</p>
-                    <p className="text-[12px] leading-snug">{item.description}</p>
+                    <p className="eyebrow">{item.area}</p>
+                    <p className="text-[15px] leading-snug">{item.description}</p>
                   </td>
                   <td className="num px-2 py-2.5 text-right text-[11px] text-muted-foreground">{formatAud(item.amount)}</td>
                   <td className="num px-2 py-2.5 text-right text-[11px] text-muted-foreground">{Math.round(item.claimed)}%</td>
@@ -136,7 +137,7 @@ export default function NewClaimDialog({ open, onOpenChange, job, scopeLines, cl
                       step="0.5"
                       value={item.percent}
                       onChange={(event) => setPercent(item.id, event.target.value)}
-                      className="num ml-auto h-8 w-20 text-right text-[12px]"
+                      className="num ml-auto h-11 w-24 border-2 border-foreground text-right text-[16px]"
                     />
                   </td>
                 </tr>
@@ -145,16 +146,16 @@ export default function NewClaimDialog({ open, onOpenChange, job, scopeLines, cl
           </table>
 
           {(variations || []).length ? (
-            <div className="border-t border-border px-5 py-4">
-              <p className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground">Variations to include</p>
+            <div className="border-t-2 border-foreground px-5 py-4">
+              <p className="eyebrow">{t('Extra work to include')}</p>
               <div className="mt-2 space-y-1.5">
                 {variations.map((variation) => (
-                  <label key={variation.id} className="flex items-start gap-2 text-[12px]">
+                  <label key={variation.id} className="flex items-start gap-2 text-[15px]">
                     <input
                       type="checkbox"
                       checked={chosenVariations.includes(variation.id)}
                       onChange={() => toggleVariation(variation.id)}
-                      className="mt-0.5 h-3.5 w-3.5 accent-[#C7741A]"
+                      className="mt-1 h-5 w-5 accent-[#14181D]"
                     />
                     <span className="flex-1">{variation.description}</span>
                     <span className="num text-muted-foreground">{formatAud(variation.estimated_amount)}</span>
@@ -165,16 +166,16 @@ export default function NewClaimDialog({ open, onOpenChange, job, scopeLines, cl
           ) : null}
         </div>
 
-        <DialogFooter className="border-t border-border px-5 py-4 sm:justify-between">
+        <DialogFooter className="gap-3 border-t-2 border-foreground px-5 py-4 sm:justify-between">
           <div className="flex flex-wrap items-baseline gap-x-5 gap-y-1">
-            <span className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground">Ex GST</span>
-            <span className="num text-sm font-medium">{formatAud(exGst)}</span>
-            <span className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground">Inc GST</span>
-            <span className="num text-sm font-medium">{formatAud(exGst + gst)}</span>
+            <span className="eyebrow">{t('ex GST')}</span>
+            <span className="num text-[16px] font-semibold">{formatAud(exGst)}</span>
+            <span className="eyebrow">{t('inc GST')}</span>
+            <span className="num text-[16px] font-semibold">{formatAud(exGst + gst)}</span>
           </div>
-          <Button onClick={handleCreate} disabled={saving || exGst <= 0} className="bg-primary">
-            {saving ? 'Creating claim' : 'Create draft claim'}
-          </Button>
+          <button type="button" onClick={handleCreate} disabled={saving || exGst <= 0} className="btn-ink">
+            {saving ? t('Making the claim') : t('Make the claim')}
+          </button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
