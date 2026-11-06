@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { ArrowLeft, FileText, Loader2, Send } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
-import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
 import StatusPill from '@/components/StatusPill';
 import EvidenceGrid from '@/components/EvidenceGrid';
@@ -15,6 +14,27 @@ import DocumentList from '@/components/claims/DocumentList';
 import useHolidays from '@/hooks/useHolidays';
 import { effectiveStatus } from '@/lib/claims';
 import { formatAud, formatDate } from '@/lib/format';
+import { ensureNoticeDrafts, noticeDraftFor } from '@/lib/notices';
+
+// One line under the buttons that says what to do now and why.
+function nowWhat(status, claim) {
+  switch (status) {
+    case 'draft':
+      return 'Check the lines and photos, then send it. Sending starts the clock.';
+    case 'served':
+      return `The builder has until ${formatDate(claim.schedule_due_at)} to say what they will pay.`;
+    case 'ignored':
+      return 'The builder missed the date. Send the notice, then record whatever they come back with.';
+    case 'scheduled_short':
+      return `They are paying less than you claimed. Open the escalation paper and apply by ${formatDate(claim.apply_by)}.`;
+    case 'scheduled_in_full':
+      return 'The builder agreed to the full amount. Record the payment when it lands.';
+    case 'adjudication_ready':
+      return 'The escalation paper is ready. Record the payment when it lands.';
+    default:
+      return '';
+  }
+}
 
 export default function ClaimDetail() {
   const { claimId } = useParams();
@@ -36,14 +56,24 @@ export default function ClaimDetail() {
     if (record) {
       const [jobRecord, evidencePage, documentPage] = await Promise.all([
         base44.entities.Job.get(record.job_id).catch(() => null),
-        base44.entities.Evidence.filter({ job_id: record.job_id }, { limit: 400, sort: '-captured_at' }),
-        base44.entities.Document.filter({ claim_id: claimId }, { limit: 50, sort: '-generated_at' }),
+        base44.entities.Evidence.filter({ job_id: record.job_id }, '-captured_at', 400),
+        base44.entities.Document.filter({ claim_id: claimId }, '-generated_at', 50),
       ]);
       setJob(jobRecord);
-      setEvidence((evidencePage && evidencePage.items) || []);
-      setDocuments((documentPage && documentPage.items) || []);
+      setEvidence(evidencePage || []);
+      setDocuments(documentPage || []);
     }
     setLoading(false);
+
+    // The clock has run out: make sure the notice is waiting as a draft.
+    if (record && effectiveStatus(record) === 'ignored') {
+      const drafted = await ensureNoticeDrafts([record]);
+      if (drafted) {
+        const refreshed = await base44.entities.Document.filter({ claim_id: claimId }, '-generated_at', 50);
+        setDocuments(refreshed || []);
+        setClaim(await base44.entities.Claim.get(claimId).catch(() => record));
+      }
+    }
   };
 
   useEffect(() => {
@@ -51,6 +81,7 @@ export default function ClaimDetail() {
   }, [claimId]);
 
   const status = claim ? effectiveStatus(claim) : 'draft';
+  const noticeDraft = noticeDraftFor(documents);
 
   const claimLines = useMemo(() => {
     if (!claim) return [];
@@ -60,7 +91,7 @@ export default function ClaimDetail() {
       .map((variation) => ({
         scope_line_id: null,
         variation_id: variation.variation_id,
-        area: 'Variation',
+        area: 'Extra work',
         description: variation.description,
         percent_this_claim: 100,
         amount_this_claim: Number(variation.amount || 0),
@@ -85,7 +116,7 @@ export default function ClaimDetail() {
       const data = response.data || {};
       if (data.error) {
         if (pdfTab) pdfTab.close();
-        toast({ title: 'The document could not be generated', description: data.error, variant: 'destructive' });
+        toast({ title: 'The PDF could not be made', description: data.error, variant: 'destructive' });
         return;
       }
       if (data.signed_url) {
@@ -100,160 +131,168 @@ export default function ClaimDetail() {
       }
       if (extra.email) {
         toast({
-          title: data.email_sent ? 'Emailed to the builder' : 'PDF saved, email not sent',
-          description: data.email_sent ? (data.claim && data.claim.schedule_due_at && extra.serve ? `Payment schedule due ${formatDate(data.claim.schedule_due_at)}.` : '') : data.email_error,
+          title: data.email_sent ? 'Emailed to the builder' : 'PDF saved, but the email did not go',
+          description: data.email_sent ? (data.claim && data.claim.schedule_due_at && extra.serve ? `They must reply by ${formatDate(data.claim.schedule_due_at)}.` : '') : data.email_error,
           variant: data.email_sent ? undefined : 'destructive',
         });
       } else {
-        toast({ title: 'Document ready' });
+        toast({ title: 'PDF ready' });
       }
       await load();
     } catch (error) {
       if (pdfTab) pdfTab.close();
-      toast({ title: 'The document could not be generated', description: error.message, variant: 'destructive' });
+      toast({ title: 'The PDF could not be made', description: error.message, variant: 'destructive' });
     } finally {
       setBusy('');
     }
   };
 
-  if (loading) return <p className="py-16 text-center text-sm text-muted-foreground">Loading claim</p>;
-  if (!claim) return <p className="py-16 text-center text-sm text-muted-foreground">This claim could not be found.</p>;
+  if (loading) return <p className="py-16 text-center text-[16px] text-muted-foreground">Loading claim</p>;
+  if (!claim) return <p className="py-16 text-center text-[16px] text-muted-foreground">This claim could not be found.</p>;
 
   const working = Boolean(busy);
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-center gap-3">
-        <Link to="/claims" className="inline-flex items-center gap-1.5 text-[12px] text-muted-foreground transition-colors hover:text-foreground">
-          <ArrowLeft className="h-3.5 w-3.5" /> All claims
+      <div className="flex flex-wrap items-center gap-4">
+        <Link to="/claims" className="inline-flex items-center gap-1.5 font-heading text-[16px] font-bold uppercase tracking-[0.02em] hover:underline">
+          <ArrowLeft className="h-4 w-4" /> All claims
         </Link>
         {claim.job_id ? (
-          <Link
-            to={`/jobs/${claim.job_id}`}
-            className="inline-flex items-center gap-1.5 rounded-[4px] border border-[#DED6C7] bg-white px-3 py-1.5 text-[12px] font-semibold text-[#1B1A17] transition-colors duration-200 hover:border-[#9A5B2A] hover:text-[#9A5B2A]"
-          >
-            <ArrowLeft className="h-3.5 w-3.5" /> Back to the job
+          <Link to={`/jobs/${claim.job_id}`} className="inline-flex items-center gap-1.5 font-heading text-[16px] font-bold uppercase tracking-[0.02em] hover:underline">
+            <ArrowLeft className="h-4 w-4" /> The job
           </Link>
         ) : null}
       </div>
 
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <p className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
-            {job ? job.name : 'Job'}{job && job.job_number ? `  |  Job ${job.job_number}` : ''}
-          </p>
-          <div className="mt-1 flex flex-wrap items-center gap-3">
-            <h1 className="font-heading text-3xl font-semibold tracking-tight">Claim {claim.claim_number}</h1>
-            <StatusPill status={status} />
-          </div>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {formatAud(claim.amount_claimed_ex_gst)} excluding GST{job && job.builder_name ? `  |  ${job.builder_name}` : ''}
-          </p>
+      <header className="border-b-[3px] border-foreground pb-5">
+        <p className="eyebrow">
+          {job ? job.name : 'Job'}
+          {job && job.job_number ? ` | Job ${job.job_number}` : ''}
+          {job && job.builder_name ? ` | ${job.builder_name}` : ''}
+        </p>
+        <div className="mt-1 flex flex-wrap items-end gap-x-5 gap-y-3">
+          <h1 className="text-[44px] font-extrabold leading-none sm:text-[56px]">Claim {claim.claim_number}</h1>
+          <StatusPill status={status} legal />
         </div>
+        <p className="num mt-2 text-[18px]">{formatAud(claim.amount_claimed_ex_gst)} ex GST</p>
 
-        <div className="flex flex-wrap gap-2">
+        <div className="mt-5 flex flex-wrap gap-3">
           {status === 'draft' ? (
-            <Button className="bg-accent text-accent-foreground" onClick={() => setServeOpen(true)} disabled={working}>
-              <Send className="mr-2 h-4 w-4" /> Serve and email
-            </Button>
+            <button type="button" className="btn-yellow" onClick={() => setServeOpen(true)} disabled={working}>
+              <Send className="h-5 w-5" /> Send the claim
+            </button>
           ) : null}
 
           {status === 'draft' || status === 'served' || status === 'scheduled_in_full' || status === 'paid' ? (
-            <Button variant="outline" onClick={() => generate('payment_claim')} disabled={working}>
-              {busy === 'payment_claim' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <FileText className="mr-2 h-4 w-4" />}
-              Payment claim PDF
-            </Button>
+            <button type="button" className="btn-line" onClick={() => generate('payment_claim')} disabled={working}>
+              {busy === 'payment_claim' ? <Loader2 className="h-5 w-5 animate-spin" /> : <FileText className="h-5 w-5" />}
+              Open the claim PDF
+            </button>
           ) : null}
 
           {status === 'ignored' ? (
             <>
-              <Button className="bg-accent text-accent-foreground" onClick={() => generate('notice_of_intention', { email: true })} disabled={working}>
-                {busy === 'notice_of_intention' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
-                Send notice of intention
-              </Button>
-              <Button variant="outline" onClick={() => setScheduleOpen(true)} disabled={working}>Record a schedule</Button>
+              <button
+                type="button"
+                className="btn-yellow"
+                onClick={() => generate('notice_of_intention', { email: true, document_id: noticeDraft ? noticeDraft.id : undefined })}
+                disabled={working}
+              >
+                {busy === 'notice_of_intention' ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5" />}
+                Send the notice
+              </button>
+              <button type="button" className="btn-line" onClick={() => setScheduleOpen(true)} disabled={working}>
+                Builder replied
+              </button>
             </>
           ) : null}
 
           {status === 'served' ? (
-            <Button variant="outline" onClick={() => setScheduleOpen(true)} disabled={working}>Record payment schedule</Button>
+            <button type="button" className="btn-ink" onClick={() => setScheduleOpen(true)} disabled={working}>
+              Builder replied
+            </button>
           ) : null}
 
           {status === 'scheduled_short' ? (
             <>
-              <Button className="bg-accent text-accent-foreground" onClick={() => generate('adjudication_preview')} disabled={working}>
-                {busy === 'adjudication_preview' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <FileText className="mr-2 h-4 w-4" />}
-                Open adjudication preview
-              </Button>
-              <Button variant="outline" onClick={() => setScheduleOpen(true)} disabled={working}>Amend schedule</Button>
+              <button type="button" className="btn-yellow" onClick={() => generate('adjudication_preview')} disabled={working}>
+                {busy === 'adjudication_preview' ? <Loader2 className="h-5 w-5 animate-spin" /> : <FileText className="h-5 w-5" />}
+                Open the escalation paper
+              </button>
+              <button type="button" className="btn-line" onClick={() => setScheduleOpen(true)} disabled={working}>
+                Change the reply
+              </button>
             </>
           ) : null}
 
           {status === 'adjudication_ready' ? (
-            <Button variant="outline" onClick={() => generate('adjudication_preview')} disabled={working}>Reopen adjudication preview</Button>
+            <button type="button" className="btn-line" onClick={() => generate('adjudication_preview')} disabled={working}>
+              Open the escalation paper
+            </button>
           ) : null}
 
           {status !== 'paid' && status !== 'draft' ? (
-            <Button variant="outline" onClick={() => setPaymentOpen(true)} disabled={working}>Record payment</Button>
+            <button type="button" className="btn-line" onClick={() => setPaymentOpen(true)} disabled={working}>
+              Record payment
+            </button>
           ) : null}
         </div>
-      </div>
+        {nowWhat(status, claim) ? <p className="mt-3 max-w-2xl text-[16px]">{nowWhat(status, claim)}</p> : null}
+      </header>
 
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1.65fr)_minmax(0,1fr)]">
         <div className="space-y-5">
-          <section className="overflow-hidden rounded-[4px] border border-border bg-card">
-            <div className="flex items-center justify-between border-b border-border px-5 py-3">
-              <h2 className="font-heading text-sm font-semibold">Lines in this claim</h2>
-              <span className="text-[11px] text-muted-foreground">
+          <section className="sheet">
+            <div className="sheet-head">
+              <h2 className="text-[20px] font-extrabold">What is in this claim</h2>
+              <span className="text-[14px] text-muted-foreground">
                 {formatDate(claim.period_from)} to {formatDate(claim.period_to)}
               </span>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full min-w-[480px] border-collapse text-left">
                 <thead>
-                  <tr className="border-b border-border text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
-                    <th className="px-5 py-2 font-medium">Scope line</th>
-                    <th className="px-3 py-2 text-right font-medium">This claim</th>
-                    <th className="px-5 py-2 text-right font-medium">Amount</th>
+                  <tr>
+                    <th className="border-b-2 border-foreground px-4 py-2 font-heading text-[14px] font-bold uppercase tracking-[0.06em] text-muted-foreground">Line</th>
+                    <th className="border-b-2 border-foreground px-3 py-2 text-right font-heading text-[14px] font-bold uppercase tracking-[0.06em] text-muted-foreground">Done</th>
+                    <th className="border-b-2 border-foreground px-4 py-2 text-right font-heading text-[14px] font-bold uppercase tracking-[0.06em] text-muted-foreground">Amount</th>
                   </tr>
                 </thead>
                 <tbody>
                   {claimLines.map((line) => (
-                    <tr key={line.variation_id || line.scope_line_id} className="border-b border-border last:border-b-0">
-                      <td className="px-5 py-2.5">
-                        <p className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground">{line.area}</p>
-                        <p className="text-[12px] leading-snug">{line.description}</p>
+                    <tr key={line.variation_id || line.scope_line_id} className="border-b border-foreground/30 last:border-b-0">
+                      <td className="px-4 py-2.5">
+                        <p className="eyebrow">{line.area}</p>
+                        <p className="text-[15px] leading-snug">{line.description}</p>
                       </td>
-                      <td className="num px-3 py-2.5 text-right text-[12px]">{Math.round(Number(line.percent_this_claim || 0))}%</td>
-                      <td className="num px-5 py-2.5 text-right text-[12px]">{formatAud(line.amount_this_claim)}</td>
+                      <td className="num px-3 py-2.5 text-right text-[15px]">{Math.round(Number(line.percent_this_claim || 0))}%</td>
+                      <td className="num px-4 py-2.5 text-right text-[15px]">{formatAud(line.amount_this_claim)}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
-            <p className="border-t border-border px-5 py-2.5 text-[11px] text-muted-foreground">
-              Variations appear in this list as their own claim line.
-            </p>
           </section>
 
           <section className="space-y-3">
             <div className="flex items-center justify-between">
-              <h2 className="font-heading text-sm font-semibold">Evidence appendix</h2>
-              <span className="text-[11px] text-muted-foreground">{appendix.reduce((total, entry) => total + entry.shots.length, 0)} photos</span>
+              <h2 className="text-[24px] font-extrabold">Photos attached</h2>
+              <span className="text-[14px] text-muted-foreground">{appendix.reduce((total, entry) => total + entry.shots.length, 0)} photos</span>
             </div>
             {appendix.length ? (
               <div className="space-y-4">
                 {appendix.map((entry) => (
-                  <div key={entry.line.scope_line_id} className="rounded-[4px] border border-border bg-card p-4">
-                    <p className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground">{entry.line.area}</p>
-                    <p className="mb-3 text-[13px] leading-snug">{entry.line.description}</p>
+                  <div key={entry.line.scope_line_id} className="sheet p-4">
+                    <p className="eyebrow">{entry.line.area}</p>
+                    <p className="mb-3 text-[16px] leading-snug">{entry.line.description}</p>
                     <EvidenceGrid evidence={entry.shots} />
                   </div>
                 ))}
               </div>
             ) : (
-              <p className="rounded-[4px] border border-dashed border-border bg-card px-4 py-6 text-sm text-muted-foreground">
-                No photos recorded against these lines yet. Capture them on site and they appear in the appendix.
+              <p className="border-l-[6px] border-accent bg-secondary px-4 py-4 text-[16px] text-muted-foreground">
+                No photos on these lines yet. Take them on site and they go in the claim.
               </p>
             )}
           </section>
@@ -263,12 +302,12 @@ export default function ClaimDetail() {
           <ClaimClock claim={claim} status={status} job={job} />
           <ClaimMoneyCard claim={claim} />
 
-          <section className="rounded-[4px] border border-border bg-card">
-            <div className="border-b border-border px-5 py-3">
-              <h2 className="font-heading text-sm font-semibold">Documents</h2>
+          <section className="sheet">
+            <div className="border-b-2 border-foreground px-4 py-3">
+              <h2 className="text-[20px] font-extrabold">Paperwork</h2>
             </div>
             <DocumentList documents={documents} />
-            <p className="border-t border-border px-5 py-2.5 text-[10px] text-muted-foreground">Every document is footed: Draft, for lawyer review.</p>
+            <p className="legal border-t-2 border-foreground px-4 py-2.5">Every PDF is marked: Draft, for lawyer review.</p>
           </section>
         </div>
       </div>
@@ -293,7 +332,7 @@ export default function ClaimDetail() {
         job={job}
         holidays={holidays}
         onSaved={() => {
-          toast({ title: 'Payment schedule recorded' });
+          toast({ title: "Builder's reply recorded" });
           load();
         }}
       />
