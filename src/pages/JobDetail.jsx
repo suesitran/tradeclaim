@@ -13,11 +13,13 @@ import TaskRow from '@/components/jobs/TaskRow';
 import { CARD, CARD_HEAD, CARD_META, EMPTY, SMALL_ACTION } from '@/components/jobs/taskStyles';
 import { effectiveStatus, nextActionFor } from '@/lib/claims';
 import { formatAud, formatDate } from '@/lib/format';
+import { useT } from '@/lib/i18n';
 
 const VARIATION_LABEL = { sent: 'Sent to builder', approved: 'Approved', disputed: 'Disputed' };
 const VARIATION_TONE = { sent: 'bg-card', approved: 'bg-[#1F7A3F] text-white border-[#1F7A3F]', disputed: 'bg-destructive text-white border-destructive' };
 
 export default function JobDetail() {
+  const t = useT();
   const { jobId } = useParams();
   const [job, setJob] = useState(null);
   const [lines, setLines] = useState([]);
@@ -63,8 +65,8 @@ export default function JobDetail() {
     }, {});
   }, [evidence]);
 
-  if (loading) return <p className="py-16 text-center text-[16px] text-muted-foreground">Loading job</p>;
-  if (!job) return <p className="py-16 text-center text-[16px] text-muted-foreground">This job could not be found.</p>;
+  if (loading) return <p className="py-16 text-center text-[16px] text-muted-foreground">{t('Loading job')}</p>;
+  if (!job) return <p className="py-16 text-center text-[16px] text-muted-foreground">{t('This job could not be found.')}</p>;
 
   const recalcContractSum = async (nextLines) => {
     const sum = Math.round(nextLines.reduce((total, item) => total + Number(item.amount || 0), 0) * 100) / 100;
@@ -82,7 +84,7 @@ export default function JobDetail() {
   };
 
   const handleLineDelete = async (line) => {
-    if (!window.confirm('Remove this line from the quote?')) return;
+    if (!window.confirm(t('Remove this line from the quote?'))) return;
     await base44.entities.ScopeLine.delete(line.id);
     await recalcContractSum(lines.filter((item) => item.id !== line.id));
     await load();
@@ -91,60 +93,60 @@ export default function JobDetail() {
   return (
     <div className="space-y-6">
       <Link to="/app" className="inline-flex items-center gap-1.5 font-heading text-[16px] font-bold uppercase tracking-[0.02em] hover:underline">
-        <ArrowLeft className="h-4 w-4" /> All jobs
+        <ArrowLeft className="h-4 w-4 rtl:rotate-180" /> {t('All jobs')}
       </Link>
 
       <header className="border-b-[3px] border-foreground pb-5">
         <p className="eyebrow">
-          {job.job_number ? `Job ${job.job_number}` : 'Job'} | {job.builder_name}
+          {job.job_number ? t('Job {number}', { number: job.job_number }) : t('Job')} | {job.builder_name}
         </p>
         <h1 className="mt-1 max-w-3xl text-[40px] font-extrabold leading-[1] sm:text-[56px]">{job.name}</h1>
         {job.site_address ? <p className="mt-2 text-[16px] text-muted-foreground">{job.site_address}</p> : null}
 
         <div className="mt-5 flex flex-wrap gap-3">
           <Link to={`/jobs/${job.id}/capture`} className="btn-yellow">
-            <Camera className="h-5 w-5" /> Take photos
+            <Camera className="h-5 w-5" /> {t('Take photos')}
           </Link>
           <button type="button" className="btn-ink" onClick={() => setClaimOpen(true)}>
-            <FileText className="h-5 w-5" /> Make a claim
+            <FileText className="h-5 w-5" /> {t('Make a claim')}
           </button>
           <Link to={`/jobs/${job.id}/variation`} className="btn-line">
-            <Plus className="h-5 w-5" /> Extra work
+            <Plus className="h-5 w-5" /> {t('Extra work')}
           </Link>
           <button type="button" className="btn-small self-center" onClick={() => setEditJobOpen(true)}>
-            Edit job
+            {t('Edit job')}
           </button>
         </div>
       </header>
 
       <div className="grid grid-cols-2 gap-px border-2 border-foreground bg-foreground sm:grid-cols-4">
         <div className="bg-card px-3 py-3">
-          <p className="eyebrow">Quote</p>
+          <p className="eyebrow">{t('Quote')}</p>
           <p className="font-heading text-[26px] font-extrabold leading-none">{formatAud(job.contract_sum_ex_gst)}</p>
-          <p className="legal">ex GST</p>
+          <p className="legal">{t('ex GST')}</p>
         </div>
         <div className="bg-card px-3 py-3">
-          <p className="eyebrow">Retention</p>
+          <p className="eyebrow">{t('Retention')}</p>
           <p className="font-heading text-[26px] font-extrabold leading-none">{Number(job.retention_percent || 0)}%</p>
-          <p className="legal">Held until {formatDate(job.dlp_end_date) || 'a date not set'}</p>
+          <p className="legal">{t('Held until {date}', { date: formatDate(job.dlp_end_date) || t('a date not set') })}</p>
         </div>
         <div className="bg-card px-3 py-3">
-          <p className="eyebrow">Next claim</p>
-          <p className="font-heading text-[26px] font-extrabold leading-none">{formatDate(job.next_claim_date) || 'Not set'}</p>
+          <p className="eyebrow">{t('Next claim')}</p>
+          <p className="font-heading text-[26px] font-extrabold leading-none">{formatDate(job.next_claim_date) || t('Not set')}</p>
         </div>
         <div className="bg-card px-3 py-3">
-          <p className="eyebrow">Photos</p>
+          <p className="eyebrow">{t('Photos')}</p>
           <p className="font-heading text-[26px] font-extrabold leading-none">{evidence.length}</p>
         </div>
       </div>
 
       <TaskRow
         number="1"
-        title="Photos"
-        sub="Proof the work was done, with the date and place on each one."
+        title={t('Photos')}
+        sub={t('Proof the work was done, with the date and place on each one.')}
         action={
           <Link to={`/jobs/${job.id}/capture`} className="btn-line">
-            <Camera className="h-5 w-5" /> Take photos
+            <Camera className="h-5 w-5" /> {t('Take photos')}
           </Link>
         }
       >
@@ -152,11 +154,11 @@ export default function JobDetail() {
 
         <div className={`${CARD} mt-5`}>
           <div className={CARD_HEAD}>
-            <h3 className="text-[20px] font-extrabold">What you quoted</h3>
+            <h3 className="text-[20px] font-extrabold">{t('What you quoted')}</h3>
             <div className={CARD_META}>
-              <span>{lines.length} lines</span>
+              <span>{t('{count} lines', { count: lines.length })}</span>
               <button type="button" className={SMALL_ACTION} onClick={() => setAddLineOpen(true)}>
-                <Plus className="h-4 w-4" /> Add a line
+                <Plus className="h-4 w-4" /> {t('Add a line')}
               </button>
             </div>
           </div>
@@ -166,11 +168,11 @@ export default function JobDetail() {
 
       <TaskRow
         number="2"
-        title="Claims"
-        sub={claims.length ? `${claims.length} on this job` : 'Nothing claimed yet'}
+        title={t('Claims')}
+        sub={claims.length ? t('{count} on this job', { count: claims.length }) : t('Nothing claimed yet')}
         action={
           <button type="button" className="btn-ink" onClick={() => setClaimOpen(true)}>
-            <FileText className="h-5 w-5" /> Make a claim
+            <FileText className="h-5 w-5" /> {t('Make a claim')}
           </button>
         }
       >
@@ -183,30 +185,30 @@ export default function JobDetail() {
                 className="flex flex-wrap items-center justify-between gap-3 border-b-2 border-foreground px-4 py-4 transition-colors last:border-b-0 hover:bg-secondary"
               >
                 <div>
-                  <h3 className="text-[24px] font-extrabold leading-none">Claim {claim.claim_number}</h3>
+                  <h3 className="text-[24px] font-extrabold leading-none">{t('Claim {number}', { number: claim.claim_number })}</h3>
                   <p className="mt-1 text-[14px] text-muted-foreground">
-                    {claim.served_at ? `Sent ${formatDate(claim.served_at)}` : 'Not sent'} | {formatAud(claim.amount_claimed_ex_gst)} ex GST
+                    {claim.served_at ? t('Sent {date}', { date: formatDate(claim.served_at) }) : t('Not sent')} | {formatAud(claim.amount_claimed_ex_gst)} {t('ex GST')}
                   </p>
                 </div>
                 <div className="flex flex-wrap items-center gap-3">
                   <StatusPill status={effectiveStatus(claim)} />
-                  <span className="text-[15px] font-semibold">{nextActionFor(claim).action}</span>
+                  <span className="text-[15px] font-semibold">{t(nextActionFor(claim).action)}</span>
                 </div>
               </Link>
             ))}
           </div>
         ) : (
-          <p className={EMPTY}>No claims yet. Take the photos, then make the first claim.</p>
+          <p className={EMPTY}>{t('No claims yet. Take the photos, then make the first claim.')}</p>
         )}
       </TaskRow>
 
       <TaskRow
         number="3"
-        title="Extra work"
-        sub="Anything the builder asked for that is not in the quote."
+        title={t('Extra work')}
+        sub={t('Anything the builder asked for that is not in the quote.')}
         action={
           <Link to={`/jobs/${job.id}/variation`} className="btn-line">
-            <Plus className="h-5 w-5" /> Record extra work
+            <Plus className="h-5 w-5" /> {t('Record extra work')}
           </Link>
         }
       >
@@ -217,25 +219,25 @@ export default function JobDetail() {
                 <div className="min-w-0">
                   <p className="text-[16px] font-semibold leading-snug">{variation.description}</p>
                   <p className="mt-1 text-[14px] text-muted-foreground">
-                    Asked for by {variation.instructed_by}
-                    {variation.sent_at ? ` | Sent ${formatDate(variation.sent_at)}` : ''}
+                    {t('Asked for by {name}', { name: variation.instructed_by })}
+                    {variation.sent_at ? ` | ${t('Sent {date}', { date: formatDate(variation.sent_at) })}` : ''}
                   </p>
                 </div>
                 <div className="flex flex-none flex-col items-end gap-2">
                   <span className="num text-[16px]">{formatAud(variation.estimated_amount)}</span>
                   <span className={`tag ${VARIATION_TONE[variation.status] || VARIATION_TONE.sent}`}>
-                    {VARIATION_LABEL[variation.status] || variation.status}
+                    {t(VARIATION_LABEL[variation.status] || variation.status)}
                   </span>
                 </div>
               </div>
             ))}
           </div>
         ) : (
-          <p className={EMPTY}>None yet. Record extra work the day it is asked for, so it gets paid.</p>
+          <p className={EMPTY}>{t('None yet. Record extra work the day it is asked for, so it gets paid.')}</p>
         )}
       </TaskRow>
 
-      <TaskRow number="4" title="Defects" sub="What the builder says needs fixing, and whose fault it is.">
+      <TaskRow number="4" title={t('Defects')} sub={t('What the builder says needs fixing, and whose fault it is.')}>
         <DefectRegister embedded job={job} lines={lines} defects={defects} visits={defectVisits} onChanged={load} />
       </TaskRow>
 
