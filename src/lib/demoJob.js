@@ -1,5 +1,5 @@
-import { base44 } from '@/api/base44Client';
-import { addDays, todayYmd } from '@/lib/clock';
+// The one job the public demo page walks through without an account. The
+// seeded jobs for a signed in account live in seedJobs.js.
 
 const round2 = (value) => Math.round(Number(value || 0) * 100) / 100;
 
@@ -28,31 +28,3 @@ export const DEMO_LINES = RAW_LINES.map((line, index) => ({
 }));
 
 export const DEMO_CONTRACT_SUM = round2(DEMO_LINES.reduce((total, line) => total + line.amount, 0));
-
-export async function createDemoJob() {
-  const today = todayYmd();
-
-  const job = await base44.entities.Job.create({
-    ...DEMO_JOB,
-    state: 'VIC',
-    contract_sum_ex_gst: DEMO_CONTRACT_SUM,
-    claim_period: 'monthly',
-    next_claim_date: today,
-    dlp_end_date: addDays(today, 365),
-  });
-
-  await base44.entities.ScopeLine.bulkCreate(
-    DEMO_LINES.map((line) => ({ ...line, job_id: job.id, percent_complete_to_date: 0 })),
-  );
-
-  await base44.entities.Variation.create({
-    job_id: job.id,
-    instructed_by: 'Site manager, Dan Petrov',
-    description: 'Extra coat to fire stair walls after new penetration',
-    estimated_amount: 1850,
-    status: 'sent',
-    sent_at: new Date().toISOString(),
-  });
-
-  return job;
-}
