@@ -96,9 +96,38 @@
     @apply font-heading uppercase tracking-[0.01em];
   }
 
+  /* Vietnamese stacks accents above capitals, so headings need more room
+     than the tight English leading gives them. */
+  :lang(vi) h1,
+  :lang(vi) h2,
+  :lang(vi) h3 {
+    line-height: 1.15 !important;
+  }
+
+  /* Arabic has no condensed face in Barlow: fall back to the system font and
+     drop the uppercase rule, which has no meaning there. */
+  :lang(ar) h1,
+  :lang(ar) h2,
+  :lang(ar) h3,
+  :lang(ar) .font-heading,
+  :lang(ar) .eyebrow,
+  :lang(ar) .tag {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    text-transform: none;
+    letter-spacing: 0;
+  }
+
   .num {
     font-family: var(--font-mono);
     font-variant-numeric: tabular-nums;
+  }
+
+  /* A money figure in a stats cell: never wrap, always read left to right. */
+  .num-stat {
+    direction: ltr;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 }
 
