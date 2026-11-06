@@ -82,7 +82,7 @@ export function formatAud(value: number): string {
 
 export async function loadHolidaySet(base44: any, state?: string): Promise<Set<string>> {
   const code = state ? jurisdictionFor(state).code : DEFAULT_JURISDICTION;
-  const page = await base44.entities.PublicHoliday.filter({ state: code }, { limit: 500, sort: 'date' });
-  const items = page && page.items ? page.items : [];
+  const page = await base44.entities.PublicHoliday.filter({ state: code }, 'date', 500);
+  const items = page || [];
   return new Set(items.map((h: any) => h.date));
 }
