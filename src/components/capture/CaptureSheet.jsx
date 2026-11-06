@@ -1,15 +1,17 @@
 import { useEffect, useState } from 'react';
 import { Camera, Check, Loader2, MapPin } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { base44 } from '@/api/base44Client';
 import { compressImage, getPosition } from '@/lib/media';
-import { STAGE_LABELS, STAGE_TONES } from '@/lib/format';
+import { STAGE_LABELS } from '@/lib/format';
+import { useT } from '@/lib/i18n';
+import MicButton from '@/components/MicButton';
 
 const STAGES = ['before', 'finish', 'clear'];
 
 export default function CaptureSheet({ open, onOpenChange, jobId, line, onSaved }) {
+  const t = useT();
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
   const [stage, setStage] = useState('finish');
@@ -64,7 +66,7 @@ export default function CaptureSheet({ open, onOpenChange, jobId, line, onSaved 
       onSaved(created);
       onOpenChange(false);
     } catch (err) {
-      setError(err.message || 'The photo could not be saved');
+      setError(err.message || t('The photo could not be saved'));
     } finally {
       setSaving(false);
     }
@@ -73,68 +75,74 @@ export default function CaptureSheet({ open, onOpenChange, jobId, line, onSaved 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md p-0">
-        <DialogHeader className="border-b border-border px-5 py-4">
-          <DialogTitle className="font-heading text-base leading-tight">{line ? line.description : 'Capture'}</DialogTitle>
-          <DialogDescription>{line ? line.area : ''}</DialogDescription>
+        <DialogHeader className="border-b-2 border-foreground px-5 py-4">
+          <DialogTitle className="text-[22px] font-extrabold leading-tight">{line ? line.description : t('Take the photo')}</DialogTitle>
+          <DialogDescription className="text-[15px]">{line ? line.area : ''}</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 px-5 py-4">
-          <label className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-[4px] border border-dashed border-[#C9C2B4] bg-secondary px-4 py-8 text-center">
+          <label className="flex min-h-[140px] cursor-pointer flex-col items-center justify-center gap-2 border-2 border-dashed border-foreground bg-secondary px-4 py-6 text-center">
             {preview ? (
-              <img src={preview} alt="Captured photo" className="max-h-48 w-full rounded-[3px] object-cover" />
+              <img src={preview} alt={t('Photo')} className="max-h-48 w-full object-cover" />
             ) : (
               <>
-                <Camera className="h-7 w-7 text-muted-foreground" />
-                <span className="text-sm font-medium">Take the photo</span>
-                <span className="text-[11px] text-muted-foreground">Opens the camera on a phone, or a file picker on desktop</span>
+                <Camera className="h-9 w-9" />
+                <span className="font-heading text-[20px] font-bold uppercase">{t('Take the photo')}</span>
+                <span className="text-[13px] text-muted-foreground">{t('Opens the camera on a phone')}</span>
               </>
             )}
             <input type="file" accept="image/*" capture="environment" onChange={handleFile} className="sr-only" />
           </label>
 
           <div>
-            <p className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground">Stage</p>
+            <p className="eyebrow">{t('When was this taken?')}</p>
             <div className="mt-1.5 grid grid-cols-3 gap-2">
               {STAGES.map((option) => (
                 <button
                   key={option}
                   type="button"
                   onClick={() => setStage(option)}
-                  className={`rounded-[3px] border px-2 py-2 text-[11px] font-medium transition-colors ${
-                    stage === option ? 'border-primary bg-primary text-primary-foreground' : `border-border bg-card ${STAGE_TONES[option].split(' ')[1]}`
+                  className={`min-h-[48px] border-2 border-foreground px-2 py-2 font-heading text-[16px] font-bold uppercase transition-colors ${
+                    stage === option ? 'bg-foreground text-accent' : 'bg-card text-foreground'
                   }`}
                 >
-                  {STAGE_LABELS[option]}
+                  {t(STAGE_LABELS[option])}
                 </button>
               ))}
             </div>
           </div>
 
           <div>
-            <p className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground">Note, optional</p>
-            <Input value={note} onChange={(event) => setNote(event.target.value)} placeholder="Coats applied, colour, defect noticed" className="mt-1.5" />
+            <p className="eyebrow">{t('Note, optional')}</p>
+            <Input
+              value={note}
+              onChange={(event) => setNote(event.target.value)}
+              placeholder={t('Coats applied, colour, anything you noticed')}
+              className="mt-1.5 h-12 border-2 border-foreground text-[16px]"
+            />
+            <MicButton className="mt-2" onText={(said) => setNote((current) => `${current} ${said}`.trim())} />
           </div>
 
-          <p className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+          <p className="flex items-center gap-1.5 text-[13px] text-muted-foreground">
             <MapPin className="h-3.5 w-3.5" />
-            Time and location are recorded with the photo.
+            {t('Time and location are saved with the photo.')}
           </p>
 
-          {error ? <p className="text-[12px] text-destructive">{error}</p> : null}
+          {error ? <p className="text-[14px] text-destructive">{error}</p> : null}
         </div>
 
-        <div className="border-t border-border px-5 py-4">
-          <Button onClick={handleSave} disabled={!file || saving} className="w-full bg-primary">
+        <div className="border-t-2 border-foreground px-5 py-4">
+          <button type="button" onClick={handleSave} disabled={!file || saving} className="btn-ink w-full">
             {saving ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving
+                <Loader2 className="h-5 w-5 animate-spin" /> {t('Saving')}
               </>
             ) : (
               <>
-                <Check className="mr-2 h-4 w-4" /> Save to scope line
+                <Check className="h-5 w-5" /> {t('Save the photo')}
               </>
             )}
-          </Button>
+          </button>
         </div>
       </DialogContent>
     </Dialog>
