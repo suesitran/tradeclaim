@@ -1,8 +1,8 @@
 import { useEffect, useRef } from 'react';
 import { Loader2, Mic, Square } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import useGeminiLive from '@/hooks/useGeminiLive';
+import { useT } from '@/lib/i18n';
 
 const TOOLS = [
   {
@@ -97,6 +97,7 @@ function buildInstruction(job, lineCount) {
 }
 
 export default function QuoteVoiceAssistant({ job, onPatch, onAddLines, onSaveDraft, onSaveFinal }) {
+  const t = useT();
   const scrollerRef = useRef(null);
   const lineCount = Number(job.line_count || 0);
 
@@ -136,60 +137,60 @@ export default function QuoteVoiceAssistant({ job, onPatch, onAddLines, onSaveDr
   const connecting = status === 'connecting';
 
   return (
-    <section className="overflow-hidden rounded-[4px] border border-border bg-card">
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-5 py-3">
+    <section className="sheet">
+      <div className="sheet-head">
         <div>
-          <p className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground">Voice intake</p>
-          <h2 className="font-heading text-sm font-semibold">Talk it through</h2>
+          <h2 className="text-[20px] font-extrabold">{t('Talk it through')}</h2>
+          <p className="text-[14px] text-muted-foreground">{t('It asks, you answer. English only for now.')}</p>
         </div>
         <div className="flex items-center gap-2">
           {live ? (
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-border px-2.5 py-1 text-[11px] text-muted-foreground">
+            <span className="inline-flex items-center gap-1.5 border-2 border-foreground px-2.5 py-1 text-[13px]">
               <span className={cn('h-1.5 w-1.5 rounded-full', micActive ? 'animate-pulse bg-accent' : 'bg-destructive')} />
-              {micActive ? 'Listening' : 'Microphone not sending audio'}
+              {micActive ? t('Listening') : t('Microphone not sending audio')}
             </span>
           ) : null}
           {live || connecting ? (
-            <Button variant="outline" onClick={stop}>
-              <Square className="mr-2 h-4 w-4" />
-              Stop
-            </Button>
+            <button type="button" className="btn-line" onClick={stop}>
+              <Square className="h-5 w-5" />
+              {t('Stop')}
+            </button>
           ) : (
-            <Button className="bg-accent text-accent-foreground" onClick={start}>
-              <Mic className="mr-2 h-4 w-4" />
-              Start talking
-            </Button>
+            <button type="button" className="btn-yellow" onClick={start}>
+              <Mic className="h-5 w-5" />
+              {t('Start talking')}
+            </button>
           )}
         </div>
       </div>
 
       <div className="px-5 py-4">
         {connecting ? (
-          <p className="flex items-center gap-2 text-[12px] text-muted-foreground">
-            <Loader2 className="h-3.5 w-3.5 animate-spin" /> Opening the microphone and the voice session
+          <p className="flex items-center gap-2 text-[15px] text-muted-foreground">
+            <Loader2 className="h-4 w-4 animate-spin" /> {t('Opening the microphone')}
           </p>
         ) : null}
 
         {live ? (
           <div className="mb-3 flex flex-wrap items-center gap-2">
-            <span className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground">Mic input</span>
-            <div className="h-1.5 w-32 overflow-hidden rounded-full bg-secondary">
+            <span className="eyebrow">{t('Mic')}</span>
+            <div className="h-2 w-32 overflow-hidden border border-foreground bg-secondary">
               <div
-                className="h-full rounded-full bg-accent transition-[width] duration-100"
+                className="h-full bg-accent transition-[width] duration-100"
                 style={{ width: `${Math.round(micLevel * 100)}%` }}
               />
             </div>
             <span className="text-[11px] text-muted-foreground">
-              {micLevel > 0.03 ? 'Hearing you' : 'Waiting for your voice'}
+              {micLevel > 0.03 ? t('Hearing you') : t('Waiting for your voice')}
             </span>
           </div>
         ) : null}
 
-        {error ? <p className="text-[12px] text-destructive">{error}</p> : null}
+        {error ? <p className="text-[14px] text-destructive">{error}</p> : null}
 
         {!connecting && !error && !messages.length ? (
-          <p className="text-[12px] leading-relaxed text-muted-foreground">
-            Start talking and it greets you. Read the whole quote out in one go and it splits every wording into its own scope line, or give it a piece at a time and it will ask for just what is missing. It also takes the job name, site address, builder and email, and saves the quote as a draft itself as you go. Allow microphone access when asked.
+          <p className="text-[15px] leading-snug text-muted-foreground">
+            {t('Press Start talking, then read the quote out. It splits it into lines and asks for anything missing. Allow the microphone when asked.')}
           </p>
         ) : null}
 
@@ -199,12 +200,12 @@ export default function QuoteVoiceAssistant({ job, onPatch, onAddLines, onSaveDr
               <p
                 key={`${message.role}-${index}`}
                 className={cn(
-                  'rounded-[3px] px-2.5 py-1.5 text-[12px] leading-relaxed',
+                  'px-2.5 py-1.5 text-[15px] leading-snug',
                   message.role === 'user' ? 'bg-secondary text-secondary-foreground' : 'text-foreground',
                 )}
               >
-                <span className="mr-1.5 text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
-                  {message.role === 'user' ? 'You' : 'Assistant'}
+                <span className="eyebrow mr-1.5">
+                  {message.role === 'user' ? t('You') : t('Assistant')}
                 </span>
                 {message.text}
               </p>
