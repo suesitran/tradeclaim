@@ -1,14 +1,14 @@
 export const LIABILITY_OPTIONS = [
-  { value: 'workmanship', label: 'Our workmanship' },
-  { value: 'outside_scope', label: 'Outside the quoted scope' },
-  { value: 'other_trade', label: 'Damage by another trade' },
+  { value: 'workmanship', label: 'Our work' },
+  { value: 'outside_scope', label: 'Not in our quote' },
+  { value: 'other_trade', label: 'Another trade damaged it' },
   { value: 'unclear', label: 'Not clear yet' },
 ];
 
 export const LIABILITY_LABELS = {
-  workmanship: 'Our workmanship',
-  outside_scope: 'Outside scope',
-  other_trade: 'Other trade',
+  workmanship: 'Our work',
+  outside_scope: 'Not in our quote',
+  other_trade: 'Another trade',
   unclear: 'Not clear',
 };
 
@@ -21,7 +21,7 @@ export const LIABILITY_TONES = {
 
 export const DEFECT_STATUS_LABELS = {
   open: 'Open',
-  rectified: 'Rectified',
+  rectified: 'Fixed',
   disputed: 'Disputed',
 };
 
