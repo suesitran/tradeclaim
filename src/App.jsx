@@ -22,6 +22,7 @@ import VariationNew from '@/pages/VariationNew';
 import Claims from '@/pages/Claims';
 import ClaimDetail from '@/pages/ClaimDetail';
 import ImportQuote from '@/pages/ImportQuote';
+import { LanguageProvider } from '@/lib/i18n';
 
 // Pages anyone can open without signing in. Auth errors must not block these,
 // otherwise a logged-out visitor would be bounced to the login page instead of
@@ -83,15 +84,17 @@ const AuthenticatedApp = () => {
 function App() {
 
   return (
-    <AuthProvider>
-      <QueryClientProvider client={queryClientInstance}>
-        <Router>
-          <ScrollToTop />
-          <AuthenticatedApp />
-        </Router>
-        <Toaster />
-      </QueryClientProvider>
-    </AuthProvider>
+    <LanguageProvider>
+      <AuthProvider>
+        <QueryClientProvider client={queryClientInstance}>
+          <Router>
+            <ScrollToTop />
+            <AuthenticatedApp />
+          </Router>
+          <Toaster />
+        </QueryClientProvider>
+      </AuthProvider>
+    </LanguageProvider>
   )
 }
 
