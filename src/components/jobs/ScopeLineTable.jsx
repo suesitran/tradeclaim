@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Check, Pencil, Trash2, X } from 'lucide-react';
 import { formatAud } from '@/lib/format';
 import { SMALL_ACTION } from '@/components/jobs/taskStyles';
+import { useT } from '@/lib/i18n';
 
 const TH = 'border-b-2 border-foreground px-3 py-2.5 font-heading text-[14px] font-bold uppercase tracking-[0.06em] text-muted-foreground';
 const EDIT_INPUT =
@@ -9,6 +10,7 @@ const EDIT_INPUT =
 
 // Photo counts per stage, in words rather than letters.
 function PhotoCounts({ counts }) {
+  const t = useT();
   const parts = [
     ['Before', counts.before],
     ['Finish', counts.finish],
@@ -18,7 +20,7 @@ function PhotoCounts({ counts }) {
     <span className="flex flex-wrap gap-x-3 gap-y-0.5 text-[13px]">
       {parts.map(([label, count]) => (
         <span key={label} className={count ? 'font-semibold' : 'text-muted-foreground'}>
-          {label} <span className="num">{count}</span>
+          {t(label)} <span className="num">{count}</span>
         </span>
       ))}
     </span>
@@ -26,6 +28,7 @@ function PhotoCounts({ counts }) {
 }
 
 export default function ScopeLineTable({ lines, evidenceByLine, claims, onSave, onDelete }) {
+  const t = useT();
   const [editingId, setEditingId] = useState(null);
   const [draft, setDraft] = useState({ description: '', quantity: '', amount: '' });
   const [saving, setSaving] = useState(false);
@@ -54,7 +57,7 @@ export default function ScopeLineTable({ lines, evidenceByLine, claims, onSave, 
 
   const commit = async (line) => {
     if (!draft.description.trim()) {
-      setError('The line needs a description');
+      setError(t('The line needs a description'));
       return;
     }
     setSaving(true);
@@ -67,14 +70,14 @@ export default function ScopeLineTable({ lines, evidenceByLine, claims, onSave, 
       });
       setEditingId(null);
     } catch (err) {
-      setError(err.message || 'The line could not be saved');
+      setError(err.message || t('The line could not be saved'));
     } finally {
       setSaving(false);
     }
   };
 
   if (!lines.length) {
-    return <p className="px-4 py-8 text-[16px] text-muted-foreground">No lines on this job yet.</p>;
+    return <p className="px-4 py-8 text-[16px] text-muted-foreground">{t('No lines on this job yet.')}</p>;
   }
 
   return (
@@ -84,13 +87,13 @@ export default function ScopeLineTable({ lines, evidenceByLine, claims, onSave, 
         <table className="w-full min-w-[720px] border-collapse text-left">
           <thead>
             <tr>
-              <th className={`${TH} pl-4`}>Line</th>
-              <th className={`${TH} text-right`}>Amount</th>
-              <th className={`${TH} text-right`}>Claimed</th>
-              <th className={TH}>Photos</th>
-              <th className={`${TH} text-right`}>Done</th>
+              <th className={`${TH} pl-4`}>{t('Line')}</th>
+              <th className={`${TH} text-right`}>{t('Amount')}</th>
+              <th className={`${TH} text-right`}>{t('Claimed')}</th>
+              <th className={TH}>{t('Photos')}</th>
+              <th className={`${TH} text-right`}>{t('Done')}</th>
               <th className={`${TH} pr-4 text-right`}>
-                <span className="sr-only">Actions</span>
+                <span className="sr-only">{t('Actions')}</span>
               </th>
             </tr>
           </thead>
@@ -108,14 +111,14 @@ export default function ScopeLineTable({ lines, evidenceByLine, claims, onSave, 
                       <input
                         value={draft.description}
                         onChange={(event) => setDraft((current) => ({ ...current, description: event.target.value }))}
-                        placeholder="What the work is"
+                        placeholder={t('What the work is')}
                         className={`${EDIT_INPUT} mt-1`}
                       />
                     </td>
                     <td className="px-3 py-3 align-top">
                       <div className="flex items-start justify-end gap-2">
                         <div>
-                          <p className="eyebrow">Qty</p>
+                          <p className="eyebrow">{t('Qty')}</p>
                           <input
                             type="number"
                             inputMode="decimal"
@@ -125,7 +128,7 @@ export default function ScopeLineTable({ lines, evidenceByLine, claims, onSave, 
                           />
                         </div>
                         <div>
-                          <p className="eyebrow">Amount</p>
+                          <p className="eyebrow">{t('Amount')}</p>
                           <input
                             type="number"
                             inputMode="decimal"
@@ -137,18 +140,18 @@ export default function ScopeLineTable({ lines, evidenceByLine, claims, onSave, 
                       </div>
                     </td>
                     <td className="num px-3 py-3 text-right text-[14px] text-muted-foreground">{Math.round(claimedPercent(line.id))}%</td>
-                    <td className="px-3 py-3 text-[13px] text-muted-foreground">{line.unit || 'each'}</td>
+                    <td className="px-3 py-3 text-[13px] text-muted-foreground">{line.unit || t('each')}</td>
                     <td className="num px-3 py-3 text-right text-[15px] text-muted-foreground">{Math.round(percent)}%</td>
                     <td className="py-3 pl-3 pr-4">
                       <div className="flex items-center justify-end gap-2">
-                        <button type="button" onClick={() => onDelete(line)} disabled={saving} aria-label="Remove line" className="btn-small">
+                        <button type="button" onClick={() => onDelete(line)} disabled={saving} aria-label={t('Remove line')} className="btn-small">
                           <Trash2 className="h-4 w-4" />
                         </button>
-                        <button type="button" onClick={cancel} disabled={saving} aria-label="Cancel" className="btn-small">
+                        <button type="button" onClick={cancel} disabled={saving} aria-label={t('Cancel')} className="btn-small">
                           <X className="h-4 w-4" />
                         </button>
                         <button type="button" onClick={() => commit(line)} disabled={saving} className="btn-small !bg-foreground !text-background">
-                          <Check className="h-4 w-4" /> {saving ? 'Saving' : 'Save'}
+                          <Check className="h-4 w-4" /> {saving ? t('Saving') : t('Save')}
                         </button>
                       </div>
                     </td>
@@ -162,7 +165,7 @@ export default function ScopeLineTable({ lines, evidenceByLine, claims, onSave, 
                     <p className="eyebrow">{line.area}</p>
                     <p className="mt-0.5 text-[16px] leading-snug">{line.description}</p>
                     <p className="num mt-1 text-[12px] text-muted-foreground">
-                      {line.quantity} {line.unit} at {formatAud(line.rate)}
+                      {t('{qty} {unit} at {rate}', { qty: line.quantity, unit: line.unit, rate: formatAud(line.rate) })}
                     </p>
                   </td>
                   <td className="num px-3 py-3 text-right text-[16px] align-top">{formatAud(line.amount)}</td>
@@ -178,7 +181,7 @@ export default function ScopeLineTable({ lines, evidenceByLine, claims, onSave, 
                   </td>
                   <td className="py-3 pl-3 pr-4 text-right align-top">
                     <button type="button" onClick={() => startEdit(line)} className={SMALL_ACTION}>
-                      <Pencil className="h-4 w-4" /> Edit
+                      <Pencil className="h-4 w-4" /> {t('Edit')}
                     </button>
                   </td>
                 </tr>
