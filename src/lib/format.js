@@ -42,7 +42,7 @@ export const STAGE_LABELS = {
 };
 
 export const STAGE_TONES = {
-  before: 'bg-[#EDEBE4] text-[#4A4F55] border-[#DCD7CB]',
-  finish: 'bg-[#E4F0E8] text-[#245B3B] border-[#C6DFCE]',
-  clear: 'bg-[#E7EEF5] text-[#1F4A70] border-[#CBDCEB]',
+  before: 'bg-secondary text-foreground',
+  finish: 'bg-accent text-foreground',
+  clear: 'bg-foreground text-background',
 };
