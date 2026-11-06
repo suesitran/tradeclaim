@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { base44 } from '@/api/base44Client';
 import { formatAud } from '@/lib/format';
 import { feeFor, recoveredFor } from '@/lib/claims';
 import { todayYmd } from '@/lib/clock';
+
+const FIELD = 'num h-12 border-2 border-foreground text-[16px]';
 
 export default function PaymentDialog({ open, onOpenChange, claim, onSaved }) {
   const [amount, setAmount] = useState('');
@@ -44,37 +45,37 @@ export default function PaymentDialog({ open, onOpenChange, claim, onSaved }) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle className="font-heading text-lg">Record the payment</DialogTitle>
-          <DialogDescription>Claim {claim?.claim_number} for {formatAud(claim?.amount_claimed_ex_gst)} excluding GST.</DialogDescription>
+          <DialogTitle className="text-[26px] font-extrabold">Money came in</DialogTitle>
+          <DialogDescription className="text-[15px]">Claim {claim?.claim_number}, {formatAud(claim?.amount_claimed_ex_gst)} ex GST claimed.</DialogDescription>
         </DialogHeader>
 
         <div className="grid gap-3 sm:grid-cols-2">
           <div className="space-y-1.5">
-            <Label htmlFor="paid">Amount paid, ex GST</Label>
-            <Input id="paid" type="number" inputMode="decimal" value={amount} onChange={(event) => setAmount(event.target.value)} className="num" />
+            <Label htmlFor="paid" className="text-[15px]">Amount paid, ex GST</Label>
+            <Input id="paid" type="number" inputMode="decimal" value={amount} onChange={(event) => setAmount(event.target.value)} className={FIELD} />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="paidAt">Date paid</Label>
-            <Input id="paidAt" type="date" value={paidAt} onChange={(event) => setPaidAt(event.target.value)} className="num" />
+            <Label htmlFor="paidAt" className="text-[15px]">Date paid</Label>
+            <Input id="paidAt" type="date" value={paidAt} onChange={(event) => setPaidAt(event.target.value)} className={FIELD} />
           </div>
         </div>
 
-        <div className="rounded-[3px] border border-border bg-secondary px-3 py-2.5">
-          <div className="flex items-center justify-between text-[12px]">
-            <span className="text-muted-foreground">Recovered after escalation</span>
-            <span className="num">{formatAud(recovered)}</span>
+        <div className="border-2 border-foreground bg-secondary px-3 py-3 text-[15px]">
+          <div className="flex items-center justify-between">
+            <span>Got back by escalating</span>
+            <span className="num font-semibold">{formatAud(recovered)}</span>
           </div>
-          <div className="mt-1 flex items-center justify-between text-[12px]">
-            <span className="text-muted-foreground">Fee, 3% capped at A$300</span>
-            <span className="num">{formatAud(fee)}</span>
+          <div className="mt-1 flex items-center justify-between">
+            <span>Our fee, 3% capped at A$300</span>
+            <span className="num font-semibold">{formatAud(fee)}</span>
           </div>
         </div>
 
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-          <Button onClick={handleSave} disabled={saving} className="bg-primary">
-            {saving ? 'Saving' : 'Save payment'}
-          </Button>
+        <DialogFooter className="gap-2">
+          <button type="button" className="btn-line" onClick={() => onOpenChange(false)}>Cancel</button>
+          <button type="button" className="btn-ink" onClick={handleSave} disabled={saving}>
+            {saving ? 'Saving' : 'Save'}
+          </button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
