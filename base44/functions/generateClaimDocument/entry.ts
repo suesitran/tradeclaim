@@ -10,6 +10,34 @@ const TITLES = {
   adjudication_preview: 'Adjudication preview',
 };
 
+function emailCopy(type, claim, job, jurisdiction) {
+  if (type === 'payment_claim') {
+    return {
+      subject: `Payment claim ${claim.claim_number}, ${job.name}, ${formatAud(claim.amount_claimed_ex_gst)} excluding GST`,
+      intro: `Please find attached payment claim ${claim.claim_number} for ${job.name}, served ${formatYmdAu(claim.served_at)}. This is a payment claim made under the ${jurisdiction.act}. A payment schedule is required within ${jurisdiction.scheduleDays} ${jurisdiction.unit}, by ${formatYmdAu(claim.schedule_due_at)}.`,
+    };
+  }
+  return {
+    subject: `Notice of intention to apply for adjudication, claim ${claim.claim_number}, ${job.name}`,
+    intro: `Please find attached a notice of intention to apply for adjudication of claim ${claim.claim_number} for ${job.name}. A payment schedule was required by ${formatYmdAu(claim.schedule_due_at)} and has not been received. ${
+      jurisdiction.noticeDays
+        ? `A payment schedule is now required within ${jurisdiction.noticeDays} ${jurisdiction.unit} of this notice.`
+        : 'An application for adjudication may now be made.'
+    }`,
+  };
+}
+
+async function sendDocument(base44, fileUri, filename, claim, job, type, jurisdiction) {
+  const { subject, intro } = emailCopy(type, claim, job, jurisdiction);
+  return emailPdf(base44, {
+    to: job.builder_email,
+    subject,
+    body: `${intro}\n\nDraft, for lawyer review.\n\nSent from TradeClaim.`,
+    fileUri,
+    filename,
+  });
+}
+
 export default async function (req) {
   try {
     const base44 = createClientFromRequest(req);
@@ -30,6 +58,35 @@ export default async function (req) {
     let current = { ...claim };
     const jurisdiction = jurisdictionFor(job.state);
 
+    // A draft that already exists is sent as it is, so the builder gets the
+    // same document the subbie reviewed, and the document list keeps one entry.
+    if (body.document_id) {
+      const existing = await base44.entities.Document.get(body.document_id).catch((e) => (e.status === 404 ? null : Promise.reject(e)));
+      if (!existing || existing.claim_id !== claim.id || existing.type !== type) {
+        return Response.json({ error: 'That draft does not belong to this claim' }, { status: 400 });
+      }
+      let document = existing;
+      let emailResult = { sent: false, error: null };
+      if (body.email) {
+        const filename = String(existing.file_uri || '').split('/').pop() || `${type.replace(/_/g, '-')}.pdf`;
+        emailResult = await sendDocument(base44, existing.file_uri, filename, current, job, type, jurisdiction);
+        if (emailResult.sent) {
+          document = await base44.entities.Document.update(existing.id, {
+            emailed_to: job.builder_email,
+            emailed_at: new Date().toISOString(),
+          });
+        }
+      }
+      const signed = await base44.asServiceRole.integrations.Core.CreateFileSignedUrl({ file_uri: existing.file_uri, expires_in: 3600 });
+      return Response.json({
+        claim: current,
+        document,
+        signed_url: signed ? signed.signed_url : null,
+        email_sent: emailResult.sent,
+        email_error: emailResult.error,
+      });
+    }
+
     if (body.serve && type === 'payment_claim' && !current.served_at) {
       const servedAt = body.served_at || toYmd(new Date());
       const holidays = await loadHolidaySet(base44, job.state);
@@ -42,8 +99,8 @@ export default async function (req) {
     }
 
     const lineIds = (current.lines || []).map((line) => line.scope_line_id);
-    const page = await base44.entities.Evidence.filter({ job_id: current.job_id }, { limit: 400, sort: '-captured_at' });
-    const allEvidence = page && page.items ? page.items : [];
+    const page = await base44.entities.Evidence.filter({ job_id: current.job_id }, '-captured_at', 400);
+    const allEvidence = page || [];
     const lineEvidence = evidenceForLines(allEvidence, (current.lines || []).map((line) => ({ scope_line_id: line.scope_line_id })));
 
     let bytes;
@@ -74,25 +131,7 @@ export default async function (req) {
 
     let emailResult = { sent: false, error: null };
     if (body.email) {
-      const subject =
-        type === 'payment_claim'
-          ? `Payment claim ${current.claim_number}, ${job.name}, ${formatAud(current.amount_claimed_ex_gst)} excluding GST`
-          : `Notice of intention to apply for adjudication, claim ${current.claim_number}, ${job.name}`;
-      const intro =
-        type === 'payment_claim'
-          ? `Please find attached payment claim ${current.claim_number} for ${job.name}, served ${formatYmdAu(current.served_at)}. This is a payment claim made under the ${jurisdiction.act}. A payment schedule is required within ${jurisdiction.scheduleDays} ${jurisdiction.unit}, by ${formatYmdAu(current.schedule_due_at)}.`
-          : `Please find attached a notice of intention to apply for adjudication of claim ${current.claim_number} for ${job.name}. A payment schedule was required by ${formatYmdAu(current.schedule_due_at)} and has not been received. ${
-              jurisdiction.noticeDays
-                ? `A payment schedule is now required within ${jurisdiction.noticeDays} ${jurisdiction.unit} of this notice.`
-                : 'An application for adjudication may now be made.'
-            }`;
-      emailResult = await emailPdf(base44, {
-        to: job.builder_email,
-        subject,
-        body: `${intro}\n\nDraft, for lawyer review.\n\nSent from TradeClaim.`,
-        fileUri,
-        filename,
-      });
+      emailResult = await sendDocument(base44, fileUri, filename, current, job, type, jurisdiction);
     }
 
     const document = await base44.entities.Document.create({
