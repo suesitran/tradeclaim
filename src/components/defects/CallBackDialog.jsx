@@ -2,15 +2,20 @@ import { useEffect, useState } from 'react';
 import { Camera, Check, Loader2 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { compressImage } from '@/lib/media';
 import { todayYmd } from '@/lib/clock';
 import { OUTCOME_OPTIONS } from '@/lib/defects';
+import { useT } from '@/lib/i18n';
+import MicButton from '@/components/MicButton';
+
+const FIELD = 'h-12 border-2 border-foreground text-[16px]';
+const SELECT = 'flex h-12 w-full border-2 border-foreground bg-card px-3 text-[16px] focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-accent';
 
 export default function CallBackDialog({ open, onOpenChange, defect, job, onSaved }) {
+  const t = useT();
   const [attendedAt, setAttendedAt] = useState(todayYmd());
   const [attendedBy, setAttendedBy] = useState('');
   const [hours, setHours] = useState('');
@@ -48,7 +53,7 @@ export default function CallBackDialog({ open, onOpenChange, defect, job, onSave
 
   const handleSave = async () => {
     if (!workDone.trim()) {
-      setError('Record what was actually done on the visit.');
+      setError(t('Say what was done on the visit.'));
       return;
     }
     setSaving(true);
@@ -76,7 +81,7 @@ export default function CallBackDialog({ open, onOpenChange, defect, job, onSave
       onSaved();
       onOpenChange(false);
     } catch (err) {
-      setError(err.message || 'The call-back could not be saved');
+      setError(err.message || t('The visit could not be saved'));
     } finally {
       setSaving(false);
     }
@@ -86,83 +91,74 @@ export default function CallBackDialog({ open, onOpenChange, defect, job, onSave
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[90vh] max-w-lg overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="font-heading text-lg">Log a call-back</DialogTitle>
-          <DialogDescription>{defect ? defect.description : ''}</DialogDescription>
+          <DialogTitle className="text-[26px] font-extrabold">{t('Record a fix visit')}</DialogTitle>
+          <DialogDescription className="text-[15px]">{defect ? defect.description : ''}</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-3">
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="space-y-1.5">
-              <Label htmlFor="visitDate">Date attended</Label>
-              <Input id="visitDate" type="date" value={attendedAt} onChange={(event) => setAttendedAt(event.target.value)} className="num" />
+              <Label htmlFor="visitDate" className="text-[15px]">{t('Date')}</Label>
+              <Input id="visitDate" type="date" value={attendedAt} onChange={(event) => setAttendedAt(event.target.value)} className={`${FIELD} num`} />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="visitWho">Who attended</Label>
-              <Input id="visitWho" value={attendedBy} onChange={(event) => setAttendedBy(event.target.value)} placeholder="Dave and one apprentice" />
+              <Label htmlFor="visitWho" className="text-[15px]">{t('Who went')}</Label>
+              <Input id="visitWho" value={attendedBy} onChange={(event) => setAttendedBy(event.target.value)} placeholder={t('Dave and one apprentice')} className={FIELD} />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="visitHours">Hours on site</Label>
-              <Input id="visitHours" type="number" step="0.25" value={hours} onChange={(event) => setHours(event.target.value)} className="num" placeholder="4" />
+              <Label htmlFor="visitHours" className="text-[15px]">{t('Hours on site')}</Label>
+              <Input id="visitHours" type="number" inputMode="decimal" step="0.25" value={hours} onChange={(event) => setHours(event.target.value)} className={`${FIELD} num`} placeholder="4" />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="visitCost">Cost absorbed, ex GST</Label>
-              <Input id="visitCost" type="number" step="0.01" value={cost} onChange={(event) => setCost(event.target.value)} className="num" placeholder="480" />
+              <Label htmlFor="visitCost" className="text-[15px]">{t('What it cost you, ex GST')}</Label>
+              <Input id="visitCost" type="number" inputMode="decimal" step="0.01" value={cost} onChange={(event) => setCost(event.target.value)} className={`${FIELD} num`} placeholder="480" />
             </div>
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="visitWork">What was done</Label>
+            <Label htmlFor="visitWork" className="text-[15px]">{t('What was done')}</Label>
             <Textarea
               id="visitWork"
               rows={3}
               value={workDone}
               onChange={(event) => setWorkDone(event.target.value)}
-              placeholder="Sanded the skirting line, spot primed and applied two coats, matched the surrounding wall"
+              placeholder={t('Sanded the skirting line, spot primed, two coats, matched the wall')}
+              className="border-2 border-foreground text-[16px]"
             />
+            <MicButton onText={(said) => setWorkDone((current) => `${current} ${said}`.trim())} />
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="visitOutcome">Outcome</Label>
-            <select
-              id="visitOutcome"
-              value={outcome}
-              onChange={(event) => setOutcome(event.target.value)}
-              className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-            >
+            <Label htmlFor="visitOutcome" className="text-[15px]">{t('How did it go?')}</Label>
+            <select id="visitOutcome" value={outcome} onChange={(event) => setOutcome(event.target.value)} className={SELECT}>
               {OUTCOME_OPTIONS.map((option) => (
                 <option key={option.value} value={option.value}>
-                  {option.label}
+                  {t(option.label)}
                 </option>
               ))}
             </select>
           </div>
 
-          <label className="flex cursor-pointer items-center gap-3 rounded-[4px] border border-dashed border-[#C9C2B4] bg-secondary px-3 py-2.5">
-            {preview ? (
-              <img src={preview} alt="Rectification photo" className="h-12 w-16 rounded-[3px] object-cover" />
-            ) : (
-              <Camera className="h-4 w-4 text-muted-foreground" />
-            )}
-            <span className="text-[12px] text-muted-foreground">
-              {preview ? 'Photo attached' : 'Photo of the finished repair, optional'}
-            </span>
+          <label className="flex cursor-pointer items-center gap-3 border-2 border-dashed border-foreground bg-secondary px-3 py-3">
+            {preview ? <img src={preview} alt={t('Repair photo')} className="h-12 w-16 object-cover" /> : <Camera className="h-5 w-5" />}
+            <span className="text-[15px]">{preview ? t('Photo attached') : t('Photo of the fix, optional')}</span>
             <input type="file" accept="image/*" capture="environment" onChange={handleFile} className="sr-only" />
           </label>
 
-          {error ? <p className="text-[12px] text-destructive">{error}</p> : null}
+          {error ? <p className="text-[14px] text-destructive">{error}</p> : null}
         </div>
 
-        <Button onClick={handleSave} disabled={saving} className="w-full bg-primary">
+        <button type="button" onClick={handleSave} disabled={saving} className="btn-ink w-full">
           {saving ? (
             <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving
+              <Loader2 className="h-5 w-5 animate-spin" /> {t('Saving')}
             </>
           ) : (
             <>
-              <Check className="mr-2 h-4 w-4" /> Save call-back
+              <Check className="h-5 w-5" /> {t('Save the visit')}
             </>
           )}
-        </Button>
+        </button>
       </DialogContent>
     </Dialog>
   );
