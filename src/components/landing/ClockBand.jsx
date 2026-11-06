@@ -1,40 +1,40 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
+import { useT } from '@/lib/i18n';
 
 const CLOCK = [
-  ['10 business days', 'Builder must give a payment schedule after the claim is served, counted under the Victorian Act.'],
-  ['10 business days', 'To apply for adjudication if the schedule is short or never arrives.'],
-  ['One Act, one clock', "Victoria's Security of Payment Act sets every window, so each job is counted the same way."],
+  ['10 business days', 'for the builder to reply after you send a claim.'],
+  ['10 business days', 'to escalate if they pay less or do not reply.'],
+  ['One Act, one clock', 'Every job is counted the same way under the Victorian Act.'],
 ];
 
 export default function ClockBand({ cta }) {
+  const t = useT();
   return (
-    <section className="bg-primary text-primary-foreground">
+    <section className="border-b-[3px] border-foreground bg-foreground text-background">
       <div className="mx-auto w-full max-w-5xl px-4 py-14 sm:px-6 sm:py-18">
-        <p className="num text-[11px] uppercase tracking-[0.18em] text-primary-foreground/60">The statutory clock</p>
-        <h2 className="mt-3 max-w-2xl font-heading text-2xl font-semibold tracking-tight sm:text-3xl">
-          Every deadline is counted for you, in business days
+        <p className="font-heading text-[16px] font-bold uppercase tracking-[0.08em] text-accent">{t('The clock')}</p>
+        <h2 className="mt-2 max-w-3xl text-[34px] font-extrabold leading-[1] sm:text-[48px]">
+          {t('Every deadline is counted for you')}
         </h2>
-        <p className="mt-3 max-w-2xl text-[14px] leading-relaxed text-primary-foreground/70">
-          Weekends, Victorian public holidays and the industry shutdown over Christmas and January are excluded
-          automatically, so the date you see is the date that counts.
+        <p className="mt-4 max-w-2xl text-[17px] leading-[1.5] text-background/85">
+          {t('Weekends, Victorian public holidays and the Christmas shutdown are skipped, so the date you see is the date that counts.')}
         </p>
 
-        <dl className="mt-9 grid gap-6 border-t border-primary-foreground/15 pt-8 sm:grid-cols-3">
+        <dl className="mt-9 grid gap-6 border-t-2 border-background/40 pt-8 sm:grid-cols-3">
           {CLOCK.map(([term, detail]) => (
             <div key={detail}>
-              <dt className="num text-[19px] font-medium tracking-tight text-accent">{term}</dt>
-              <dd className="mt-2 text-[12.5px] leading-relaxed text-primary-foreground/70">{detail}</dd>
+              <dt className="font-heading text-[28px] font-extrabold uppercase leading-none text-accent">{t(term)}</dt>
+              <dd className="mt-2 text-[16px] leading-snug text-background/85">{t(detail)}</dd>
             </div>
           ))}
         </dl>
 
-        <div className="mt-10 flex flex-wrap items-center gap-3">
-          <Button asChild size="lg" className="h-11 rounded-[3px] bg-accent px-6 text-accent-foreground hover:bg-accent/90">
-            <Link to={cta.to}>{cta.label}</Link>
-          </Button>
-          <p className="text-[12px] text-primary-foreground/60">Start with the quote you have already sent.</p>
+        <div className="mt-10 flex flex-wrap items-center gap-4">
+          <Link to={cta.to} className="btn-yellow min-h-[56px] text-[20px]">
+            {t(cta.label)}
+          </Link>
+          <p className="text-[15px] text-background/70">{t('Start with the quote you already sent.')}</p>
         </div>
       </div>
     </section>
