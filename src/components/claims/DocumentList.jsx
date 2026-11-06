@@ -6,12 +6,19 @@ import { formatDate } from '@/lib/format';
 
 const DOC_LABELS = {
   payment_claim: 'Payment claim',
-  variation_notice: 'Variation notice',
-  notice_of_intention: 'Notice of intention',
-  adjudication_preview: 'Adjudication preview',
+  variation_notice: 'Extra work notice',
+  notice_of_intention: 'Notice to the builder',
+  adjudication_preview: 'Escalation paper',
 };
 
-const ROW = 'flex w-full items-center justify-between gap-3 px-5 py-3 text-left transition-colors hover:bg-secondary/60';
+const DOC_LEGAL = {
+  payment_claim: 'Payment claim under the Act',
+  variation_notice: 'Variation notice',
+  notice_of_intention: 'Notice of intention to apply for adjudication',
+  adjudication_preview: 'Adjudication preview, cover sheet and evidence index',
+};
+
+const ROW = 'flex w-full items-center justify-between gap-3 border-b border-foreground/30 px-4 py-3 text-left transition-colors last:border-b-0 hover:bg-secondary';
 
 export default function DocumentList({ documents = [] }) {
   const { toast } = useToast();
@@ -26,25 +33,26 @@ export default function DocumentList({ documents = [] }) {
     }
   };
 
-  const body = (document, url) => (
+  const body = (document, ready) => (
     <>
       <div>
-        <p className="text-[12px]">{DOC_LABELS[document.type] || document.type}</p>
-        <p className="text-[10px] text-muted-foreground">
+        <p className="text-[16px] font-semibold">{DOC_LABELS[document.type] || document.type}</p>
+        <p className="legal">{DOC_LEGAL[document.type] || ''}</p>
+        <p className="mt-0.5 text-[13px] text-muted-foreground">
           {formatDate(String(document.generated_at || '').slice(0, 10))}
-          {document.emailed_to ? '  |  Emailed' : ''}
+          {document.emailed_to ? ' | Emailed to the builder' : ' | Not sent yet'}
         </p>
       </div>
-      {url ? <FileText className="h-4 w-4 shrink-0 text-muted-foreground" /> : <Loader2 className="h-4 w-4 shrink-0 animate-spin text-muted-foreground" />}
+      {ready ? <FileText className="h-5 w-5 shrink-0" /> : <Loader2 className="h-5 w-5 shrink-0 animate-spin text-muted-foreground" />}
     </>
   );
 
   if (!documents.length) {
-    return <p className="px-5 py-5 text-[12px] text-muted-foreground">No documents generated yet.</p>;
+    return <p className="px-4 py-5 text-[15px] text-muted-foreground">No paperwork yet.</p>;
   }
 
   return (
-    <div className="divide-y divide-border">
+    <div>
       {documents.map((document) =>
         urls[document.file_uri] ? (
           <a key={document.id} href={urls[document.file_uri]} target="_blank" rel="noreferrer" className={ROW}>
