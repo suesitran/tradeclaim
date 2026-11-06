@@ -18,7 +18,7 @@ export default function Landing() {
   const trial = loggedIn ? cta : { to: '/demo', label: 'Try it, no sign-up', demo: true };
 
   return (
-    <div className="min-h-screen bg-[#FAF7F1] text-[#1B1A17]">
+    <div className="min-h-screen bg-background text-foreground">
       <LandingHeader cta={cta} signIn={signIn} />
       <main>
         <Hero cta={trial} />
