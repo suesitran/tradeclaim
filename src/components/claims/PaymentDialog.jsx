@@ -6,10 +6,12 @@ import { base44 } from '@/api/base44Client';
 import { formatAud } from '@/lib/format';
 import { feeFor, recoveredFor } from '@/lib/claims';
 import { todayYmd } from '@/lib/clock';
+import { useT } from '@/lib/i18n';
 
 const FIELD = 'num h-12 border-2 border-foreground text-[16px]';
 
 export default function PaymentDialog({ open, onOpenChange, claim, onSaved }) {
+  const t = useT();
   const [amount, setAmount] = useState('');
   const [paidAt, setPaidAt] = useState(todayYmd());
   const [saving, setSaving] = useState(false);
@@ -45,36 +47,36 @@ export default function PaymentDialog({ open, onOpenChange, claim, onSaved }) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-[26px] font-extrabold">Money came in</DialogTitle>
-          <DialogDescription className="text-[15px]">Claim {claim?.claim_number}, {formatAud(claim?.amount_claimed_ex_gst)} ex GST claimed.</DialogDescription>
+          <DialogTitle className="text-[26px] font-extrabold">{t('Money came in')}</DialogTitle>
+          <DialogDescription className="text-[15px]">{t('Claim {number}, {amount} ex GST claimed.', { number: claim?.claim_number, amount: formatAud(claim?.amount_claimed_ex_gst) })}</DialogDescription>
         </DialogHeader>
 
         <div className="grid gap-3 sm:grid-cols-2">
           <div className="space-y-1.5">
-            <Label htmlFor="paid" className="text-[15px]">Amount paid, ex GST</Label>
+            <Label htmlFor="paid" className="text-[15px]">{t('Amount paid, ex GST')}</Label>
             <Input id="paid" type="number" inputMode="decimal" value={amount} onChange={(event) => setAmount(event.target.value)} className={FIELD} />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="paidAt" className="text-[15px]">Date paid</Label>
+            <Label htmlFor="paidAt" className="text-[15px]">{t('Date paid')}</Label>
             <Input id="paidAt" type="date" value={paidAt} onChange={(event) => setPaidAt(event.target.value)} className={FIELD} />
           </div>
         </div>
 
         <div className="border-2 border-foreground bg-secondary px-3 py-3 text-[15px]">
           <div className="flex items-center justify-between">
-            <span>Got back by escalating</span>
+            <span>{t('Got back by escalating')}</span>
             <span className="num font-semibold">{formatAud(recovered)}</span>
           </div>
           <div className="mt-1 flex items-center justify-between">
-            <span>Our fee, 3% capped at A$300</span>
+            <span>{t('Our fee, 3% capped at A$300')}</span>
             <span className="num font-semibold">{formatAud(fee)}</span>
           </div>
         </div>
 
         <DialogFooter className="gap-2">
-          <button type="button" className="btn-line" onClick={() => onOpenChange(false)}>Cancel</button>
+          <button type="button" className="btn-line" onClick={() => onOpenChange(false)}>{t('Cancel')}</button>
           <button type="button" className="btn-ink" onClick={handleSave} disabled={saving}>
-            {saving ? 'Saving' : 'Save'}
+            {saving ? t('Saving') : t('Save')}
           </button>
         </DialogFooter>
       </DialogContent>
