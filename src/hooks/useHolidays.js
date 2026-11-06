@@ -10,10 +10,10 @@ export default function useHolidays(state) {
   useEffect(() => {
     let alive = true;
     setReady(false);
-    base44.entities.PublicHoliday.filter({ state: code }, { limit: 500, sort: 'date' })
+    base44.entities.PublicHoliday.filter({ state: code }, 'date', 500)
       .then((page) => {
         if (!alive) return;
-        setHolidays(new Set(((page && page.items) || []).map((holiday) => holiday.date)));
+        setHolidays(new Set((page || []).map((holiday) => holiday.date)));
       })
       .finally(() => {
         if (alive) setReady(true);
