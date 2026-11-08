@@ -2,6 +2,7 @@ import React from 'react';
 import useLoggedIn from '@/hooks/useLoggedIn';
 import LandingHeader from '@/components/landing/LandingHeader';
 import Hero from '@/components/landing/Hero';
+import DemoVideo from '@/components/landing/DemoVideo';
 import IndustryStatement from '@/components/landing/IndustryStatement';
 import ProblemGrid from '@/components/landing/ProblemGrid';
 import WhyItPersists from '@/components/landing/WhyItPersists';
@@ -22,6 +23,7 @@ export default function Landing() {
       <LandingHeader cta={cta} signIn={signIn} />
       <main>
         <Hero cta={trial} />
+        <DemoVideo />
         <IndustryStatement />
         <ProblemGrid />
         <WhyItPersists />
