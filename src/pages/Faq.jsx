@@ -30,13 +30,13 @@ export default function Faq() {
           {t('Deadlines, retention and fees, answered')}
         </h1>
         <p className="mt-3 max-w-xl text-[16px] leading-snug text-muted-foreground">
-          {t('The parts of the Victorian rules that decide whether a claim gets paid, and what TradeClaim does about each one. English only.')}
+          {t('The parts of the Victorian rules that decide whether a claim gets paid, and what TradeClaim does about each one.')}
         </p>
 
         <div className="mt-10 space-y-10">
           {FAQ_GROUPS.map((group, index) => (
-            <section key={group.title}>
-              <h2 className="text-[24px] font-extrabold">{group.title}</h2>
+            <section key={t(group.title)}>
+              <h2 className="text-[24px] font-extrabold">{t(group.title)}</h2>
               <div className="mt-4">
                 <FaqAccordion items={group.items} groupIndex={index} />
               </div>
