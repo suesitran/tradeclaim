@@ -98,9 +98,9 @@ export default function JobDetail() {
 
       <header className="border-b-[3px] border-foreground pb-5">
         <p className="eyebrow">
-          {job.job_number ? t('Job {number}', { number: job.job_number }) : t('Job')} | {job.builder_name}
+          {job.job_number ? t('Job {number}', { number: job.job_number }) : t('Job')} | {t(job.builder_name)}
         </p>
-        <h1 className="mt-1 max-w-3xl text-[40px] font-extrabold leading-[1] sm:text-[56px]">{job.name}</h1>
+        <h1 className="mt-1 max-w-3xl text-[40px] font-extrabold leading-[1] sm:text-[56px]">{t(job.name)}</h1>
         {job.site_address ? <p className="mt-2 text-[16px] text-muted-foreground">{job.site_address}</p> : null}
 
         <div className="mt-5 flex flex-wrap gap-3">
