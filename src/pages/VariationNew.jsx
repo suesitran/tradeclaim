@@ -83,7 +83,7 @@ export default function VariationNew() {
           <h1 className="mt-1 text-[32px] font-extrabold leading-none">{t('Written down and sent')}</h1>
           <p className="mt-3 text-[16px]">
             {result.email_sent
-              ? t('The notice went to {builder} by email, photo attached.', { builder: job ? job.builder_name : t('the builder') })
+              ? t('The notice went to {builder} by email, photo attached.', { builder: job ? t(job.builder_name) : t('the builder') })
               : t('The notice PDF is saved. The email did not go: {reason}', { reason: result.email_error || t('no builder email') })}
           </p>
           <p className="legal mt-1">{t('Variation notice')}</p>
@@ -105,7 +105,7 @@ export default function VariationNew() {
   return (
     <div className="mx-auto max-w-lg space-y-5">
       <Link to={`/jobs/${jobId}`} className="inline-flex items-center gap-1.5 font-heading text-[16px] font-bold uppercase tracking-[0.02em] hover:underline">
-        <ArrowLeft className="h-4 w-4 rtl:rotate-180" /> {job ? job.name : t('Job')}
+        <ArrowLeft className="h-4 w-4 rtl:rotate-180" /> {job ? t(job.name) : t('Job')}
       </Link>
 
       <div className="border-b-[3px] border-foreground pb-4">
