@@ -36,14 +36,14 @@ export default function AppLayout() {
             <span className="hidden font-heading text-[22px] font-extrabold uppercase leading-none tracking-[0.02em] sm:inline">TradeClaim</span>
           </Link>
 
-          <nav className="ml-8 hidden items-center gap-1 md:flex">
+          <nav className="ms-8 hidden items-center gap-1 md:flex">
             {LINKS.map((link) => (
               <NavLink
                 key={link.to}
                 to={link.to}
                 end={link.end}
                 className={({ isActive }) =>
-                  `px-3 py-2 font-heading text-[18px] font-bold uppercase tracking-[0.02em] transition-colors ${
+                  `whitespace-nowrap px-3 py-2 font-heading text-[18px] font-bold uppercase tracking-[0.02em] transition-colors ${
                     isActive ? 'bg-foreground text-background' : 'text-foreground hover:bg-secondary'
                   }`
                 }
@@ -53,7 +53,7 @@ export default function AppLayout() {
             ))}
           </nav>
 
-          <div className="ml-auto flex items-center gap-2 sm:gap-3">
+          <div className="ms-auto flex items-center gap-2 sm:gap-3">
             <span className="hidden text-[13px] text-muted-foreground lg:block">{user ? user.full_name || user.email : ''}</span>
             <LanguageSwitch />
             <button type="button" onClick={handleLogout} className="btn-small" aria-label={t('Sign out')}>
