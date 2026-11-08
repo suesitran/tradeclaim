@@ -24,8 +24,8 @@ export default function JobCard({ job, claims }) {
           {job.job_number ? t('Job {number}', { number: job.job_number }) : t('Job')}
           {job.quote_status === 'draft' ? ` | ${t('Quote not final')}` : ''}
         </p>
-        <h3 className="mt-0.5 text-[26px] font-bold leading-[1.05]">{job.name}</h3>
-        <p className="mt-1 text-[15px] text-muted-foreground">{job.builder_name}</p>
+        <h3 className="mt-0.5 text-[26px] font-bold leading-[1.05]">{t(job.name)}</h3>
+        <p className="mt-1 text-[15px] text-muted-foreground">{t(job.builder_name)}</p>
         <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2">
           {active ? <StatusPill status={effectiveStatus(active)} /> : <span className="tag bg-secondary">{t('No claims yet')}</span>}
           {next ? <span className="text-[15px] font-semibold">{t(next.action)}</span> : null}
