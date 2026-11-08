@@ -169,9 +169,9 @@ export default function ClaimDetail() {
 
       <header className="border-b-[3px] border-foreground pb-5">
         <p className="eyebrow">
-          {job ? job.name : t('Job')}
+          {job ? t(job.name) : t('Job')}
           {job && job.job_number ? ` | ${t('Job {number}', { number: job.job_number })}` : ''}
-          {job && job.builder_name ? ` | ${job.builder_name}` : ''}
+          {job && job.builder_name ? ` | ${t(job.builder_name)}` : ''}
         </p>
         <div className="mt-1 flex flex-wrap items-end gap-x-5 gap-y-3">
           <h1 className="text-[44px] font-extrabold leading-none sm:text-[56px]">{t('Claim {number}', { number: claim.claim_number })}</h1>
