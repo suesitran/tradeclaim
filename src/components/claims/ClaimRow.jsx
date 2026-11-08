@@ -23,7 +23,7 @@ export default function ClaimRow({ claim, job }) {
           {job && job.job_number ? `${t('Job {number}', { number: job.job_number })} | ` : ''}
           {t('Claim {number}', { number: claim.claim_number })}
         </p>
-        <p className="text-[20px] font-bold leading-tight">{job ? job.name : t('Job')}</p>
+        <p className="text-[20px] font-bold leading-tight">{job ? t(job.name) : t('Job')}</p>
         <p className="num mt-0.5 text-[14px] text-muted-foreground">{formatAud(claim.amount_claimed_ex_gst)} {t('ex GST')}</p>
       </div>
       <div>
