@@ -50,7 +50,7 @@ export default function Capture() {
   return (
     <div className="space-y-5">
       <Link to={`/jobs/${job.id}`} className="inline-flex items-center gap-1.5 font-heading text-[16px] font-bold uppercase tracking-[0.02em] hover:underline">
-        <ArrowLeft className="h-4 w-4 rtl:rotate-180" /> {job.name}
+        <ArrowLeft className="h-4 w-4 rtl:rotate-180" /> {t(job.name)}
       </Link>
 
       <div className="border-b-[3px] border-foreground pb-4">
