@@ -24,7 +24,7 @@ export default function ServeDialog({ open, onOpenChange, claim, job, holidays, 
         <DialogHeader>
           <DialogTitle className="text-[26px] font-extrabold">{t('Send claim {number}', { number: claim?.claim_number })}</DialogTitle>
           <DialogDescription className="text-[15px]">
-            {t('The claim PDF goes to {builder} by email, photos attached. That counts as serving it.', { builder: job ? job.builder_name : t('the builder') })}
+            {t('The claim PDF goes to {builder} by email, photos attached. That counts as serving it.', { builder: job ? t(job.builder_name) : t('the builder') })}
           </DialogDescription>
         </DialogHeader>
 
