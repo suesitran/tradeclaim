@@ -7,7 +7,7 @@ import { useT } from '@/lib/i18n';
 const FACTS = [
   { icon: Camera, term: 'Photos', detail: 'Dated and located, on each quoted line' },
   { icon: Send, term: 'One tap', detail: 'A claim the builder has to answer' },
-  { icon: Timer, term: '10 business days', detail: 'The clock does the chasing' },
+  { icon: Timer, term: '10 business days', detail: 'Miss it and they owe the full amount. No ringing, no begging.' },
 ];
 
 export default function Hero({ cta }) {
@@ -24,7 +24,7 @@ export default function Hero({ cta }) {
         </h1>
 
         <p className="mt-6 max-w-2xl text-[18px] leading-[1.45] text-background/85 sm:text-[20px]">
-          {t("Photograph the work. Send a claim the builder can't ignore. If they go quiet or pay less, the next bit of paperwork is already written.")}
+          {t("Photograph the work. Send a payment claim under Victoria's Security of Payment Act. No answer in 10 business days and the builder owes the lot. If they pay less, the next bit of paperwork is already written.")}
         </p>
 
         <div className="mt-8 flex flex-wrap items-center gap-3">
