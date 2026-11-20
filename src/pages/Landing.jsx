@@ -3,12 +3,9 @@ import useLoggedIn from '@/hooks/useLoggedIn';
 import LandingHeader from '@/components/landing/LandingHeader';
 import Hero from '@/components/landing/Hero';
 import DemoVideo from '@/components/landing/DemoVideo';
-import IndustryStatement from '@/components/landing/IndustryStatement';
-import ProblemGrid from '@/components/landing/ProblemGrid';
-import WhyItPersists from '@/components/landing/WhyItPersists';
 import Steps from '@/components/landing/Steps';
-import ClockBand from '@/components/landing/ClockBand';
 import Pricing from '@/components/landing/Pricing';
+import Problem from '@/components/landing/Problem';
 import LandingFooter from '@/components/landing/LandingFooter';
 
 export default function Landing() {
@@ -24,12 +21,9 @@ export default function Landing() {
       <main>
         <Hero cta={trial} />
         <DemoVideo />
-        <IndustryStatement />
-        <ProblemGrid />
-        <WhyItPersists />
         <Steps />
-        <ClockBand cta={cta} />
         <Pricing cta={cta} />
+        <Problem cta={cta} />
       </main>
       <LandingFooter />
     </div>
