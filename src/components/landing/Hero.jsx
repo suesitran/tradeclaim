@@ -24,7 +24,7 @@ export default function Hero({ cta }) {
         </h1>
 
         <p className="mt-6 max-w-2xl text-[18px] leading-[1.45] text-background/85 sm:text-[20px]">
-          {t("Photograph the work. Send a payment claim under Victoria's Security of Payment Act. No answer in 10 business days and the builder owes the lot. If they pay less, the next bit of paperwork is already written.")}
+          {t("Turn your quote and site photos into a payment claim under Victoria's Security of Payment Act. If the builder ignores it or pays short, the next notice is already written.")}
         </p>
 
         <div className="mt-8 flex flex-wrap items-center gap-3">
